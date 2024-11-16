@@ -1,11 +1,11 @@
 {
   "extensionDescription": {
-    "description": "Extension description",
-    "message": "Chrome extension boilerplate developed with Vite, React and Typescript"
+    "description": "AiTabs",
+    "message": "Chrome extension for archiving closed tabs on demand"
   },
   "extensionName": {
-    "description": "Extension name",
-    "message": "Chrome extension boilerplate"
+    "message": "AiTabs",
+    "description": "Archiving and categorizing tabs on demand"
   },
   "toggleTheme": {
     "message": "Toggle theme"

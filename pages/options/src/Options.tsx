@@ -3,6 +3,8 @@ import { useStorage, withErrorBoundary, withSuspense } from '@extension/shared';
 import { exampleThemeStorage } from '@extension/storage';
 import { Button } from '@extension/ui';
 
+// const GEMINI_API_KEY = "hellalalal";// process.env.GEMINI_API_KEY;
+
 const Options = () => {
   const theme = useStorage(exampleThemeStorage);
   const isLight = theme === 'light';
@@ -18,6 +20,7 @@ const Options = () => {
       <p>
         Edit <code>pages/options/src/Options.tsx</code>
       </p>
+      {/* <p>GEMINI_API_KEY: {GEMINI_API_KEY}</p> */}
       <Button className="mt-4" onClick={exampleThemeStorage.toggle} theme={theme}>
         Toggle theme
       </Button>
