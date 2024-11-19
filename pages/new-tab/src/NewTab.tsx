@@ -16,9 +16,9 @@ const NewTab = () => {
   return (
     <div className={`App ${isLight ? 'bg-slate-50' : 'bg-gray-800'}`}>
       <header className={`App-header ${isLight ? 'text-gray-900' : 'text-gray-100'}`}>
-        <button onClick={goGithubSite}>
+        {/*      <button onClick={goGithubSite}>
           <img src={chrome.runtime.getURL(logo)} className="App-logo" alt="logo" />
-        </button>
+        </button>*/}
         <p>
           Edit <code>pages/new-tab/src/NewTab.tsx</code>
         </p>
