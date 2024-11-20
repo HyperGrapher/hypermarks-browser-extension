@@ -1,7 +1,6 @@
 import '@src/NewTab.css';
 import { withErrorBoundary, withSuspense } from '@extension/shared';
 import { Button } from '@extension/ui';
-import { t } from '@extension/i18n';
 
 const NewTab = () => {
   return (
@@ -18,4 +17,4 @@ const NewTab = () => {
   );
 };
 
-export default withErrorBoundary(withSuspense(NewTab, <div>{t('loading')}</div>), <div> Error Occur </div>);
+export default withErrorBoundary(withSuspense(NewTab, <div>'loading'</div>), <div> Error Occur </div>);
