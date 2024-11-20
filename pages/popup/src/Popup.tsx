@@ -8,6 +8,7 @@ import {
   type SingleTab,
 } from '@extension/storage';
 import type { ComponentPropsWithoutRef } from 'react';
+import { Button } from '@extension/ui';
 
 const notificationOptions = {
   type: 'basic',
@@ -26,10 +27,7 @@ function categorizeTab(url: string): string {
 }
 
 const Popup = () => {
-  const theme = useStorage(exampleThemeStorage);
   const tabStore = useStorage(tabsStorage);
-  const isLight = theme === 'light';
-  const logo = isLight ? 'popup/empty_logo.svg' : 'popup/empty_logo.svg';
 
   // const goGithubSite = () =>
   //   chrome.tabs.create({ url: 'https://github.com/Jonghakseo/chrome-extension-boilerplate-react-vite' });
@@ -161,9 +159,9 @@ const Popup = () => {
   }
 
   return (
-    <div className={`App ${isLight ? 'bg-slate-50' : 'bg-gray-800'}`}>
-      <header className={`App-header h-full ${isLight ? 'text-gray-900' : 'text-gray-100'}`}>
-        <img className="hidden" src={chrome.runtime.getURL(logo)} alt="logo" />
+    <div className={`App`}>
+      <header className={`App-header h-full`}>
+        {/*<img className="hidden" src={chrome.runtime.getURL(logo)} alt="logo" />*/}
 
         {/* <button
           className={
@@ -174,6 +172,8 @@ const Popup = () => {
           Click to inject Content Script!
         </button> */}
 
+        <Button variant="default">ShadCN Button</Button>
+
         <button
           className="font-bold mt-4 py-1 px-4 rounded shadow hover:scale-105 bg-blue-500"
           onClick={saveCurrentTabCategorized}>
@@ -183,26 +183,8 @@ const Popup = () => {
         <button className="font-bold mt-4 py-1 px-4 rounded shadow hover:scale-105 bg-red-500" onClick={clearPageList}>
           Clear saved pages...
         </button>
-
-        <ToggleButton>Toggle theme</ToggleButton>
       </header>
     </div>
-  );
-};
-
-const ToggleButton = (props: ComponentPropsWithoutRef<'button'>) => {
-  const theme = useStorage(exampleThemeStorage);
-  return (
-    <button
-      className={
-        props.className +
-        ' ' +
-        'font-bold mt-4 py-1 px-4 rounded shadow hover:scale-105 ' +
-        (theme === 'light' ? 'bg-white text-black shadow-black' : 'bg-black text-white')
-      }
-      onClick={exampleThemeStorage.toggle}>
-      {props.children}
-    </button>
   );
 };
 

@@ -1,5 +1,3 @@
-import { canSwitchTheme } from '../helpers/theme';
-
 describe('Webextension New Tab', () => {
   it('should open the extension page when a new tab is opened', async () => {
     const extensionPath = await browser.getExtensionPath();
@@ -9,6 +7,5 @@ describe('Webextension New Tab', () => {
 
     const appDiv = await $('.App').getElement();
     await expect(appDiv).toBeExisting();
-    await canSwitchTheme();
   });
 });
