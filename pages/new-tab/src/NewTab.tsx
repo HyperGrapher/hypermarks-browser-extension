@@ -1,5 +1,5 @@
 import '@src/NewTab.css';
-import { useStorage, withErrorBoundary, withSuspense } from '@extension/shared';
+import { withErrorBoundary, withSuspense } from '@extension/shared';
 import { Button } from '@extension/ui';
 import { t } from '@extension/i18n';
 

@@ -1,2 +1,2 @@
-export * from './exampleThemeStorage';
 export * from './tabsStorage';
+export * from './tagsStorage';

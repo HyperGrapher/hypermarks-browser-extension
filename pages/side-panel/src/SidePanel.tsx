@@ -1,14 +1,7 @@
 import '@src/SidePanel.css';
 import { useStorage, withErrorBoundary, withSuspense } from '@extension/shared';
-import {
-  exampleThemeStorage,
-  tabsStorage,
-  tabsGroupedStorage,
-  type CategorizedTab,
-  type SingleTab,
-} from '@extension/storage';
-import type { ComponentPropsWithoutRef } from 'react';
-import { useState, useEffect } from 'react';
+import { tabsGroupedStorage, type CategorizedTab, type SingleTab } from '@extension/storage';
+import { useState } from 'react';
 import { Button } from '@extension/ui';
 
 function getTabsByCategory(groupedTabs: { [category: string]: SingleTab[] }): CategorizedTab[] {
@@ -26,10 +19,8 @@ function getTabsByTags(groupedTabs: { [category: string]: SingleTab[] }, tags: s
 }
 
 const SidePanel = () => {
-  const tabs = useStorage(tabsStorage);
   const tabsCats = useStorage(tabsGroupedStorage);
 
-  const logo = 'side-panel/logo_vertical_dark.svg';
   // const [pageInfoList, setPageInfoList] = useState([]);
 
   // useEffect(() => {
@@ -51,21 +42,14 @@ const SidePanel = () => {
   //   };
   // }, []);
 
-  const goGithubSite = () =>
-    chrome.tabs.create({ url: 'https://github.com/Jonghakseo/chrome-extension-boilerplate-react-vite' });
-
   return (
     <div className={`p-4`}>
       <header className={`App-header`}>
-        {/* <button onClick={goGithubSite}>
-          <img src={chrome.runtime.getURL(logo)} className="App-logo" alt="logo" />
-        </button> */}
-
         <div className="App-content">
-          {/* display the pageInfoList in the extension's local storage  */}
           <h3 className="text-lg font-semibold">Saved Tabs</h3>
 
           <TabList groupedTabs={tabsCats} />
+          <TabList1 groupedTabs={tabsCats} />
 
           {/* TODO:  if no icon, show default icon */}
           {/* img fallback to default icon if error */}
@@ -127,7 +111,7 @@ function TabList({ groupedTabs }: { groupedTabs: { [category: string]: SingleTab
           <input
             type="text"
             placeholder="Enter tags (comma-separated)"
-            className="p-2 bg-gray-700 text-white"
+            className="bg-gray-700 p-2 text-white"
             onChange={e => setSelectedTags(e.target.value.split(',').map(tag => tag.trim()))}
           />
         </div>
@@ -143,15 +127,15 @@ function TabList({ groupedTabs }: { groupedTabs: { [category: string]: SingleTab
             <h4 className="text-xl font-semibold text-green-500">{category}</h4>
             {/* Items in the Category */}
             {items.map((item, index) => (
-              <div key={index} className="border-b border-gray-700 text-xs mt-2">
+              <div key={index} className="mt-2 border-b border-gray-700 text-xs">
                 <div className="flex flex-row gap-2">
-                  <img src={item.icon ?? ''} alt="icon" className="w-4 h-4" />
+                  <img src={item.icon ?? ''} alt="icon" className="size-4" />
                   {/*<p className="font-semibold whitespace-nowrap truncate">{item.title.slice(0, 25)}</p>*/}
                   <a
                     href={item.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-semibold xwhitespace-nowrap truncate">
+                    className="xwhitespace-nowrap truncate font-semibold">
                     {item.title}
                   </a>
                 </div>
@@ -183,7 +167,7 @@ function TabList1({ groupedTabs }: { groupedTabs: { [category: string]: SingleTa
   }
 
   return (
-    <div className="App-content ">
+    <div className="App-content hidden">
       {/* View Switcher */}
       <div className="flex gap-4">
         <button onClick={() => setView('categories')} className="text-blue-500">
@@ -202,7 +186,7 @@ function TabList1({ groupedTabs }: { groupedTabs: { [category: string]: SingleTa
           <input
             type="text"
             placeholder="Enter tags (comma-separated)"
-            className="p-2 bg-gray-700 text-white"
+            className="bg-gray-700 p-2 text-white"
             onChange={e => setSelectedTags(e.target.value.split(',').map(tag => tag.trim()))}
           />
         </div>
@@ -212,10 +196,10 @@ function TabList1({ groupedTabs }: { groupedTabs: { [category: string]: SingleTa
         <h3 className="text-red-500">No Saved Tabs</h3>
       ) : (
         tabsToDisplay.map((tab, index) => (
-          <div key={index} className="border-b border-gray-700 text-xs mt-2">
+          <div key={index} className="mt-2 border-b border-gray-700 text-xs">
             <div className="flex flex-row gap-2">
-              <img src={tab.item.icon ?? ''} alt="icon" className="w-4 h-4" />
-              <p className="font-semibold whitespace-nowrap truncate">
+              <img src={tab.item.icon ?? ''} alt="icon" className="size-4" />
+              <p className="truncate whitespace-nowrap font-semibold">
                 {tab.item.title.slice(0, 25)} |<span className="text-red-500">{tab.category}</span>
               </p>
             </div>

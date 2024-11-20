@@ -5,7 +5,7 @@ import { withUI } from '@extension/ui';
 export default withUI({
   ...baseConfig,
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
-});
+} as Config);
 
 // export default {
 //   ...baseConfig,

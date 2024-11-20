@@ -1,13 +1,6 @@
 import '@src/Popup.css';
-import { useStorage, withErrorBoundary, withSuspense } from '@extension/shared';
-import {
-  exampleThemeStorage,
-  tabsStorage,
-  tabsGroupedStorage,
-  type CategorizedTab,
-  type SingleTab,
-} from '@extension/storage';
-import type { ComponentPropsWithoutRef } from 'react';
+import { withErrorBoundary, withSuspense } from '@extension/shared';
+import { tabsGroupedStorage, type SingleTab } from '@extension/storage';
 import { Button } from '@extension/ui';
 
 const notificationOptions = {
@@ -27,8 +20,6 @@ function categorizeTab(url: string): string {
 }
 
 const Popup = () => {
-  const tabStore = useStorage(tabsStorage);
-
   // const goGithubSite = () =>
   //   chrome.tabs.create({ url: 'https://github.com/Jonghakseo/chrome-extension-boilerplate-react-vite' });
 
@@ -152,11 +143,11 @@ const Popup = () => {
   }
 
   // With confirmation dialog
-  async function clearPageListWithConfirm(): Promise<void> {
-    if (window.confirm('Are you sure you want to clear all saved pages?')) {
-      await clearPageList();
-    }
-  }
+  // async function clearPageListWithConfirm(): Promise<void> {
+  //   if (window.confirm('Are you sure you want to clear all saved pages?')) {
+  //     await clearPageList();
+  //   }
+  // }
 
   return (
     <div className={`App`}>
@@ -175,12 +166,12 @@ const Popup = () => {
         <Button variant="default">ShadCN Button</Button>
 
         <button
-          className="font-bold mt-4 py-1 px-4 rounded shadow hover:scale-105 bg-blue-500"
+          className="mt-4 rounded bg-blue-500 px-4 py-1 font-bold shadow hover:scale-105"
           onClick={saveCurrentTabCategorized}>
           Save current Tab
         </button>
 
-        <button className="font-bold mt-4 py-1 px-4 rounded shadow hover:scale-105 bg-red-500" onClick={clearPageList}>
+        <button className="mt-4 rounded bg-red-500 px-4 py-1 font-bold shadow hover:scale-105" onClick={clearPageList}>
           Clear saved pages...
         </button>
       </header>
