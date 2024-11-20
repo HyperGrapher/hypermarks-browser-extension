@@ -31,24 +31,8 @@ const Popup = () => {
   const isLight = theme === 'light';
   const logo = isLight ? 'popup/empty_logo.svg' : 'popup/empty_logo.svg';
 
-  function ex_getFaviconUrlEx(): string {
-    const favicon = document.querySelector('link[rel="icon"]') as HTMLLinkElement | null;
-    if (!favicon) {
-      const shortcutIcon = document.querySelector('link[rel="shortcut icon"]') as HTMLLinkElement | null;
-      if (!shortcutIcon) {
-        const touchIcon = document.querySelector('link[rel="apple-touch-icon"]') as HTMLLinkElement | null;
-        if (!touchIcon) {
-          return '';
-        }
-        return touchIcon.href || '';
-      }
-      return shortcutIcon.href || '';
-    }
-    return favicon.href || '';
-  }
-
-  const goGithubSite = () =>
-    chrome.tabs.create({ url: 'https://github.com/Jonghakseo/chrome-extension-boilerplate-react-vite' });
+  // const goGithubSite = () =>
+  //   chrome.tabs.create({ url: 'https://github.com/Jonghakseo/chrome-extension-boilerplate-react-vite' });
 
   // const injectContentScript = async () => {
   //   const [tab] = await chrome.tabs.query({ currentWindow: true, active: true });
@@ -70,169 +54,9 @@ const Popup = () => {
   //     });
   // };
 
-  async function saveCurrentPage(): Promise<void> {
-    // Get active tab information
-    const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
-
-    if (!activeTab?.id) return;
-
-    // Execute script in the tab context to get page details
-    const pageInfo = await chrome.scripting.executeScript({
-      target: { tabId: activeTab.id },
-      // query the tab to get the favicon url
-      func: () => {
-        function getFaviconUrl(): string {
-          const favicon = document.querySelector('link[rel="icon"]') as HTMLLinkElement | null;
-          if (!favicon) {
-            const shortcutIcon = document.querySelector('link[rel="shortcut icon"]') as HTMLLinkElement | null;
-            if (!shortcutIcon) {
-              const touchIcon = document.querySelector('link[rel="apple-touch-icon"]') as HTMLLinkElement | null;
-              if (!touchIcon) {
-                return '';
-              }
-              return touchIcon.href || '';
-            }
-            return shortcutIcon.href || '';
-          }
-          return favicon.href || '';
-        }
-
-        function getYoutubeThumbnail(url: string): string {
-          // http://img.youtube.com/vi/FQXuCyL4oUM/0.jpg
-          // http://img.youtube.com/vi/[video-id]/[thumbnail-number].jpg
-
-          const youtube_video_id = url.match(/youtube\.com.*(\?v=|\/embed\/)(.{11})/)?.pop();
-
-          return `http://img.youtube.com/vi/${youtube_video_id}/0.jpg`;
-        }
-
-        return {
-          title: document.title || document.querySelector('h1')?.textContent,
-          url: window.location.href,
-          // TODO: Youtube ise yt_video_desc icerigi buraya gelecek
-          description:
-            document.querySelector('meta[name="description"]')?.getAttribute('content') ||
-            (document.querySelector('h2')?.textContent ?? ''),
-          icon: getFaviconUrl(),
-          // TODO: make a function to get channel name when visiting user channel too.
-          yt_channel:
-            document.title.toLowerCase().includes('youtube') &&
-            document.querySelector(
-              '#upload-info > #channel-name > #container > #text-container.ytd-channel-name > #text > a.yt-formatted-string',
-            )?.textContent,
-          yt_channel_img:
-            document.title.toLowerCase().includes('youtube') &&
-            (document.querySelector<HTMLImageElement>('#owner img#img.yt-img-shadow')?.src || 'nope'),
-          yt_video_desc:
-            document.title.toLowerCase().includes('youtube') &&
-            (document.querySelector('#description #snippet-text span.yt-core-attributed-string--link-inherit-color')
-              ?.textContent ||
-              'No Description'),
-          yt_video_thumb:
-            window.location.href.includes('youtube.com/watch?v') && getYoutubeThumbnail(window.location.href),
-        };
-      },
-    });
-
-    // The result is an array of injected script results, we want the first one
-    const tabInfo = pageInfo[0].result;
-
-    // Save to storage
-    const { pageInfoList = [] } = await chrome.storage.local.get('pageInfoList');
-    const newPageInfoList = [...pageInfoList, tabInfo];
-    await chrome.storage.local.set({ pageInfoList: newPageInfoList });
-  }
-
-  async function saveCurrentTab(): Promise<void> {
-    const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
-
-    if (!activeTab?.id) return;
-
-    // Execute script in the tab context to get page details
-    const pageInfo = await chrome.scripting.executeScript({
-      target: { tabId: activeTab.id },
-      // query the tab to get the favicon url
-      func: () => {
-        function getFaviconUrl(): string {
-          const favicon = document.querySelector('link[rel="icon"]') as HTMLLinkElement | null;
-          if (!favicon) {
-            const shortcutIcon = document.querySelector('link[rel="shortcut icon"]') as HTMLLinkElement | null;
-            if (!shortcutIcon) {
-              const touchIcon = document.querySelector('link[rel="apple-touch-icon"]') as HTMLLinkElement | null;
-              if (!touchIcon) {
-                return '';
-              }
-              return touchIcon.href || '';
-            }
-            return shortcutIcon.href || '';
-          }
-          return favicon.href || '';
-        }
-
-        function getYoutubeThumbnail(url: string): string {
-          // http://img.youtube.com/vi/FQXuCyL4oUM/0.jpg
-          // http://img.youtube.com/vi/[video-id]/[thumbnail-number].jpg
-
-          const youtube_video_id = url.match(/youtube\.com.*(\?v=|\/embed\/)(.{11})/)?.pop();
-
-          return `http://img.youtube.com/vi/${youtube_video_id}/0.jpg`;
-        }
-
-        return {
-          title: document.title || document.querySelector('h1')?.textContent,
-          url: window.location.href,
-          // TODO: Youtube ise yt_video_desc icerigi buraya gelecek
-          description:
-            document.querySelector('meta[name="description"]')?.getAttribute('content') ||
-            (document.querySelector('h2')?.textContent ?? ''),
-          icon: getFaviconUrl(),
-          // TODO: make a function to get channel name when visiting user channel too.
-          yt_channel:
-            document.title.toLowerCase().includes('youtube') &&
-            document.querySelector(
-              '#upload-info > #channel-name > #container > #text-container.ytd-channel-name > #text > a.yt-formatted-string',
-            )?.textContent,
-          yt_channel_img:
-            document.title.toLowerCase().includes('youtube') &&
-            (document.querySelector<HTMLImageElement>('#owner img#img.yt-img-shadow')?.src || 'nope'),
-          yt_video_desc:
-            document.title.toLowerCase().includes('youtube') &&
-            (document.querySelector('#description #snippet-text span.yt-core-attributed-string--link-inherit-color')
-              ?.textContent ||
-              'No Description'),
-          yt_video_thumb:
-            window.location.href.includes('youtube.com/watch?v') && getYoutubeThumbnail(window.location.href),
-        };
-      },
-    });
-
-    // The result is an array of injected script results, we want the first one
-    const tabInfo = pageInfo[0].result;
-
-    const tab: SingleTab = {
-      title: tabInfo?.title ?? '',
-      description: tabInfo?.description ?? '',
-      url: tabInfo?.url ?? '',
-      icon: tabInfo?.icon ?? '',
-      tags: ['tag1', 'tag2'],
-      youtube: undefined,
-
-      // tabInfo?.yt_channel && {
-      //   yt_channel: tabInfo.yt_channel ?? '',
-      //   yt_video_desc: tabInfo.yt_video_desc ?? '',
-      //   yt_video_thumb: tabInfo.yt_video_thumb ?? '',
-      //   yt_channel_img: tabInfo.yt_channel_img ?? '',
-      // }
-    };
-
-    tabsStorage.save({
-      category: 'Programming',
-      item: tab,
-    });
-  }
-
   async function saveCurrentTabCategorized(): Promise<void> {
     const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    chrome.notifications.create('inject-error', notificationOptions);
 
     if (!activeTab?.id) return;
 
@@ -315,7 +139,6 @@ const Popup = () => {
     const category = categorizeTab(tab.url); // Determine category dynamically
 
     await tabsGroupedStorage.save(category, tab);
-    await saveCurrentTab();
   }
 
   async function clearPageList(): Promise<void> {
@@ -339,10 +162,8 @@ const Popup = () => {
 
   return (
     <div className={`App ${isLight ? 'bg-slate-50' : 'bg-gray-800'}`}>
-      <header className={`App-header ${isLight ? 'text-gray-900' : 'text-gray-100'}`}>
-        <button className="hidden" onClick={goGithubSite}>
-          <img src={chrome.runtime.getURL(logo)} className="App-logo" alt="logo" />
-        </button>
+      <header className={`App-header h-full ${isLight ? 'text-gray-900' : 'text-gray-100'}`}>
+        <img className="hidden" src={chrome.runtime.getURL(logo)} alt="logo" />
 
         {/* <button
           className={
