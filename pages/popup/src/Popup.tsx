@@ -20,29 +20,6 @@ function categorizeTab(url: string): string {
 }
 
 const Popup = () => {
-  // const goGithubSite = () =>
-  //   chrome.tabs.create({ url: 'https://github.com/Jonghakseo/chrome-extension-boilerplate-react-vite' });
-
-  // const injectContentScript = async () => {
-  //   const [tab] = await chrome.tabs.query({ currentWindow: true, active: true });
-
-  //   if (tab.url!.startsWith('about:') || tab.url!.startsWith('chrome:')) {
-  //     chrome.notifications.create('inject-error', notificationOptions);
-  //   }
-
-  //   await chrome.scripting
-  //     .executeScript({
-  //       target: { tabId: tab.id! },
-  //       files: ['/content-runtime/index.iife.js'],
-  //     })
-  //     .catch(err => {
-  //       // Handling errors related to other paths
-  //       if (err.message.includes('Cannot access a chrome:// URL')) {
-  //         chrome.notifications.create('inject-error', notificationOptions);
-  //       }
-  //     });
-  // };
-
   async function saveCurrentTabCategorized(): Promise<void> {
     const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
     chrome.notifications.create('inject-error', notificationOptions);
@@ -163,7 +140,9 @@ const Popup = () => {
           Click to inject Content Script!
         </button> */}
 
-        <Button variant="default">ShadCN Button</Button>
+        <Button onClick={() => null} variant="default">
+          ShadCN Button Action
+        </Button>
 
         <button
           className="mt-4 rounded bg-blue-500 px-4 py-1 font-bold shadow hover:scale-105"

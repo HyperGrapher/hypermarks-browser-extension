@@ -3,6 +3,7 @@ import { useStorage, withErrorBoundary, withSuspense } from '@extension/shared';
 import { tabsGroupedStorage, type CategorizedTab, type SingleTab } from '@extension/storage';
 import { useState } from 'react';
 import { Button } from '@extension/ui';
+import { YoutubeTab } from './YoutubeTab';
 
 function getTabsByCategory(groupedTabs: { [category: string]: SingleTab[] }): CategorizedTab[] {
   return Object.entries(groupedTabs).flatMap(([category, items]) => items.map(item => ({ category, item })));
@@ -21,39 +22,12 @@ function getTabsByTags(groupedTabs: { [category: string]: SingleTab[] }, tags: s
 const SidePanel = () => {
   const tabsCats = useStorage(tabsGroupedStorage);
 
-  // const [pageInfoList, setPageInfoList] = useState([]);
-
-  // useEffect(() => {
-  //   const handleStorageChange = (changes: { [key: string]: chrome.storage.StorageChange }) => {
-  //     if (changes.pageInfoList) {
-  //       setPageInfoList(changes.pageInfoList.newValue || []);
-  //     }
-  //   };
-
-  //   chrome.storage.local.onChanged.addListener(handleStorageChange);
-
-  //   chrome.storage.local
-  //     .get('pageInfoList')
-  //     .then(result => setPageInfoList(result.pageInfoList || []))
-  //     .catch(error => console.error('Error getting pageInfoList from storage:', error));
-
-  //   return () => {
-  //     chrome.storage.local.onChanged.removeListener(handleStorageChange);
-  //   };
-  // }, []);
-
   return (
     <div className={`p-4`}>
       <header className={`App-header`}>
         <div className="App-content">
           <h3 className="text-lg font-semibold">Saved Tabs</h3>
-
           <TabList groupedTabs={tabsCats} />
-          <TabList1 groupedTabs={tabsCats} />
-
-          {/* TODO:  if no icon, show default icon */}
-          {/* img fallback to default icon if error */}
-          {/*<pre className="text-xs text-slate-400 whitespace-break-spaces bg-slate-800">{JSON.stringify(tabs, null, 2)}</pre>*/}
         </div>
       </header>
     </div>
@@ -122,26 +96,30 @@ function TabList({ groupedTabs }: { groupedTabs: { [category: string]: SingleTab
         <h3 className="text-red-500">No Saved Tabs</h3>
       ) : (
         Object.entries(tabsToDisplay).map(([category, items]) => (
-          <div key={category} className="mt-4">
+          <div key={category} className="xmt-4 space-y-4">
             {/* Category Title */}
-            <h4 className="text-xl font-semibold text-green-500">{category}</h4>
+            <h4 className="text-xl font-semibold text-gray-300">{category}</h4>
             {/* Items in the Category */}
-            {items.map((item, index) => (
-              <div key={index} className="mt-2 border-b border-gray-700 text-xs">
-                <div className="flex flex-row gap-2">
-                  <img src={item.icon ?? ''} alt="icon" className="size-4" />
-                  {/*<p className="font-semibold whitespace-nowrap truncate">{item.title.slice(0, 25)}</p>*/}
-                  <a
-                    href={item.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="xwhitespace-nowrap truncate font-semibold">
-                    {item.title}
-                  </a>
+            {items.map((item, index) =>
+              item.youtube?.yt_channel ? (
+                <YoutubeTab key={item.datetime} item={item} />
+              ) : (
+                <div key={index} className="mt-2 border-b border-gray-700 text-xs">
+                  <div className="flex flex-row gap-2">
+                    <img src={item.icon ?? ''} alt="icon" className="size-4" />
+                    {/*<p className="font-semibold whitespace-nowrap truncate">{item.title.slice(0, 25)}</p>*/}
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="xwhitespace-nowrap truncate font-semibold">
+                      {item.title}
+                    </a>
+                  </div>
+                  <p className="text-slate-500">{item.description}</p>
                 </div>
-                <p className="text-slate-500">{item.description}</p>
-              </div>
-            ))}
+              ),
+            )}
           </div>
         ))
       )}
