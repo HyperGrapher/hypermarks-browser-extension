@@ -1,7 +1,7 @@
 import '@src/Popup.css';
 import { getActiveTabIcon, withErrorBoundary, withSuspense } from '@extension/shared';
 import { tabsGroupedStorage, type SingleTab } from '@extension/storage';
-import { Button } from '@extension/ui';
+import { Button, PillsFormDemo } from '@extension/ui';
 
 const notificationOptions = {
   type: 'basic',
@@ -122,6 +122,7 @@ const Popup = () => {
   return (
     <div className={`App`}>
       <header className={`App-header h-full`}>
+        <PillsFormDemo />
         <Button onClick={saveCurrentTabCategorized} variant="default">
           Save current Tab
         </Button>
