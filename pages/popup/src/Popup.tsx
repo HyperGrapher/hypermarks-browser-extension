@@ -1,5 +1,5 @@
 import '@src/Popup.css';
-import { withErrorBoundary, withSuspense } from '@extension/shared';
+import { getActiveTabIcon, withErrorBoundary, withSuspense } from '@extension/shared';
 import { tabsGroupedStorage, type SingleTab } from '@extension/storage';
 import { Button } from '@extension/ui';
 
@@ -9,6 +9,12 @@ const notificationOptions = {
   title: 'Injecting content script error',
   message: 'You cannot inject script here!',
 } as const;
+
+/*
+ #* fikir su:
+ #* alt categori olustur . belli basli siteler, ozellikle dedicated data/ui'i olan
+ #* 
+ */
 
 function categorizeTab(url: string): string {
   if (url.includes('youtube.com')) return 'Videos';
@@ -22,22 +28,14 @@ function categorizeTab(url: string): string {
 const Popup = () => {
   async function saveCurrentTabCategorized(): Promise<void> {
     const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    chrome.notifications.create('inject-error', notificationOptions);
 
     if (!activeTab?.id) return;
-
+    const favicon = await getActiveTabIcon();
     const pageInfo = await chrome.scripting.executeScript({
       target: { tabId: activeTab.id },
       func: () => {
-        function getFaviconUrl(): string {
-          const favicon =
-            document.querySelector<HTMLLinkElement>('link[rel="icon"]') ||
-            document.querySelector<HTMLLinkElement>('link[rel="shortcut icon"]') ||
-            document.querySelector<HTMLLinkElement>('link[rel="apple-touch-icon"]');
-          return favicon?.href || '';
-        }
-
         function isYouTube(): boolean {
+          console.log(window.location.hostname + 'powowowp'); // prints extension id
           return window.location.hostname.includes('youtube.com');
         }
 
@@ -75,7 +73,6 @@ const Popup = () => {
             document.querySelector('meta[name="description"]')?.getAttribute('content') ||
             document.querySelector('h2')?.textContent ||
             '',
-          icon: getFaviconUrl(),
           youtube: youtubeDetails,
         };
       },
@@ -83,13 +80,16 @@ const Popup = () => {
 
     const tabInfo = pageInfo[0]?.result;
 
-    if (!tabInfo) return;
+    if (!tabInfo) {
+      chrome.notifications.create('inject-error', notificationOptions);
+      return;
+    }
 
     const tab: SingleTab = {
       title: tabInfo.title || '',
       description: tabInfo.youtube ? tabInfo.youtube.yt_video_desc : tabInfo.description || '',
       url: tabInfo.url || '',
-      icon: tabInfo.icon || '',
+      icon: favicon || '',
       datetime: new Date().toISOString(),
       tags: ['tag1', 'tag2'], // Replace with actual logic if needed
       youtube: tabInfo.youtube
@@ -119,37 +119,12 @@ const Popup = () => {
     }
   }
 
-  // With confirmation dialog
-  // async function clearPageListWithConfirm(): Promise<void> {
-  //   if (window.confirm('Are you sure you want to clear all saved pages?')) {
-  //     await clearPageList();
-  //   }
-  // }
-
   return (
     <div className={`App`}>
       <header className={`App-header h-full`}>
-        {/*<img className="hidden" src={chrome.runtime.getURL(logo)} alt="logo" />*/}
-
-        {/* <button
-          className={
-            'font-bold mt-4 py-1 px-4 rounded shadow hover:scale-105 ' +
-            (isLight ? 'bg-blue-200 text-black' : 'bg-gray-700 text-white')
-          }
-          onClick={injectContentScript}>
-          Click to inject Content Script!
-        </button> */}
-
-        <Button onClick={() => null} variant="default">
-          ShadCN Button Action
-        </Button>
-
-        <button
-          className="mt-4 rounded bg-blue-500 px-4 py-1 font-bold shadow hover:scale-105"
-          onClick={saveCurrentTabCategorized}>
+        <Button onClick={saveCurrentTabCategorized} variant="default">
           Save current Tab
-        </button>
-
+        </Button>
         <button className="mt-4 rounded bg-red-500 px-4 py-1 font-bold shadow hover:scale-105" onClick={clearPageList}>
           Clear saved pages...
         </button>

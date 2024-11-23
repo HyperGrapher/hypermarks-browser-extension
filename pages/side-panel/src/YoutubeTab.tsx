@@ -3,26 +3,7 @@ import { cn } from './utils';
 import { SingleTab } from '@extension/storage';
 import { useWindowSize } from '@extension/shared';
 
-const keywords = {
-  recipe: [
-    'lezzetli',
-    'yemek',
-    'kuzu eti',
-    'dana eti',
-    'leziz',
-    'mantar',
-    'nefis',
-    'terbiye',
-    'yemek tarifi',
-    'damak',
-    'damak tadi',
-    'tarif',
-  ],
-};
-
-{
-  /* TODO:  if no icon/thumbnail, show default ones */
-}
+// TODO:  if no icon/thumbnail, show default ones
 
 export const YoutubeTab = ({ item }: { item: SingleTab }) => {
   const [showDetail, setShowDetail] = React.useState(false);
@@ -80,32 +61,3 @@ export const YoutubeTab = ({ item }: { item: SingleTab }) => {
     </div>
   );
 };
-
-/*
- 
-    <section className="absolute bg-blue-700 w-full -translate-y-10 inset-0">
-       {showDetail && <div className="bg-zinc-700 w-full h-24 z-10 translate-y-10">
-
-          content
-        </div>}
-      </section> 
-
-type YoutubeType = {
-  yt_channel: string;
-  yt_channel_img: string;
-  yt_video_desc: string;
-  yt_video_thumb: string;
-};
-
-export type SingleTab = {
-  title: string;
-  description: string;
-  url: string;
-  icon: string;
-  tags: string[];
-  datetime: string; // ISO string representing the saved time
-
-  youtube: YoutubeType | undefined;
-};
-
-*/
