@@ -73,25 +73,36 @@ const Popup = () => {
         }
 
         function getYoutubeChannelDetails(): YoutubeChannel | null {
+          console.log(window.location.href, '--------- yes ----------');
           if (!isYouTubeChannel()) return null;
 
-          const channel_name =
+          const name = document.querySelector('h1.dynamic-text-view-model-wiz__h1')?.textContent || '';
+
+          const avatar =
+            document.querySelector<HTMLImageElement>('#page-header .yt-spec-avatar-shape img.yt-core-image')?.src || '';
+          const banner = document.querySelector<HTMLImageElement>('#page-header-banner  img.yt-core-image')?.src || '';
+          // #page-header > yt-page-header-renderer > yt-page-header-view-model yt-description-preview-view-model > truncated-text > truncated-text-content > span
+          const desc =
             document.querySelector(
-              '#upload-info #channel-name #container #text-container.ytd-channel-name #text a.yt-formatted-string',
+              '#page-header > yt-page-header-renderer > yt-page-header-view-model yt-description-preview-view-model > truncated-text > truncated-text-content > span',
+            )?.textContent || '';
+          // #page-header > yt-page-header-renderer > yt-page-header-view-model > div > div.page-header-view-model-wiz__page-header-headline > div > yt-content-metadata-view-model > div:nth-child(3) > span:nth-child(1)
+          const subs =
+            document.querySelector(
+              '#page-header > yt-page-header-renderer > yt-page-header-view-model > div > div.page-header-view-model-wiz__page-header-headline > div > yt-content-metadata-view-model > div:nth-child(3) > span:nth-child(1)',
             )?.textContent || '';
 
-          const avatar = document.querySelector<HTMLImageElement>('#owner img#img.yt-img-shadow')?.src || '';
-          const banner = document.querySelector<HTMLImageElement>('#owner img#img.yt-img-shadow')?.src || '';
+          const videos =
+            document.querySelector(
+              '#page-header > yt-page-header-renderer > yt-page-header-view-model > div > div.page-header-view-model-wiz__page-header-headline > div > yt-content-metadata-view-model > div:nth-child(3) > span:nth-child(3) > span',
+            )?.textContent || '';
 
-          const desc = document.querySelector('#description #snippet-text')?.textContent || '';
+          const is_subbed =
+            document.querySelector(
+              '#page-header > yt-page-header-renderer > yt-page-header-view-model > div > div.page-header-view-model-wiz__page-header-headline > div > yt-flexible-actions-view-model > div:nth-child(1) > yt-subscribe-button-view-model > yt-animated-action > div.animated-action__content-with-background > div.yt-subscribe-button-view-model-wiz__container > button > div.yt-spec-button-shape-next__button-text-content',
+            )?.textContent === 'Subscribed';
 
-          const subs = document.querySelector('#channel-header #subscriber-count')?.textContent || '';
-
-          const videos = document.querySelector('#channel-header #video-count')?.textContent || '';
-
-          const is_subbed = document.querySelector('#channel-header #subscribe-button')?.textContent === 'Subscribe';
-
-          return { name: channel_name, avatar, desc, subs, videos, is_subbed, banner };
+          return { name, avatar, desc, subs, videos, is_subbed, banner };
         }
 
         function getYouTubeVideoDetails(): YoutubeVideo | null {
@@ -225,7 +236,7 @@ const Popup = () => {
       tags: ['tag1', 'tag2'], // Replace with actual logic if needed
       item_type: data.item_type,
       note: undefined,
-      youtube_channel: undefined,
+      youtube_channel: data.youtube_channel ?? undefined,
       youtube_list: data.youtube_list ?? undefined,
       youtube_video: data.youtube_video
         ? {

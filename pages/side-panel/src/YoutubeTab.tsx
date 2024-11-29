@@ -26,10 +26,10 @@ export const YoutubeVideo = ({ item }: { item: SingleTab }) => {
   const { width = 360, height } = useWindowSize();
 
   const maxCharForDesc =
-    width >= 360 && width < 399 ? 145 : width >= 400 && width <= 499 ? 145 : width > 500 ? 260 : 111;
+    width >= 360 && width < 399 ? 135 : width >= 400 && width <= 499 ? 145 : width > 500 ? 260 : 111;
 
   return (
-    <div className={cn('rounded shadow-lg border border-zinc-700', 'bg-zinc-900 w-full relative max-h-36 ')}>
+    <div className={cn('px-1 pb-1 rounded shadow-lg border border-zinc-700', 'bg-zinc-900 w-full relative max-h-36 ')}>
       <button
         className={cn(
           'expand absolute xscale-75 insetx-0 right-1 top-1 xmt-6',
@@ -82,9 +82,65 @@ export const YoutubeVideo = ({ item }: { item: SingleTab }) => {
   );
 };
 
+export const YoutubeChannel = ({ item }: { item: SingleTab }) => {
+  return (
+    <div
+      className={cn(
+        'px-1 pb-1 rounded shadow-lg border border-gray-700',
+        'bg-slate-950 w-full relative max-h-36 flex flex-col',
+      )}>
+      <button
+        className={cn(
+          'expand absolute xscale-75 insetx-0 right-1 top-1 xmt-6',
+          'size-4 aspect-square z-30 rounded-full bg-slate-700/50 flex justify-center items-center',
+        )}
+        onClick={() => deleteItem(item.datetime)}>
+        <span className="p-0 text-gray-300/70">x</span>
+      </button>
+
+      <div className="xyt-item flex items-centerx gap-2 pb-1 pt-2 px-3">
+        <img src={item.icon ?? ''} alt="icon" className="size-4 translate-y-[1px]" />
+
+        <div className="">
+          <a
+            href={item.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="whitespace-break-spaces truncate font-semibold inline text-slate-300">
+            {item.title}
+            {/* {width?.toString()} -{maxCharForDesc?.toString()} */}
+          </a>
+        </div>
+      </div>
+      <section className="bg-gray-800 hidden xflex items-center gap-2 px-2 py-1 text-xs/3 text-slate-400">
+        <span>{item.youtube_channel?.videos}</span>
+        <span>{item.youtube_channel?.subs}</span>
+      </section>
+
+      <div className="flex gap-2 z-20 w-full items-center pl-2">
+        <div className="">
+          <img
+            width={360 / 2}
+            height={360 / 2}
+            className="size-8 object-cover xaspect-square rounded-full"
+            src={item.youtube_channel?.avatar}
+            alt={item.title}
+          />
+        </div>
+        <div className="max-w-sm pr-2 w-full">
+          <p className="text-slate-500 truncatex whitespace-break-spaces text-xs/3 leading-3">
+            {item.youtube_channel?.desc.slice(0, 325)}
+            {/* {remove_linebreaks(item.youtube?.yt_video_desc).slice(0, maxCharForDesc)} */}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const YoutubePlaylist = ({ item }: { item: SingleTab }) => {
   return (
-    <div className={cn('rounded shadow-lg border border-gray-700', 'bg-gray-900 w-full relative max-h-36')}>
+    <div className={cn('px-1 pb-1 rounded shadow-lg border border-gray-700', 'bg-gray-900 w-full relative max-h-36')}>
       <button
         className={cn(
           'expand absolute xscale-75 insetx-0 right-1 top-1 xmt-6',

@@ -3,7 +3,8 @@ import { useStorage, withErrorBoundary, withSuspense } from '@extension/shared';
 import { tabsGroupedStorage, type CategorizedTab, type SingleTab } from '@extension/storage';
 import { useState } from 'react';
 import { Button } from '@extension/ui';
-import { YoutubePlaylist, YoutubeVideo } from './YoutubeTab';
+import { YoutubePlaylist, YoutubeVideo, YoutubeChannel } from './YoutubeTab';
+import { GenericTab } from './GenericTab';
 
 function getTabsByCategory(groupedTabs: { [category: string]: SingleTab[] }): CategorizedTab[] {
   return Object.entries(groupedTabs).flatMap(([category, items]) => items.map(item => ({ category, item })));
@@ -104,7 +105,9 @@ function TabList({ groupedTabs }: { groupedTabs: { [category: string]: SingleTab
         Object.entries(tabsToDisplay).map(([category, items]) => (
           <div key={category} className="xmt-4 space-y-1">
             {/* Category Title */}
-            <h4 className="text-xl font-semibold text-gray-300">{category}</h4>
+            <h4 className="text-lg font-semibold text-stone-400 bg-stone-700/50 border border-stone-600 rounded px-4">
+              {category}
+            </h4>
             {/* Items in the Category */}
             {items.map((item, index) =>
               item.item_type === 'yt-video' ? (
@@ -112,10 +115,9 @@ function TabList({ groupedTabs }: { groupedTabs: { [category: string]: SingleTab
               ) : item.item_type === 'yt-playlist' ? (
                 <YoutubePlaylist key={item.datetime} item={item} />
               ) : item.item_type === 'yt-channel' ? (
-                // <YoutubeChannelItem key={item.datetime} item={item} />
-                <section>other</section>
+                <YoutubeChannel key={item.datetime} item={item} />
               ) : (
-                <YoutubeVideo key={item.datetime} item={item} />
+                <GenericTab key={item.datetime} item={item} />
               ),
             )}
           </div>
