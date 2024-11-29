@@ -133,6 +133,7 @@ export const tabsStorage: TabsStorage = {
 
 type TabsGroupedStorage = BaseStorage<{ [category: string]: SingleTab[] }> & {
   save: (category: string, tab: SingleTab) => Promise<void>;
+  delete: (datetime: string) => Promise<void>;
 };
 
 const groupedStorage = createStorage<{ [category: string]: SingleTab[] }>(
@@ -149,7 +150,30 @@ export const tabsGroupedStorage: TabsGroupedStorage = {
   save: async (category: string, tab: SingleTab) => {
     await groupedStorage.set(prev => {
       const categoryTabs = prev[category] || [];
-      return { ...prev, [category]: [...categoryTabs, tab] };
+      return { ...prev, [category]: [tab, ...categoryTabs] };
+    });
+  },
+
+  delete: async (datetime: string) => {
+    await groupedStorage.set(prev => {
+      // Iterate over each category
+      const updatedStorage = Object.entries(prev).reduce(
+        (acc, [category, tabs]) => {
+          // Filter out the tab with the matching datetime
+          const filteredTabs = tabs.filter(tab => tab.datetime !== datetime);
+
+          // Only include categories with remaining tabs
+          if (filteredTabs.length > 0) {
+            acc[category] = filteredTabs;
+          }
+
+          return acc;
+        },
+        {} as { [category: string]: SingleTab[] },
+      );
+
+      // TODO: Check if return is needed
+      return updatedStorage;
     });
   },
 };

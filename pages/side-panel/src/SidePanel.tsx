@@ -23,10 +23,11 @@ const SidePanel = () => {
   const tabsCats = useStorage(tabsGroupedStorage);
 
   return (
-    <div className={`p-4`}>
+    <div className={`bg-black/80 min-h-screen`}>
       <header className={`App-header`}>
-        <div className="App-content">
-          <h3 className="text-lg font-semibold">Saved Tabs</h3>
+        <div className="bg-zinc-800 w-full h-12">{/* <pre>{JSON.stringify(tabsCats, null, 1)}</pre> */}</div>
+        <div className="App-content py-4 px-2">
+          {/* <h3 className="text-lg font-semibold text-zinc-400">Saved Tabs</h3> */}
           <TabList groupedTabs={tabsCats} />
         </div>
       </header>
@@ -101,7 +102,7 @@ function TabList({ groupedTabs }: { groupedTabs: { [category: string]: SingleTab
         <h3 className="text-red-500">No Saved Tabs</h3>
       ) : (
         Object.entries(tabsToDisplay).map(([category, items]) => (
-          <div key={category} className="xmt-4 space-y-2">
+          <div key={category} className="xmt-4 space-y-1">
             {/* Category Title */}
             <h4 className="text-xl font-semibold text-gray-300">{category}</h4>
             {/* Items in the Category */}
