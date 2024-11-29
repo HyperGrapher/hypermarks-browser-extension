@@ -26,7 +26,7 @@ const SidePanel = () => {
   return (
     <div className={`bg-black/80 min-h-screen`}>
       <header className={`App-header`}>
-        <div className="bg-zinc-800 w-full h-12">{/* <pre>{JSON.stringify(tabsCats, null, 1)}</pre> */}</div>
+        <div className="bg-zinc-800 w-full h-12 hidden">{/* <pre>{JSON.stringify(tabsCats, null, 1)}</pre> */}</div>
         <div className="App-content py-4 px-2">
           {/* <h3 className="text-lg font-semibold text-zinc-400">Saved Tabs</h3> */}
           <TabList groupedTabs={tabsCats} />
@@ -105,7 +105,7 @@ function TabList({ groupedTabs }: { groupedTabs: { [category: string]: SingleTab
         Object.entries(tabsToDisplay).map(([category, items]) => (
           <div key={category} className="xmt-4 space-y-1">
             {/* Category Title */}
-            <h4 className="text-lg font-semibold text-stone-400 bg-stone-700/50 border border-stone-600 rounded px-4">
+            <h4 className="text mt-3 mb-0.5 font-semibold text-violet-400 bg-violet-800/40 border border-violet-600/30 rounded px-4">
               {category}
             </h4>
             {/* Items in the Category */}

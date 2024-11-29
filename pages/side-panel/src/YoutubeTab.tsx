@@ -60,7 +60,7 @@ export const YoutubeVideo = ({ item }: { item: SingleTab }) => {
           <img
             width={336 / 2}
             height={188 / 2}
-            className="max-w-28 -translate-y-2.5 object-contain"
+            className="max-w-28 -translate-y-[11px] object-contain"
             src={item.youtube_video?.thumb}
             alt={item.title}
           />

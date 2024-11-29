@@ -73,7 +73,6 @@ const Popup = () => {
         }
 
         function getYoutubeChannelDetails(): YoutubeChannel | null {
-          console.log(window.location.href, '--------- yes ----------');
           if (!isYouTubeChannel()) return null;
 
           const name = document.querySelector('h1.dynamic-text-view-model-wiz__h1')?.textContent || '';
@@ -81,12 +80,11 @@ const Popup = () => {
           const avatar =
             document.querySelector<HTMLImageElement>('#page-header .yt-spec-avatar-shape img.yt-core-image')?.src || '';
           const banner = document.querySelector<HTMLImageElement>('#page-header-banner  img.yt-core-image')?.src || '';
-          // #page-header > yt-page-header-renderer > yt-page-header-view-model yt-description-preview-view-model > truncated-text > truncated-text-content > span
           const desc =
             document.querySelector(
               '#page-header > yt-page-header-renderer > yt-page-header-view-model yt-description-preview-view-model > truncated-text > truncated-text-content > span',
             )?.textContent || '';
-          // #page-header > yt-page-header-renderer > yt-page-header-view-model > div > div.page-header-view-model-wiz__page-header-headline > div > yt-content-metadata-view-model > div:nth-child(3) > span:nth-child(1)
+
           const subs =
             document.querySelector(
               '#page-header > yt-page-header-renderer > yt-page-header-view-model > div > div.page-header-view-model-wiz__page-header-headline > div > yt-content-metadata-view-model > div:nth-child(3) > span:nth-child(1)',

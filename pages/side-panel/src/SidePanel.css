@@ -1,0 +1,17 @@
+
+html, body {
+    overflow-x: hidden;
+  }
+  
+  
+  img.thumb {
+     /* Adjust the top and bottom values as needed */
+    /* clip-path: inset(12px 0); */
+    /* position: relative; */
+    /* object-fit: cover; */
+    /* max-width: 124px; */
+    /* min-width: 153px; */
+    /* object-fit: contain; */
+    /* height: 360px; */
+    /* width: 480px; */
+  }
