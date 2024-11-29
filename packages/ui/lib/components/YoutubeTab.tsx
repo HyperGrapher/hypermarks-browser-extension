@@ -35,13 +35,11 @@ export const YoutubeTab = ({ item }: { item: SingleTab }) => {
           width={480 / 3.12}
           height={360 / 3.12}
           className="aspect-[4/3] thumb"
-          src={item.youtube?.yt_video_thumb}
+          src={item.youtube_video?.thumb}
           alt={item.title}
         />
         <div className="mt-2 max-w-sm pr-2 w-full">
-          <p className="text-slate-500 truncatex whitespace-break-spaces">
-            {item.youtube?.yt_video_desc.slice(0, 100)}
-          </p>
+          <p className="text-slate-500 truncatex whitespace-break-spaces">{item.youtube_video?.desc.slice(0, 100)}</p>
         </div>
       </div>
 
