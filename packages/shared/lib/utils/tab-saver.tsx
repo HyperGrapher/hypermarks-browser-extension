@@ -1,12 +1,6 @@
-import {
-  tabsGroupedStorage,
-  type ItemType,
-  type SingleTab,
-  type YoutubeChannel,
-  type YoutubeList,
-  type YoutubeVideo,
-} from '@extension/storage';
+import { tabsGroupedStorage } from '@extension/storage';
 import { getActiveTabIcon } from './chrome-utils';
+import { YouTube as YT, ItemType, SingleTab } from './shared-types';
 
 const notificationOptions = {
   type: 'basic',
@@ -55,71 +49,75 @@ export async function saveCurrentTab(): Promise<void> {
         return 'other';
       }
 
-      function getYoutubeChannelDetails(): YoutubeChannel | null {
+      function getYoutubeChannelDetails(): YT.Channel | null {
         if (!isYouTubeChannel()) return null;
 
-        const name = document.querySelector('h1.dynamic-text-view-model-wiz__h1')?.textContent || '';
+        const channelName = document.querySelector('h1.dynamic-text-view-model-wiz__h1')?.textContent || '';
 
         const avatar =
           document.querySelector<HTMLImageElement>('#page-header .yt-spec-avatar-shape img.yt-core-image')?.src || '';
         const banner = document.querySelector<HTMLImageElement>('#page-header-banner  img.yt-core-image')?.src || '';
-        const desc =
+        const description =
           document.querySelector(
             '#page-header > yt-page-header-renderer > yt-page-header-view-model yt-description-preview-view-model > truncated-text > truncated-text-content > span',
           )?.textContent || '';
 
-        const subs =
+        const subcriberCount =
           document.querySelector(
             '#page-header > yt-page-header-renderer > yt-page-header-view-model > div > div.page-header-view-model-wiz__page-header-headline > div > yt-content-metadata-view-model > div:nth-child(3) > span:nth-child(1)',
           )?.textContent || '';
 
-        const videos =
+        const videoCount =
           document.querySelector(
             '#page-header > yt-page-header-renderer > yt-page-header-view-model > div > div.page-header-view-model-wiz__page-header-headline > div > yt-content-metadata-view-model > div:nth-child(3) > span:nth-child(3) > span',
           )?.textContent || '';
 
-        const is_subbed =
+        const isSubscribed =
           document.querySelector(
             '#page-header > yt-page-header-renderer > yt-page-header-view-model > div > div.page-header-view-model-wiz__page-header-headline > div > yt-flexible-actions-view-model > div:nth-child(1) > yt-subscribe-button-view-model > yt-animated-action > div.animated-action__content-with-background > div.yt-subscribe-button-view-model-wiz__container > button > div.yt-spec-button-shape-next__button-text-content',
           )?.textContent === 'Subscribed';
 
-        return { name, avatar, desc, subs, videos, is_subbed, banner };
+        return { channelName, avatar, description, subcriberCount, videoCount, isSubscribed, banner };
       }
 
-      function getYouTubeVideoDetails(): YoutubeVideo | null {
+      function getYouTubeVideoDetails(): YT.Video | null {
         if (!isYouTubeVideo()) return null;
 
-        const channel_name =
+        const title = document.querySelector('#title .style-scope .ytd-watch-metadata')?.textContent || '';
+
+        const channelName =
           document.querySelector(
             '#upload-info #channel-name #container #text-container.ytd-channel-name #text a.yt-formatted-string',
           )?.textContent || '';
 
         const avatar = document.querySelector<HTMLImageElement>('#owner img#img.yt-img-shadow')?.src || '';
 
-        const desc = document.querySelector('#description #snippet-text')?.textContent || '';
+        const description = document.querySelector('#description #snippet-text')?.textContent || '';
 
         const youtubeVideoId = window.location.href.match(/youtube\.com.*(\?v=|\/embed\/)(.{11})/)?.pop();
 
-        const thumb = youtubeVideoId ? `http://img.youtube.com/vi/${youtubeVideoId}/0.jpg` : '';
+        const thumbnail = youtubeVideoId ? `http://img.youtube.com/vi/${youtubeVideoId}/0.jpg` : '';
 
-        return { channel_name, avatar, desc, thumb };
+        return { title, channelName, avatar, description, thumbnail };
       }
 
-      function getYoutubeListDetails(): YoutubeList | null {
+      function getYoutubeListDetails(): YT.Playlist | null {
         if (!isYouTubeList()) return null;
+
+        // TODO:  position of elements change when window is resized
 
         const title = document.querySelector('h1.dynamic-text-view-model-wiz__h1')?.textContent || '';
 
-        const channel =
+        const channelName =
           document.querySelector(
             '#upload-info #channel-name #container #text-container.ytd-channel-name #text a.yt-formatted-string',
           )?.textContent || '';
 
         const avatar = document.querySelector<HTMLImageElement>('#page-header img.yt-core-image')?.src || '';
-        const thumb =
+        const thumbnail =
           document.querySelector<HTMLImageElement>('#page-header img[alt="Play all"].yt-core-image')?.src || '';
 
-        const desc =
+        const description =
           document.querySelector(
             ".yt-description-preview-view-model-wiz--clickable .truncated-text-wiz.truncated-text-wiz--overlay span[role='text'].yt-core-attributed-string.yt-core-attributed-string--white-space-pre-wrap",
           )?.textContent || '';
@@ -138,7 +136,7 @@ export async function saveCurrentTab(): Promise<void> {
           }
         });
 
-        return { title, channel, avatar, desc, views, videos, thumb };
+        return { title, channelName, avatar, description, viewCount: views, videoCount: videos, thumbnail };
       }
 
       function getDescription(origin: string): string {
@@ -146,11 +144,11 @@ export async function saveCurrentTab(): Promise<void> {
 
         if (origin.includes('youtube.com')) {
           if (getItemType() === 'yt-video') {
-            return getYouTubeVideoDetails()?.desc ?? '';
+            return getYouTubeVideoDetails()?.description ?? '';
           } else if (getItemType() === 'yt-channel') {
-            return getYoutubeChannelDetails()?.desc ?? '';
+            return getYoutubeChannelDetails()?.description ?? '';
           } else if (getItemType() === 'yt-playlist') {
-            return getYoutubeListDetails()?.desc ?? '';
+            return getYoutubeListDetails()?.description ?? '';
           }
         }
 
@@ -206,21 +204,22 @@ export async function saveCurrentTab(): Promise<void> {
     icon: favicon || '',
     datetime: new Date().toISOString(),
     tags: ['tag1', 'tag2'],
-    item_type: data.item_type,
+    itemType: data.item_type,
     note: undefined,
-    youtube_channel: data.youtube_channel ?? undefined,
-    youtube_list: data.youtube_list ?? undefined,
-    youtube_video: data.youtube_video
+    youtubeChannel: data.youtube_channel ?? undefined,
+    youtubePlaylist: data.youtube_list ?? undefined,
+    youtubeVideo: data.youtube_video
       ? {
-          channel_name: data.youtube_video.channel_name,
-          desc: data.youtube_video.desc,
-          thumb: data.youtube_video.thumb,
+          title: data.youtube_video.title,
+          channelName: data.youtube_video.channelName,
+          description: data.youtube_video.description,
+          thumbnail: data.youtube_video.thumbnail,
           avatar: data.youtube_video.avatar,
         }
       : undefined,
   };
 
-  const category = categorizeTab(tab.url); // Determine category dynamically
+  const category = categorizeTab(tab.url);
 
   await tabsGroupedStorage.save(category, tab);
 }

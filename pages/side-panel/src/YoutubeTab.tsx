@@ -1,7 +1,7 @@
 import React from 'react';
 import { cn } from './utils';
-import { SingleTab, tabsGroupedStorage } from '@extension/storage';
-import { useWindowSize } from '@extension/shared';
+import { tabsGroupedStorage } from '@extension/storage';
+import { SingleTab, useWindowSize } from '@extension/shared';
 
 // TODO:  if no icon/thumbnail, show default ones
 // https://www.youtube.com/playlist?list=PLRnI_2_ZWhtCxHQ_3zDfW0-RgiWo8ftyj
@@ -26,7 +26,7 @@ export const YoutubeVideo = ({ item }: { item: SingleTab }) => {
   const { width = 360, height } = useWindowSize();
 
   const maxCharForDesc =
-    width >= 360 && width < 399 ? 135 : width >= 400 && width <= 499 ? 145 : width > 500 ? 260 : 111;
+    width >= 360 && width < 399 ? 134 : width >= 400 && width <= 499 ? 145 : width > 500 ? 260 : 111;
 
   return (
     <div className={cn('px-1 pb-1 rounded shadow-lg border border-zinc-700', 'bg-zinc-900 w-full relative max-h-36 ')}>
@@ -61,13 +61,13 @@ export const YoutubeVideo = ({ item }: { item: SingleTab }) => {
             width={336 / 2}
             height={188 / 2}
             className="max-w-28 -translate-y-[11px] object-contain"
-            src={item.youtube_video?.thumb}
+            src={item.youtubeVideo?.thumbnail}
             alt={item.title}
           />
         </div>
         <div className="max-w-sm pr-2 w-full">
           <p className="text-slate-500 truncatex whitespace-break-spaces text-xs/3 leading-3`">
-            {item.youtube_video?.desc.slice(0, maxCharForDesc)}
+            {item.youtubeVideo?.description.slice(0, maxCharForDesc)}
             {/* {remove_linebreaks(item.youtube?.yt_video_desc).slice(0, maxCharForDesc)} */}
           </p>
         </div>
@@ -113,8 +113,8 @@ export const YoutubeChannel = ({ item }: { item: SingleTab }) => {
         </div>
       </div>
       <section className="bg-gray-800 hidden xflex items-center gap-2 px-2 py-1 text-xs/3 text-slate-400">
-        <span>{item.youtube_channel?.videos}</span>
-        <span>{item.youtube_channel?.subs}</span>
+        <span>{item.youtubeChannel?.videoCount}</span>
+        <span>{item.youtubeChannel?.subcriberCount}</span>
       </section>
 
       <div className="flex gap-2 z-20 w-full items-center pl-2">
@@ -123,13 +123,13 @@ export const YoutubeChannel = ({ item }: { item: SingleTab }) => {
             width={360 / 2}
             height={360 / 2}
             className="size-8 object-cover xaspect-square rounded-full"
-            src={item.youtube_channel?.avatar}
+            src={item.youtubeChannel?.avatar}
             alt={item.title}
           />
         </div>
         <div className="max-w-sm pr-2 w-full">
           <p className="text-slate-500 truncatex whitespace-break-spaces text-xs/3 leading-3">
-            {item.youtube_channel?.desc.slice(0, 325)}
+            {item.youtubeChannel?.description.slice(0, 325)}
             {/* {remove_linebreaks(item.youtube?.yt_video_desc).slice(0, maxCharForDesc)} */}
           </p>
         </div>
@@ -165,8 +165,8 @@ export const YoutubePlaylist = ({ item }: { item: SingleTab }) => {
         </div>
       </div>
       <section className="bg-gray-800 hidden xflex items-center gap-2 px-2 py-1 text-xs/3 text-slate-400">
-        <span>{item.youtube_list?.videos}</span>
-        <span>{item.youtube_list?.views}</span>
+        <span>{item.youtubePlaylist?.videoCount}</span>
+        <span>{item.youtubePlaylist?.viewCount}</span>
       </section>
 
       <div className="flex gap-2 z-20 w-full">
@@ -175,13 +175,13 @@ export const YoutubePlaylist = ({ item }: { item: SingleTab }) => {
             width={480 / 2}
             height={360 / 2}
             className="max-w-28 object-contain"
-            src={item.youtube_list?.thumb}
+            src={item.youtubePlaylist?.thumbnail}
             alt={item.title}
           />
         </div>
         <div className="max-w-sm pr-2 w-full">
           <p className="text-slate-500 truncatex whitespace-break-spaces text-xs/3 leading-3`">
-            {item.youtube_list?.desc.slice(0, 325)}
+            {item.youtubePlaylist?.description.slice(0, 325)}
             {/* {remove_linebreaks(item.youtube?.yt_video_desc).slice(0, maxCharForDesc)} */}
           </p>
         </div>

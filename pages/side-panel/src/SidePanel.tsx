@@ -1,6 +1,6 @@
 import '@src/SidePanel.css';
-import { useStorage, withErrorBoundary, withSuspense } from '@extension/shared';
-import { tabsGroupedStorage, type CategorizedTab, type SingleTab } from '@extension/storage';
+import { CategorizedTab, SingleTab, useStorage, withErrorBoundary, withSuspense } from '@extension/shared';
+import { tabsGroupedStorage } from '@extension/storage';
 import { useState } from 'react';
 import { Button } from '@extension/ui';
 import { YoutubePlaylist, YoutubeVideo, YoutubeChannel } from './YoutubeTab';
@@ -110,11 +110,11 @@ function TabList({ groupedTabs }: { groupedTabs: { [category: string]: SingleTab
             </h4>
             {/* Items in the Category */}
             {items.map((item, index) =>
-              item.item_type === 'yt-video' ? (
+              item.itemType === 'yt-video' ? (
                 <YoutubeVideo key={item.datetime} item={item} />
-              ) : item.item_type === 'yt-playlist' ? (
+              ) : item.itemType === 'yt-playlist' ? (
                 <YoutubePlaylist key={item.datetime} item={item} />
-              ) : item.item_type === 'yt-channel' ? (
+              ) : item.itemType === 'yt-channel' ? (
                 <YoutubeChannel key={item.datetime} item={item} />
               ) : (
                 <GenericTab key={item.datetime} item={item} />

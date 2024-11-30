@@ -1,6 +1,7 @@
 import { StorageEnum } from '../base/enums';
 import { createStorage } from '../base/base';
 import type { BaseStorage } from '../base/types';
+import { CategorizedTab, SingleTab } from '../../../shared';
 
 // async function updateTabsForRenamedTag(oldTag: string, newTag: string) {
 //  const tabsGrouped = await tabsGroupedStorage.get();
@@ -21,87 +22,9 @@ import type { BaseStorage } from '../base/types';
 //   await tabsGroupedStorage.set(updatedTabsGrouped);
 // }
 
-export type YoutubeVideo = {
-  channel_name: string;
-  avatar: string;
-  desc: string;
-  thumb: string;
-};
-
-export type YoutubeChannel = {
-  name: string;
-  avatar: string;
-  banner: string;
-  desc: string;
-  subs: string;
-  videos: string;
-  is_subbed: boolean;
-};
-
-export type YoutubeList = {
-  title: string;
-  channel: string;
-  avatar: string;
-  thumb: string;
-  desc: string;
-  views: string;
-  videos: string;
-};
-
-export type ItemType =
-  | 'other'
-  | 'yt-video'
-  | 'yt-channel'
-  | 'yt-playlist'
-  | 'github-repo'
-  | 'x-post'
-  | 'x-profile'
-  | 'x-channel'
-  | 'x-list'
-  | 'twitter-tweet'
-  | 'twitter-user'
-  | 'twitter-list'
-  | 'instagram-post'
-  | 'instagram-user'
-  | 'instagram-story'
-  | 'soundcloud-track'
-  | 'soundcloud-playlist'
-  | 'dev-to-post'
-  | 'dev-to-user'
-  | 'dribble-shot'
-  | 'dribble-team'
-  | 'eksi-post'
-  | 'eksi-user'
-  | 'aliexpress-product'
-  | 'aliexpress-user'
-  | 'amazon-product'
-  | 'amazon-user'
-  | 'reddit'
-  | undefined;
-
-export type SingleTab = {
-  title: string;
-  description: string;
-  origin: string;
-  url: string;
-  icon: string;
-  note: string | undefined;
-  tags: string[];
-  datetime: string; // ISO string representing the saved time
-  item_type: ItemType;
-  youtube_video: YoutubeVideo | undefined;
-  youtube_channel: YoutubeChannel | undefined;
-  youtube_list: YoutubeList | undefined;
-};
-
 // type CategorizedTabsType = {
 //   [category: string]: SingleTabType[];
 // }
-
-export type CategorizedTab = {
-  category: string;
-  item: SingleTab;
-};
 
 type TabsStorage = BaseStorage<CategorizedTab[]> & {
   save: (data: CategorizedTab) => Promise<void>;
