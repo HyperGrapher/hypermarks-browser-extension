@@ -35,3 +35,15 @@ export async function getAllTabIcons(): Promise<
     });
   });
 }
+
+export async function deleteAllTabData(): Promise<void> {
+  try {
+    await chrome.storage.local.remove('pageInfoList');
+    await chrome.storage.local.remove('tabs-storage-key');
+    await chrome.storage.local.remove('grouped-tabs-storage');
+    console.log('Page list cleared successfully');
+    // Optionally refresh your UI here...
+  } catch (error) {
+    console.error('Error clearing page list:', error);
+  }
+}
