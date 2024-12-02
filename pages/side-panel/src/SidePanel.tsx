@@ -94,7 +94,7 @@ function TabList({ groupedTabs }: { groupedTabs: { [category: string]: SingleTab
             className="bg-gray-700 p-2 text-white"
             onChange={e => setSelectedTags(e.target.value.split(',').map(tag => tag.trim()))}
           />
-          <pre>{JSON.stringify(tabsToDisplay, null, 1)}</pre>
+          <pre>{JSON.stringify(groupedTabs, null, 2)}</pre>
         </div>
       )}
 
