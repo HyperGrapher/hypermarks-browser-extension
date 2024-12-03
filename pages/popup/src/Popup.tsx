@@ -20,15 +20,11 @@ const Popup = () => {
   const [tags, setTags] = useState<string[] | null>(null);
 
   useEffect(() => {
-    // chrome.storage.local.get(['tags'], function (result) {
-    //   setTags(result.tags);
-    // });
-
     console.log(tags);
   }, [tags]);
 
   function saveTab() {
-    saveCurrentTab()
+    saveCurrentTab(tags)
       .then(val => {
         if (val) {
           setMessage('Tab saved!');

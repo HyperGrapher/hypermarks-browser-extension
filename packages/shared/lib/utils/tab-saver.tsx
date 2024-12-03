@@ -18,7 +18,7 @@ function categorizeTab(url: string): string {
   return 'Uncategorized';
 }
 
-export async function saveCurrentTab(): Promise<boolean> {
+export async function saveCurrentTab(tags: string[] | null): Promise<boolean> {
   const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
   if (!activeTab?.id) return false;
@@ -203,7 +203,7 @@ export async function saveCurrentTab(): Promise<boolean> {
     url: data.url || '',
     icon: favicon || '',
     datetime: new Date().toISOString(),
-    tags: ['tag1', 'tag2'],
+    tags: tags ?? [],
     itemType: data.item_type,
     note: undefined,
     youtubeChannel: data.youtube_channel ?? undefined,

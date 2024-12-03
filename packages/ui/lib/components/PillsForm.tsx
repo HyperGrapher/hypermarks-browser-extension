@@ -9,6 +9,10 @@ import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from './ui/form';
 
+// chrome.storage.local.get(['tags'], function (result) {
+//   setTags(result.tags);
+// });
+
 const tailwindColors = [
   { id: '1', name: 'red-500' },
   { id: '2', name: 'blue-500' },
