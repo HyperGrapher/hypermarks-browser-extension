@@ -46,7 +46,7 @@ export const PillsFormDemo = ({ setTags }: { setTags: React.Dispatch<React.SetSt
   const form = useForm<FormSchema>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      colors: ['red-500'],
+      colors: [],
     },
   });
 
@@ -57,7 +57,7 @@ export const PillsFormDemo = ({ setTags }: { setTags: React.Dispatch<React.SetSt
 
   return (
     <>
-      <Card className="preview-card">
+      <Card className="w-full">
         {/* <CardHeader>
           <CardTitle>Select Pills Form</CardTitle>
           <CardDescription>
@@ -72,7 +72,7 @@ export const PillsFormDemo = ({ setTags }: { setTags: React.Dispatch<React.SetSt
               name="colors"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Tailwind colors</FormLabel>
+                  {/* <FormLabel>Tailwind colors</FormLabel> */}
                   <FormControl>
                     <SelectPills
                       data={tailwindColors}
@@ -80,6 +80,10 @@ export const PillsFormDemo = ({ setTags }: { setTags: React.Dispatch<React.SetSt
                       onValueChange={selectedValues => {
                         setTags(selectedValues);
                         field.onChange(selectedValues);
+                        console.log({ val: field.value, selectedValues });
+
+                        if (selectedValues.length === 0) {
+                        }
                       }}
                       placeholder="Search colors eg. orange-500"
                     />
@@ -87,7 +91,7 @@ export const PillsFormDemo = ({ setTags }: { setTags: React.Dispatch<React.SetSt
                   {/* <FormDescription>
                       Select one or more Tailwind colors
                     </FormDescription> */}
-                  <FormMessage />
+                  {/* <FormMessage /> */}
                 </FormItem>
               )}
             />
@@ -96,11 +100,15 @@ export const PillsFormDemo = ({ setTags }: { setTags: React.Dispatch<React.SetSt
         </Form>
         {/* </CardContent> */}
       </Card>
+    </>
+  );
+};
 
-      <div className="console w-full border-t bg-muted/30 dark:bg-zinc-900 text-primary/70 text-xs">
+/*
+<div className="console w-full border-t bg-muted/30 dark:bg-zinc-900 text-primary/70 text-xs">
         {form.formState.isValid ? (
           <div className="w-full">
-            <pre className="p-4">{/* {JSON.stringify(form.getValues(), null, 2)} */}</pre>
+            <pre className="p-4"></pre>
           </div>
         ) : (
           <div className="flex items-center text-sm text-zinc-400 font-mono">
@@ -111,6 +119,5 @@ export const PillsFormDemo = ({ setTags }: { setTags: React.Dispatch<React.SetSt
           </div>
         )}
       </div>
-    </>
-  );
-};
+
+*/

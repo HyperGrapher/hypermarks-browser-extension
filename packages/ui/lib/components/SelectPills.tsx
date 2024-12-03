@@ -38,6 +38,8 @@ export const SelectPills: React.FC<SelectPillsProps> = ({
     item => item.name.toLowerCase().includes(inputValue.toLowerCase()) && !selectedPills.includes(item.name),
   );
 
+  filteredItems.push({ name: inputValue, value: inputValue });
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setInputValue(newValue);
@@ -48,7 +50,8 @@ export const SelectPills: React.FC<SelectPillsProps> = ({
       item => item.name.toLowerCase().includes(newValue.toLowerCase()) && !(value || selectedPills).includes(item.name),
     );
 
-    setIsOpen(hasUnselectedMatches);
+    setIsOpen(true);
+    // setIsOpen(hasUnselectedMatches);
 
     requestAnimationFrame(() => {
       inputRef.current?.focus();
@@ -147,7 +150,7 @@ export const SelectPills: React.FC<SelectPillsProps> = ({
 
   return (
     <Popover open={isOpen} onOpenChange={handleOpenChange}>
-      <div className="flex flex-wrap gap-2 min-h-12">
+      <div className="flex flex-wrap gap-2 min-h-12 w-full">
         {(value || selectedPills).map(pill => (
           <Badge
             key={pill}
@@ -167,6 +170,7 @@ export const SelectPills: React.FC<SelectPillsProps> = ({
             ref={inputRef}
             type="text"
             value={inputValue}
+            onClick={() => setIsOpen(true)}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
@@ -194,25 +198,27 @@ export const SelectPills: React.FC<SelectPillsProps> = ({
           onKeyDown={e => handleRadioKeyDown(e, highlightedIndex)}
           className="max-h-[200px] overflow-y-auto">
           {filteredItems.map((item, index) => (
-            <div
-              key={item.id || item.value || item.name}
-              className={cn(
-                'relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent/70 focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&>svg]:size-4 [&>svg]:shrink-0',
-                highlightedIndex === index && 'bg-accent',
-              )}>
-              <input
-                type="radio"
-                id={`pill-${item.name}`}
-                name="pill-selection"
-                value={item.name}
-                className="sr-only"
-                checked={highlightedIndex === index}
-                onChange={() => handleItemSelect(item)}
-              />
-              <label htmlFor={`pill-${item.name}`} className="flex items-center w-full cursor-pointer">
-                {item.name}
-              </label>
-            </div>
+            <>
+              <div
+                key={item.id || item.value || item.name}
+                className={cn(
+                  'relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent/70 focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&>svg]:size-4 [&>svg]:shrink-0',
+                  highlightedIndex === index && 'bg-accent',
+                )}>
+                <input
+                  type="radio"
+                  id={`pill-${item.name}`}
+                  name="pill-selection"
+                  value={item.name}
+                  className="sr-only"
+                  checked={highlightedIndex === index}
+                  onChange={() => handleItemSelect(item)}
+                />
+                <label htmlFor={`pill-${item.name}`} className="flex items-center w-full cursor-pointer">
+                  {item.name}
+                </label>
+              </div>
+            </>
           ))}
         </div>
       </PopoverContent>

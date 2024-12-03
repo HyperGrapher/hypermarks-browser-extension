@@ -20,7 +20,7 @@ const Popup = () => {
   const [tags, setTags] = useState<string[] | null>(null);
 
   useEffect(() => {
-    console.log(tags);
+    // console.log(tags);
   }, [tags]);
 
   function saveTab() {
