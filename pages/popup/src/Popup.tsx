@@ -1,6 +1,7 @@
 import '@src/Popup.css';
 import { deleteAllTabData, saveCurrentTab, withErrorBoundary, withSuspense } from '@extension/shared';
-import { Button, PillsFormDemo } from '@extension/ui';
+import { Button, cn, PillsFormDemo } from '@extension/ui';
+import { useEffect, useState } from 'react';
 
 /*
  #* fikir su:
@@ -15,6 +16,31 @@ import { Button, PillsFormDemo } from '@extension/ui';
  */
 
 const Popup = () => {
+  const [message, setMessage] = useState('Save current tab');
+  const [tags, setTags] = useState<string[] | null>(null);
+
+  useEffect(() => {
+    // chrome.storage.local.get(['tags'], function (result) {
+    //   setTags(result.tags);
+    // });
+
+    console.log(tags);
+  }, [tags]);
+
+  function saveTab() {
+    saveCurrentTab()
+      .then(val => {
+        if (val) {
+          setMessage('Tab saved!');
+        }
+      })
+      .catch(err => {
+        console.log(err);
+        setMessage('Error occured');
+      })
+      .finally(() => setTimeout(() => setMessage('Save current tab'), 2000));
+  }
+
   function sendMessage() {
     chrome.runtime.sendMessage({ action: 'open-side-panel' });
   }
@@ -29,14 +55,18 @@ const Popup = () => {
   return (
     <div className={`App`}>
       <header className={`App-header h-full`}>
-        <PillsFormDemo />
+        <PillsFormDemo setTags={setTags} />
 
         <div className="space-y-2 pb-4">
           <Button
-            onClick={saveCurrentTab}
+            onClick={saveTab}
             variant="default"
-            className="shadow hover:scale-[1.02] w-full transition-all">
-            Save current Tab
+            className={cn(
+              'shadow hover:scale-[1.02] w-full transition-all',
+              message === 'Tab saved!' ? 'bg-green-500 hover:bg-green-600' : '',
+              message === 'Error occured' ? 'bg-red-500 hover:bg-red-600' : '',
+            )}>
+            {message}
           </Button>
           <Button
             variant="destructive"

@@ -1,7 +1,7 @@
 import React from 'react';
 import { cn } from './utils';
-import { SingleTab, tabsGroupedStorage } from '@extension/storage';
-import { useWindowSize } from '@extension/shared';
+import { tabsGroupedStorage } from '@extension/storage';
+import { SingleTab, useWindowSize } from '@extension/shared';
 
 // TODO:  if no icon/thumbnail, show default ones
 // https://www.youtube.com/playlist?list=PLRnI_2_ZWhtCxHQ_3zDfW0-RgiWo8ftyj
@@ -33,7 +33,12 @@ export const GenericTab = ({ item }: { item: SingleTab }) => {
       </button>
 
       <div className="xyt-item flex items-centerx gap-2 pb-1 pt-2 px-3">
-        <img src={item.icon ?? ''} alt="icon" className="size-4 translate-y-[1px]" />
+        <img
+          src={item.icon}
+          alt="icon"
+          className="size-4 translate-y-[1px]"
+          onError={e => (e.currentTarget.src = chrome.runtime.getURL('side-panel/icon-fallback.png'))}
+        />
 
         <div className="">
           <a

@@ -40,7 +40,7 @@ export const YoutubeVideo = ({ item }: { item: SingleTab }) => {
       </button>
 
       <div className="xyt-item flex items-centerx gap-2 pb-1 pt-2 px-3">
-        <img src={item.icon ?? ''} alt="icon" className="size-4 translate-y-[1px]" />
+        <img className="size-4 translate-y-[1px]" src={item.icon} alt="icon" />
 
         <div className="">
           <a
@@ -62,6 +62,7 @@ export const YoutubeVideo = ({ item }: { item: SingleTab }) => {
             height={188 / 2}
             className="max-w-28 -translate-y-[11px] object-contain"
             src={item.youtubeVideo?.thumbnail}
+            onError={e => (e.currentTarget.src = chrome.runtime.getURL('side-panel/thumbnail.png'))}
             alt={item.title}
           />
         </div>
@@ -177,10 +178,13 @@ export const YoutubePlaylist = ({ item }: { item: SingleTab }) => {
             className="max-w-28 object-contain"
             src={item.youtubePlaylist?.thumbnail}
             alt={item.title}
+            // TODO: resize thumbnail image
+            onError={e => (e.currentTarget.src = chrome.runtime.getURL('side-panel/thumbnail.png'))}
           />
         </div>
         <div className="max-w-sm pr-2 w-full">
           <p className="text-slate-500 truncatex whitespace-break-spaces text-xs/3 leading-3`">
+            {}
             {item.youtubePlaylist?.description.slice(0, 325)}
             {/* {remove_linebreaks(item.youtube?.yt_video_desc).slice(0, maxCharForDesc)} */}
           </p>

@@ -18,10 +18,10 @@ function categorizeTab(url: string): string {
   return 'Uncategorized';
 }
 
-export async function saveCurrentTab(): Promise<void> {
+export async function saveCurrentTab(): Promise<boolean> {
   const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
-  if (!activeTab?.id) return;
+  if (!activeTab?.id) return false;
   const favicon = await getActiveTabIcon();
   const pageInfo = await chrome.scripting.executeScript({
     target: { tabId: activeTab.id },
@@ -191,7 +191,7 @@ export async function saveCurrentTab(): Promise<void> {
 
   if (!data) {
     chrome.notifications.create('save-error', notificationOptions);
-    return;
+    return false;
   }
 
   const titleCleaned = data.title.endsWith('- YouTube') ? data.title.slice(0, -10) : data.title;
@@ -222,4 +222,6 @@ export async function saveCurrentTab(): Promise<void> {
   const category = categorizeTab(tab.url);
 
   await tabsGroupedStorage.save(category, tab);
+
+  return true;
 }

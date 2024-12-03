@@ -38,7 +38,7 @@ const FormSchema = z.object({
 
 type FormSchema = z.infer<typeof FormSchema>;
 
-export const PillsFormDemo = () => {
+export const PillsFormDemo = ({ setTags }: { setTags: React.Dispatch<React.SetStateAction<string[] | null>> }) => {
   const form = useForm<FormSchema>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -73,7 +73,10 @@ export const PillsFormDemo = () => {
                     <SelectPills
                       data={tailwindColors}
                       value={field.value}
-                      onValueChange={field.onChange}
+                      onValueChange={selectedValues => {
+                        setTags(selectedValues);
+                        field.onChange(selectedValues);
+                      }}
                       placeholder="Search colors eg. orange-500"
                     />
                   </FormControl>
