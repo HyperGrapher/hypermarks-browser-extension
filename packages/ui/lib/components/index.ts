@@ -1,3 +1,10 @@
 export * from './Button';
-export * from './YoutubeTab';
 export * from './PillsForm';
+export * from './PillsForm';
+
+export { Badge } from './ui/badge';
+export { Input } from './ui/input';
+export { Popover, PopoverContent, PopoverAnchor } from './ui/popover';
+
+export * from './ui/card';
+export * from './ui/form';

@@ -1,7 +1,8 @@
 import '@src/Popup.css';
 import { deleteAllTabData, saveCurrentTab, withErrorBoundary, withSuspense } from '@extension/shared';
-import { Button, cn, PillsFormDemo } from '@extension/ui';
+import { Button, cn } from '@extension/ui';
 import { useEffect, useState } from 'react';
+import { TagsForm } from './components/TagsForm';
 
 /*
  #* fikir su:
@@ -49,11 +50,11 @@ const Popup = () => {
   }
 
   return (
-    <div className={`App`}>
-      <header className={`App-header h-full`}>
-        <PillsFormDemo setTags={setTags} />
+    <div className={`h-full p-2`}>
+      <header className={`h-80`}>
+        <TagsForm setTags={setTags} />
 
-        <div className="space-y-2 pb-4">
+        <div className="space-y-2 pb-4 mt-auto bg-red-500/10 place-content-end">
           <Button
             onClick={saveTab}
             variant="default"

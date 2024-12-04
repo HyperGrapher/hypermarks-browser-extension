@@ -169,6 +169,7 @@ export const SelectPills: React.FC<SelectPillsProps> = ({
           <Input
             ref={inputRef}
             type="text"
+            className="w-full bg-black"
             value={inputValue}
             onClick={() => setIsOpen(true)}
             onChange={handleInputChange}
