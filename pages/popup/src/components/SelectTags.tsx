@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button, cn } from '@extension/ui';
 
 import { Badge } from '@extension/ui';
@@ -24,17 +24,24 @@ export const SelectTags: React.FC<SelectPillsProps> = ({
   placeholder = 'Type to search...',
 }) => {
   const [inputValue, setInputValue] = useState<string>('');
+  const [tags, setTags] = useState<TagItem[]>([]);
   const [selectedPills, setSelectedPills] = useState<string[]>(value || defaultValue);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const radioGroupRef = useRef<HTMLDivElement>(null);
 
-  const filteredItems = data.filter(
-    item => item.name.toLowerCase().includes(inputValue.toLowerCase()) && !selectedPills.includes(item.name),
-  );
+  useEffect(() => {
+    let filteredItems = data.filter(
+      item => item.name.toLowerCase().startsWith(inputValue.toLowerCase()) && !selectedPills.includes(item.name),
+    );
 
-  filteredItems.push({ name: inputValue /* , value: 0 */ });
+    const equal = filteredItems.some(item => item.name === inputValue);
+
+    inputValue && !equal && filteredItems.push({ name: inputValue, value: undefined });
+
+    setTags(filteredItems);
+  }, [inputValue, data]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     console.log('hey');
@@ -60,7 +67,7 @@ export const SelectTags: React.FC<SelectPillsProps> = ({
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
-        if (isOpen && filteredItems.length > 0) {
+        if (isOpen && tags.length > 0) {
           // Move focus to first radio button
           const firstRadio = radioGroupRef.current?.querySelector('input[type="radio"]') as HTMLElement;
           firstRadio?.focus();
@@ -77,7 +84,7 @@ export const SelectTags: React.FC<SelectPillsProps> = ({
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
-        if (index < filteredItems.length - 1) {
+        if (index < tags.length - 1) {
           setHighlightedIndex(index + 1);
           const nextItem = radioGroupRef.current?.querySelector(`div:nth-child(${index + 2})`) as HTMLElement;
           if (nextItem) {
@@ -106,7 +113,7 @@ export const SelectTags: React.FC<SelectPillsProps> = ({
         break;
       case 'Enter':
         e.preventDefault();
-        handleItemSelect(filteredItems[index]);
+        handleItemSelect(tags[index]);
         inputRef.current?.focus();
         break;
       case 'Escape':
@@ -199,7 +206,7 @@ export const SelectTags: React.FC<SelectPillsProps> = ({
           aria-label="Pill options"
           onKeyDown={e => handleRadioKeyDown(e, highlightedIndex)}
           className="max-h-[200px] overflow-y-auto">
-          {filteredItems.map((item, index) => (
+          {tags.map((item, index) => (
             <div
               key={item.name}
               className={cn(
@@ -216,8 +223,8 @@ export const SelectTags: React.FC<SelectPillsProps> = ({
                 onChange={() => handleItemSelect(item)}
               />
               <label htmlFor={`pill-${item.name}`} className="flex justify-between items-center w-full cursor-pointer">
-                <span> {item.name}</span>
-                <span className="text-stone-500"> {item.value}</span>
+                <span className="font-medium"> {item.name}</span>
+                <span className="text-slate-500 text-sm"> {item.value ?? 'New tag'}</span>
               </label>
             </div>
           ))}
