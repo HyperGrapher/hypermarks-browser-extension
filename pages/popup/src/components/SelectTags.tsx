@@ -24,39 +24,23 @@ export const SelectTags: React.FC<SelectPillsProps> = ({
   placeholder = 'Type to search...',
 }) => {
   const [inputValue, setInputValue] = useState<string>('');
-  const [tags, setTags] = useState<TagItem[]>([]);
   const [selectedPills, setSelectedPills] = useState<string[]>(value || defaultValue);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const radioGroupRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    let filteredItems = data.filter(
-      item => item.name.toLowerCase().startsWith(inputValue.toLowerCase()) && !selectedPills.includes(item.name),
-    );
-
-    const equal = filteredItems.some(item => item.name === inputValue);
-
-    inputValue && !equal && filteredItems.push({ name: inputValue, value: undefined });
-
-    setTags(filteredItems);
-  }, [inputValue, data]);
+  let filteredItems = data.filter(
+    item => item.name.toLowerCase().startsWith(inputValue.toLowerCase()) && !selectedPills.includes(item.name),
+  );
+  const isEqualValue = filteredItems.some(item => item.name === inputValue);
+  inputValue && !isEqualValue && filteredItems.push({ name: inputValue, value: undefined });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log('hey');
-
     const newValue = e.target.value;
     setInputValue(newValue);
     setHighlightedIndex(-1);
-
-    // Only open the popover if we have matching items that aren't already selected
-    const hasUnselectedMatches = data.some(
-      item => item.name.toLowerCase().includes(newValue.toLowerCase()) && !(value || selectedPills).includes(item.name),
-    );
-
     setIsOpen(true);
-    // setIsOpen(hasUnselectedMatches);
 
     requestAnimationFrame(() => {
       inputRef.current?.focus();
@@ -67,7 +51,7 @@ export const SelectTags: React.FC<SelectPillsProps> = ({
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
-        if (isOpen && tags.length > 0) {
+        if (isOpen && filteredItems.length > 0) {
           // Move focus to first radio button
           const firstRadio = radioGroupRef.current?.querySelector('input[type="radio"]') as HTMLElement;
           firstRadio?.focus();
@@ -84,7 +68,7 @@ export const SelectTags: React.FC<SelectPillsProps> = ({
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
-        if (index < tags.length - 1) {
+        if (index < filteredItems.length - 1) {
           setHighlightedIndex(index + 1);
           const nextItem = radioGroupRef.current?.querySelector(`div:nth-child(${index + 2})`) as HTMLElement;
           if (nextItem) {
@@ -113,7 +97,7 @@ export const SelectTags: React.FC<SelectPillsProps> = ({
         break;
       case 'Enter':
         e.preventDefault();
-        handleItemSelect(tags[index]);
+        handleItemSelect(filteredItems[index]);
         inputRef.current?.focus();
         break;
       case 'Escape':
@@ -160,7 +144,7 @@ export const SelectTags: React.FC<SelectPillsProps> = ({
           <Input
             ref={inputRef}
             type="text"
-            className="w-full bg-zinc-900 placeholder:text-sm placeholder:text-zinc-500 border-0 text-sm"
+            className="w-full shadow-lg bg-zinc-900 outline outline-zinc-700 outline-1 placeholder:text-sm placeholder:text-zinc-500 border-0 text-sm"
             value={inputValue}
             onClick={() => setIsOpen(true)}
             onChange={handleInputChange}
@@ -188,6 +172,7 @@ export const SelectTags: React.FC<SelectPillsProps> = ({
       </div>
 
       <PopoverContent
+        className="bg-zinc-900 border-zinc-700/70 text-zinc-200 shadow-lg rounded"
         onFocusOutside={e => {
           // Prevent closing if focus is in the input
           if (e.target === inputRef.current) {
@@ -205,8 +190,8 @@ export const SelectTags: React.FC<SelectPillsProps> = ({
           role="radiogroup"
           aria-label="Pill options"
           onKeyDown={e => handleRadioKeyDown(e, highlightedIndex)}
-          className="max-h-[200px] overflow-y-auto">
-          {tags.map((item, index) => (
+          className="max-h-[200px] overflow-y-auto ">
+          {filteredItems.map((item, index) => (
             <div
               key={item.name}
               className={cn(
@@ -223,8 +208,8 @@ export const SelectTags: React.FC<SelectPillsProps> = ({
                 onChange={() => handleItemSelect(item)}
               />
               <label htmlFor={`pill-${item.name}`} className="flex justify-between items-center w-full cursor-pointer">
-                <span className="font-medium"> {item.name}</span>
-                <span className="text-slate-500 text-sm"> {item.value ?? 'New tag'}</span>
+                <span className="font-medium text-zinc-200 text-sm"> {item.name}</span>
+                <span className="text-zinc-500 text-sm/3 pr-2"> {item.value ?? 'New tag'}</span>
               </label>
             </div>
           ))}

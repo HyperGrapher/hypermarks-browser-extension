@@ -100,7 +100,7 @@ export const TagsForm = ({ setTags }: { setTags: React.Dispatch<React.SetStateAc
                     <SelectTags
                       data={tagsFromDb}
                       value={field.value}
-                      placeholder="Add tags.."
+                      // placeholder="Add tags.."
                       onValueChange={selectedValues => {
                         setTags(selectedValues);
                         field.onChange(selectedValues);

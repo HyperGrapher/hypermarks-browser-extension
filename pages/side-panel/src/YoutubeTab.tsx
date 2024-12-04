@@ -74,12 +74,12 @@ export const YoutubeVideo = ({ item }: { item: SingleTab }) => {
           </p>
         </div>
       </div>
-      <section className="py-1 flex flex-wrap gap-2 w-full">
+      <section className="pt-1 flex flex-wrap gap-2 w-full">
         {item.tags.map(pill => (
           <Badge
             key={pill}
             variant="outline"
-            className="hover:cursor-pointer gap-1 text-xs group bg-blue-700 hover:bg-blue-700">
+            className="hover:cursor-pointer gap-1 font-light py-0 text-xs group bg-blue-700/20 hover:bg-blue-700/40">
             {pill}
           </Badge>
         ))}
@@ -146,12 +146,12 @@ export const YoutubeChannel = ({ item }: { item: SingleTab }) => {
           </p>
         </div>
       </div>
-      <section className="py-1 flex flex-wrap gap-2 w-full">
+      <section className="pt-1 flex flex-wrap gap-2 w-full">
         {item.tags.map(pill => (
           <Badge
             key={pill}
             variant="outline"
-            className="hover:cursor-pointer gap-1 text-xs group bg-blue-700 hover:bg-blue-700">
+            className="hover:cursor-pointer gap-1 font-light py-0 text-xs group bg-blue-700/20 hover:bg-blue-700/40">
             {pill}
           </Badge>
         ))}
@@ -212,12 +212,12 @@ export const YoutubePlaylist = ({ item }: { item: SingleTab }) => {
         </div>
       </div>
 
-      <section className="py-1 flex flex-wrap gap-2 w-full">
+      <section className="pt-1 flex flex-wrap gap-2 w-full">
         {item.tags.map(pill => (
           <Badge
             key={pill}
             variant="outline"
-            className="hover:cursor-pointer gap-1 text-xs group bg-blue-700 hover:bg-blue-700">
+            className="hover:cursor-pointer gap-1 font-light py-0 text-xs group bg-blue-700/20 hover:bg-blue-700/40">
             {pill}
           </Badge>
         ))}
