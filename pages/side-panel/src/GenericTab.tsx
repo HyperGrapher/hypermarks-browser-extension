@@ -2,6 +2,7 @@ import React from 'react';
 import { cn } from './utils';
 import { tabsGroupedStorage } from '@extension/storage';
 import { SingleTab, useWindowSize } from '@extension/shared';
+import { Badge } from '@extension/ui';
 
 // TODO:  if no icon/thumbnail, show default ones
 // https://www.youtube.com/playlist?list=PLRnI_2_ZWhtCxHQ_3zDfW0-RgiWo8ftyj
@@ -58,6 +59,16 @@ export const GenericTab = ({ item }: { item: SingleTab }) => {
           </p>
         </div>
       </div>
+      <section className="py-1 flex flex-wrap gap-2 w-full">
+        {item.tags.map(pill => (
+          <Badge
+            key={pill}
+            variant="outline"
+            className="hover:cursor-pointer gap-1 text-xs group bg-blue-700 hover:bg-blue-700">
+            {pill}
+          </Badge>
+        ))}
+      </section>
     </div>
   );
 };

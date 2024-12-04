@@ -1,3 +1,8 @@
+export interface TagItem {
+  name: string;
+  value?: number | string;
+}
+
 export type ValueOf<T> = T[keyof T];
 
 export namespace YouTube {

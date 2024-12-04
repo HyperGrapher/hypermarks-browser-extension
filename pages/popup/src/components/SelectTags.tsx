@@ -6,15 +6,10 @@ import { Input } from '@extension/ui';
 import { Popover, PopoverContent, PopoverAnchor } from '@extension/ui';
 
 import { X } from 'lucide-react';
-
-interface DataItem {
-  id?: string;
-  value?: string;
-  name: string;
-}
+import { TagItem } from '@extension/shared';
 
 interface SelectPillsProps {
-  data: DataItem[];
+  data: TagItem[];
   defaultValue?: string[];
   value?: string[];
   onValueChange?: (selectedValues: string[]) => void;
@@ -39,9 +34,11 @@ export const SelectTags: React.FC<SelectPillsProps> = ({
     item => item.name.toLowerCase().includes(inputValue.toLowerCase()) && !selectedPills.includes(item.name),
   );
 
-  filteredItems.push({ name: inputValue, value: inputValue });
+  filteredItems.push({ name: inputValue /* , value: 0 */ });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('hey');
+
     const newValue = e.target.value;
     setInputValue(newValue);
     setHighlightedIndex(-1);
@@ -120,7 +117,7 @@ export const SelectTags: React.FC<SelectPillsProps> = ({
     }
   };
 
-  const handleItemSelect = (item: DataItem) => {
+  const handleItemSelect = (item: TagItem) => {
     const newSelectedPills = [...selectedPills, item.name];
     setSelectedPills(newSelectedPills);
     setInputValue('');
@@ -204,7 +201,7 @@ export const SelectTags: React.FC<SelectPillsProps> = ({
           className="max-h-[200px] overflow-y-auto">
           {filteredItems.map((item, index) => (
             <div
-              key={item.id || item.value || item.name}
+              key={item.name}
               className={cn(
                 'relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent/70 focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&>svg]:size-4 [&>svg]:shrink-0',
                 highlightedIndex === index && 'bg-accent',
@@ -218,8 +215,9 @@ export const SelectTags: React.FC<SelectPillsProps> = ({
                 checked={highlightedIndex === index}
                 onChange={() => handleItemSelect(item)}
               />
-              <label htmlFor={`pill-${item.name}`} className="flex items-center w-full cursor-pointer">
-                {item.name}
+              <label htmlFor={`pill-${item.name}`} className="flex justify-between items-center w-full cursor-pointer">
+                <span> {item.name}</span>
+                <span className="text-stone-500"> {item.value}</span>
               </label>
             </div>
           ))}
