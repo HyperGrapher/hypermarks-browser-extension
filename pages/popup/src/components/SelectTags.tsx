@@ -144,7 +144,7 @@ export const SelectTags: React.FC<SelectPillsProps> = ({
           <Input
             ref={inputRef}
             type="text"
-            className="w-full shadow-lg bg-zinc-900 outline outline-zinc-700 outline-1 placeholder:text-sm placeholder:text-zinc-500 border-0 text-sm"
+            className="w-full shadow-xl bg-slate-900/50 outline outline-zinc-300/30 outline-1 placeholder:text-sm placeholder:text-zinc-500 border-0 text-sm"
             value={inputValue}
             onClick={() => setIsOpen(true)}
             onChange={handleInputChange}

@@ -29,6 +29,15 @@ importers:
       react-hook-form:
         specifier: ^7.53.2
         version: 7.53.2(react@18.3.1)
+      react-wrap-balancer:
+        specifier: ^1.1.1
+        version: 1.1.1(react@18.3.1)
+      timeago-react:
+        specifier: ^3.0.6
+        version: 3.0.6(react@18.3.1)
+      voca:
+        specifier: ^1.4.1
+        version: 1.4.1
       zod:
         specifier: ^3.23.8
         version: 3.23.8
@@ -45,6 +54,9 @@ importers:
       '@types/react-dom':
         specifier: ^18.3.1
         version: 18.3.1
+      '@types/voca':
+        specifier: ^1.4.6
+        version: 1.4.6
       '@typescript-eslint/eslint-plugin':
         specifier: ^8.15.0
         version: 8.15.0(@typescript-eslint/parser@8.15.0(eslint@9.15.0(jiti@1.21.6))(typescript@5.6.3))(eslint@9.15.0(jiti@1.21.6))(typescript@5.6.3)
@@ -1969,6 +1981,9 @@ packages:
 
   '@types/stack-utils@2.0.3':
     resolution: {integrity: sha512-9aEbYZ3TbYMznPdcdr3SmIrLXwC/AKZXQeCf9Pgao5CKb8CyHuEX5jzWPTkvregvhRJHcpRO6BFoGW9ycaOkYw==}
+
+  '@types/voca@1.4.6':
+    resolution: {integrity: sha512-ubfCfFxlTOhBBUP2v8lzD8AQVKKu9erZ2t9/8hLpuYHYib3CM/lOwTII3mi527j5UeRDaVjIiAx+iTIWgVCWKQ==}
 
   '@types/which@2.0.2':
     resolution: {integrity: sha512-113D3mDkZDjo+EeUEHCFy0qniNc1ZpecGiAU7WSo7YDoSzolZIQKpYFHrPpjkB2nuyahcKfrmLXeQlh7gqJYdw==}
@@ -4233,6 +4248,11 @@ packages:
       '@types/react':
         optional: true
 
+  react-wrap-balancer@1.1.1:
+    resolution: {integrity: sha512-AB+l7FPRWl6uZ28VcJ8skkwLn2+UC62bjiw8tQUrZPlEWDVnR9MG0lghyn7EyxuJSsFEpht4G+yh2WikEqQ/5Q==}
+    peerDependencies:
+      react: '>=16.8.0 || ^17.0.0 || ^18'
+
   react@18.3.1:
     resolution: {integrity: sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==}
     engines: {node: '>=0.10.0'}
@@ -4637,6 +4657,14 @@ packages:
   through@2.3.8:
     resolution: {integrity: sha512-w89qg7PI8wAdvX60bMDP+bFoD5Dvhm9oLheFp5O4a2QF0cSBGsBX4qZmadPMvVqlLJBBci+WqGGOAPvcDeNSVg==}
 
+  timeago-react@3.0.6:
+    resolution: {integrity: sha512-4ywnCX3iFjdp84WPK7gt8s4n0FxXbYM+xv8hYL73p83dpcMxzmO+0W4xJuxflnkWNvum5aEaqTe6LZ3lUIudjQ==}
+    peerDependencies:
+      react: ^0.14.0 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+
+  timeago.js@4.0.2:
+    resolution: {integrity: sha512-a7wPxPdVlQL7lqvitHGGRsofhdwtkoSXPGATFuSOA2i1ZNQEPLrGnj68vOp2sOJTCFAQVXPeNMX/GctBaO9L2w==}
+
   tinyrainbow@1.2.0:
     resolution: {integrity: sha512-weEDEq7Z5eTHPDh4xjX789+fHfF+P8boiFB+0vbWzpbnbsEr/GRaohi/uMKxg8RZMXnl1ItAi/IUHWMsjDV7kQ==}
     engines: {node: '>=14.0.0'}
@@ -4865,6 +4893,9 @@ packages:
         optional: true
       terser:
         optional: true
+
+  voca@1.4.1:
+    resolution: {integrity: sha512-NJC/BzESaHT1p4B5k4JykxedeltmNbau4cummStd4RjFojgq/kLew5TzYge9N2geeWyI2w8T30wUET5v+F7ZHA==}
 
   wait-port@1.1.0:
     resolution: {integrity: sha512-3e04qkoN3LxTMLakdqeWth8nih8usyg+sf1Bgdf9wwUkp05iuK1eSY/QpLvscT/+F/gA89+LpUmmgBtesbqI2Q==}
@@ -6310,6 +6341,8 @@ snapshots:
   '@types/sinonjs__fake-timers@8.1.5': {}
 
   '@types/stack-utils@2.0.3': {}
+
+  '@types/voca@1.4.6': {}
 
   '@types/which@2.0.2': {}
 
@@ -8966,6 +8999,10 @@ snapshots:
     optionalDependencies:
       '@types/react': 18.3.12
 
+  react-wrap-balancer@1.1.1(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+
   react@18.3.1:
     dependencies:
       loose-envify: 1.4.0
@@ -9465,6 +9502,13 @@ snapshots:
 
   through@2.3.8: {}
 
+  timeago-react@3.0.6(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+      timeago.js: 4.0.2
+
+  timeago.js@4.0.2: {}
+
   tinyrainbow@1.2.0: {}
 
   tmp@0.0.33:
@@ -9677,6 +9721,8 @@ snapshots:
       fsevents: 2.3.3
       sass: 1.79.4
       terser: 5.34.1
+
+  voca@1.4.1: {}
 
   wait-port@1.1.0:
     dependencies:

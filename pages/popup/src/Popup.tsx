@@ -66,16 +66,13 @@ const Popup = () => {
             onClick={saveTab}
             variant="default"
             className={cn(
-              'shadow hover:scale-[1.02] w-full transition-all',
-              message === 'Tab saved!' ? 'bg-green-500 hover:bg-green-600' : '',
+              'shadow hover:scale-[1.02] w-full transition-all bg-white/70',
+              message === 'Tab saved!' ? 'bg-blue-500 hover:bg-blue-600' : '',
               message === 'Error occured' ? 'bg-red-500 hover:bg-red-600' : '',
             )}>
             {message}
           </Button>
-          <Button
-            variant="destructive"
-            className=" hover:scale-[1.02] w-full transition-all"
-            onClick={deleteAllTabData}>
+          <Button variant="outline" className=" hover:scale-[1.02] w-full transition-all" onClick={deleteAllTabData}>
             Clear saved pages...
           </Button>
           <Button
@@ -86,7 +83,7 @@ const Popup = () => {
           </Button>
         </div>
       </header>
-      <div className="absolute bottom-0 right-0 left-0 w-full opacity-15 z-0">
+      <div className="absolute bottom-0 right-0 left-0 w-full opacity-10 z-0">
         <svg
           width="100%"
           height="100%"

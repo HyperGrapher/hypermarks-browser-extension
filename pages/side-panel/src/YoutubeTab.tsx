@@ -3,6 +3,8 @@ import { cn } from './utils';
 import { tabsGroupedStorage } from '@extension/storage';
 import { SingleTab, useWindowSize } from '@extension/shared';
 import { Badge } from '@extension/ui';
+import truncate from 'voca/truncate';
+import Balancer from 'react-wrap-balancer';
 
 // TODO:  if no icon/thumbnail, show default ones
 // https://www.youtube.com/playlist?list=PLRnI_2_ZWhtCxHQ_3zDfW0-RgiWo8ftyj
@@ -30,7 +32,11 @@ export const YoutubeVideo = ({ item }: { item: SingleTab }) => {
     width >= 360 && width < 399 ? 134 : width >= 400 && width <= 499 ? 145 : width > 500 ? 260 : 111;
 
   return (
-    <div className={cn('px-1 pb-1 rounded shadow-lg border border-zinc-700', 'bg-zinc-900 w-full relative max-h-36 ')}>
+    <div
+      className={cn(
+        'px-1 pb-1 rounded shadow-lg border border-violet-300/20',
+        'bg-violet-600/10 w-full relative max-h-36 ',
+      )}>
       <button
         className={cn(
           'expand absolute xscale-75 insetx-0 right-1 top-1 xmt-6',
@@ -48,8 +54,9 @@ export const YoutubeVideo = ({ item }: { item: SingleTab }) => {
             href={item.url}
             target="_blank"
             rel="noopener noreferrer"
+            title={item.title}
             className="whitespace-break-spaces truncate font-semibold inline leading-[0.1rem] ">
-            {item.title}
+            {truncate(item.title, 80)}
             {/* {maxCharForDesc?.toString()} */}
             {/* {width?.toString()} -{maxCharForDesc?.toString()} */}
           </a>
@@ -69,7 +76,8 @@ export const YoutubeVideo = ({ item }: { item: SingleTab }) => {
         </div>
         <div className="max-w-sm pr-2 w-full">
           <p className="text-slate-500 truncatex whitespace-break-spaces text-xs/3 leading-3`">
-            {item.youtubeVideo?.description.slice(0, maxCharForDesc)}
+            {/* {item.youtubeVideo?.description.slice(0, maxCharForDesc)} */}
+            {truncate(item.description, maxCharForDesc)}
             {/* {remove_linebreaks(item.youtube?.yt_video_desc).slice(0, maxCharForDesc)} */}
           </p>
         </div>
@@ -98,8 +106,8 @@ export const YoutubeChannel = ({ item }: { item: SingleTab }) => {
   return (
     <div
       className={cn(
-        'px-1 pb-1 rounded shadow-lg border border-gray-700',
-        'bg-slate-950 w-full relative max-h-36 flex flex-col',
+        'px-1 pb-1 rounded shadow-lg border border-gray-300/20',
+        'bg-slate-600/10 w-full relative max-h-36 flex flex-col',
       )}>
       <button
         className={cn(
@@ -117,9 +125,10 @@ export const YoutubeChannel = ({ item }: { item: SingleTab }) => {
           <a
             href={item.url}
             target="_blank"
+            title={item.title}
             rel="noopener noreferrer"
             className="whitespace-break-spaces truncate font-semibold inline text-slate-300">
-            {item.title}
+            {truncate(item.title, 80)}
             {/* {width?.toString()} -{maxCharForDesc?.toString()} */}
           </a>
         </div>
@@ -136,12 +145,12 @@ export const YoutubeChannel = ({ item }: { item: SingleTab }) => {
             height={360 / 2}
             className="size-8 object-cover xaspect-square rounded-full"
             src={item.youtubeChannel?.avatar}
-            alt={item.title}
           />
         </div>
         <div className="max-w-sm pr-2 w-full">
           <p className="text-slate-500 truncatex whitespace-break-spaces text-xs/3 leading-3">
-            {item.youtubeChannel?.description.slice(0, 325)}
+            {truncate(item.youtubeChannel?.description, 325)}
+            {/* {item.youtubeChannel?.description.slice(0, 325)} */}
             {/* {remove_linebreaks(item.youtube?.yt_video_desc).slice(0, maxCharForDesc)} */}
           </p>
         </div>
@@ -162,7 +171,11 @@ export const YoutubeChannel = ({ item }: { item: SingleTab }) => {
 
 export const YoutubePlaylist = ({ item }: { item: SingleTab }) => {
   return (
-    <div className={cn('px-1 pb-1 rounded shadow-lg border border-gray-700', 'bg-gray-900 w-full relative max-h-36')}>
+    <div
+      className={cn(
+        'px-1 pb-1 rounded shadow-lg border border-green-300/20',
+        'bg-green-600/10 w-full relative max-h-36',
+      )}>
       <button
         className={cn(
           'expand absolute xscale-75 insetx-0 right-1 top-1 xmt-6',
@@ -179,9 +192,10 @@ export const YoutubePlaylist = ({ item }: { item: SingleTab }) => {
           <a
             href={item.url}
             target="_blank"
+            title={item.title}
             rel="noopener noreferrer"
             className="whitespace-break-spaces truncate font-semibold inline">
-            {item.title}
+            {truncate(item.title, 80)}
             {/* {width?.toString()} -{maxCharForDesc?.toString()} */}
           </a>
         </div>

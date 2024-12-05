@@ -26,11 +26,11 @@ body {
 }
 
 body {
-  /* background: linear-gradient(to right bottom, hsl(216, 19%, 26%), hsl(220, 39%, 11%), hsl(0, 39%, 11%)); */
+  background: linear-gradient(to right bottom, hsl(216, 19%, 26%), hsl(220, 39%, 11%), hsl(0, 39%, 11%));
 
 }
 
-.body:before {
+.ex-body:before {
   content: ' ';
   display: block;
   position: absolute;

@@ -2,7 +2,7 @@ import '@src/SidePanel.css';
 import { CategorizedTab, SingleTab, useStorage, withErrorBoundary, withSuspense } from '@extension/shared';
 import { tabsGroupedStorage } from '@extension/storage';
 import { useState } from 'react';
-import { Button } from '@extension/ui';
+import { Button, cn } from '@extension/ui';
 import { YoutubePlaylist, YoutubeVideo, YoutubeChannel } from './YoutubeTab';
 import { GenericTab } from './GenericTab';
 
@@ -105,9 +105,14 @@ function TabList({ groupedTabs }: { groupedTabs: { [category: string]: SingleTab
         Object.entries(tabsToDisplay).map(([category, items]) => (
           <div key={category} className="xmt-4 space-y-1">
             {/* Category Title */}
-            <h4 className="text mt-3 mb-0.5 font-semibold text-blue-200 bg-blue-800/40 border border-blue-600/30 rounded-md px-4">
-              {category}
-            </h4>
+            <section
+              className={cn(
+                'mt-3 mb-0.5 px-4 rounded-md shadow-lg',
+                'text-blue-200/80 bg-sky-800/30 border border-sky-600/30',
+                'selection:bg-sky-600/80 selection:text-sky-300',
+              )}>
+              <h4 className="font-semibold ">{category}</h4>
+            </section>
             {/* Items in the Category */}
             {items.map((item, index) =>
               item.itemType === 'yt-video' ? (
