@@ -1,7 +1,7 @@
 import '@src/Popup.css';
 import { deleteAllTabData, saveCurrentTab, withErrorBoundary, withSuspense } from '@extension/shared';
-import { Button, cn, DropdownSelect } from '@extension/ui';
-import { useEffect, useState } from 'react';
+import { Button, cn, DropdownSelect, Input } from '@extension/ui';
+import { useEffect, useRef, useState } from 'react';
 import { TagsForm } from './components/TagsForm';
 
 /*
@@ -26,10 +26,12 @@ import { TagsForm } from './components/TagsForm';
 const Popup = () => {
   const [message, setMessage] = useState('Save current tab');
   const [tags, setTags] = useState<string[] | null>(null);
-
-  useEffect(() => {
-    // console.log(tags);
-  }, [tags]);
+  const [isNewCategory, setIsNewCategory] = useState(false);
+  const [searchItem, setSearchItem] = useState('');
+  const ref = useRef<HTMLInputElement>(null);
+  // useEffect(() => {
+  // console.log(tags);
+  // }, [tags]);
 
   function saveTab() {
     saveCurrentTab(tags)
@@ -49,8 +51,12 @@ const Popup = () => {
     chrome.runtime.sendMessage({ action: 'open-side-panel' });
   }
 
-  function ons(val: string) {
+  function ons(val: string | null | undefined) {
     console.log(val);
+  }
+
+  function onNewCategory() {
+    console.log('new category');
   }
 
   async function side() {
@@ -60,6 +66,19 @@ const Popup = () => {
     });
   }
 
+  function onCloseNewCategory() {
+    console.log('new category');
+    setIsNewCategory(false);
+    const btn = document.querySelector('#dropdown-selecti') as HTMLButtonElement;
+    setTimeout(() => {
+      if (btn) {
+        console.log('btn clicked');
+        btn.click();
+        btn.focus();
+      }
+    }, 1000);
+  }
+
   return (
     <div className={` p-2 z-10 px-4 pt-3`}>
       <header className={`h-80`}>
@@ -67,10 +86,42 @@ const Popup = () => {
           <DropdownSelect
             onValueChange={val => ons(val)}
             onItemSelect={val => ons(val)}
+            setNewCategory={() => setIsNewCategory(true)}
             name="categories"
             placeholder="Select category"
             variant="default"
+            valid={!isNewCategory}
           />
+          {isNewCategory && (
+            <section>
+              <Input
+                type="text"
+                autoFocus
+                className="w-full xshadow-xl bg-slate-900/50 outline outline-zinc-300/30 outline-1 placeholder:text-sm placeholder:text-zinc-500"
+                value={searchItem}
+                placeholder="Create new category"
+                // onClick={() => setIsOpen(true)}
+                onChange={e => setSearchItem(e.target.value)}
+                // onKeyDown={handleKeyDown}
+                // placeholder={placeholder}
+              />
+              <div className="flex gap-2 mt-2">
+                <Button
+                  onClick={() => onCloseNewCategory()}
+                  className="bg-slate-900 text-white w-full"
+                  variant={'outline'}>
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => setIsNewCategory(false)}
+                  className="bg-slate-900 text-white w-full"
+                  variant={'outline'}>
+                  Add
+                </Button>
+              </div>
+            </section>
+          )}
+
           <TagsForm setTags={setTags} />
         </div>
 
@@ -137,4 +188,7 @@ const Popup = () => {
   );
 };
 
-export default withErrorBoundary(withSuspense(Popup, <div> Loading ... </div>), <div> Error Occur </div>);
+export default withErrorBoundary(
+  withSuspense(Popup, <div> Loading ... </div>),
+  <div className="text-red-500 min-h-16"> Error Occured </div>,
+);
