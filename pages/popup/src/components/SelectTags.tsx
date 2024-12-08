@@ -172,7 +172,7 @@ export const SelectTags: React.FC<SelectPillsProps> = ({
       </div>
 
       <PopoverContent
-        className="bg-zinc-900 border-zinc-700/70 text-zinc-200 shadow-lg rounded"
+        className="border-zinc-700/70 text-zinc-200 shadow-lg rounded max-h-[200px] overflow-y-auto "
         onFocusOutside={e => {
           // Prevent closing if focus is in the input
           if (e.target === inputRef.current) {
@@ -189,8 +189,7 @@ export const SelectTags: React.FC<SelectPillsProps> = ({
           ref={radioGroupRef}
           role="radiogroup"
           aria-label="Pill options"
-          onKeyDown={e => handleRadioKeyDown(e, highlightedIndex)}
-          className="max-h-[200px] overflow-y-auto ">
+          onKeyDown={e => handleRadioKeyDown(e, highlightedIndex)}>
           {filteredItems.map((item, index) => (
             <div
               key={item.name}

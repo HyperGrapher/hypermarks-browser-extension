@@ -1,8 +1,10 @@
 import '@src/Popup.css';
-import { deleteAllTabData, saveCurrentTab, withErrorBoundary, withSuspense } from '@extension/shared';
+import { deleteAllTabData, saveCurrentTab, useStorage, withErrorBoundary, withSuspense } from '@extension/shared';
 import { Button, cn, DropdownSelect, Input } from '@extension/ui';
 import { useEffect, useRef, useState } from 'react';
 import { TagsForm } from './components/TagsForm';
+import { tabsGroupedStorage } from '@extension/storage';
+import { set } from 'react-hook-form';
 
 /*
  #* fikir su:
@@ -29,12 +31,15 @@ const Popup = () => {
   const [isNewCategory, setIsNewCategory] = useState(false);
   const [searchItem, setSearchItem] = useState('');
   const ref = useRef<HTMLInputElement>(null);
+  const groupedTabs = useStorage(tabsGroupedStorage);
+  const [cats, setCats] = useState(groupedTabs);
+
   // useEffect(() => {
   // console.log(tags);
   // }, [tags]);
 
   function saveTab() {
-    saveCurrentTab(tags)
+    saveCurrentTab(tags, searchItem)
       .then(val => {
         if (val) {
           setMessage('Tab saved!');
@@ -57,6 +62,9 @@ const Popup = () => {
 
   function onNewCategory() {
     console.log('new category');
+    // groupedTabs[searchItem] = [];
+    setCats({ ...groupedTabs, [searchItem]: [] });
+    setIsNewCategory(false);
   }
 
   async function side() {
@@ -84,8 +92,9 @@ const Popup = () => {
       <header className={`h-80`}>
         <div className="my-4 space-y-2">
           <DropdownSelect
-            onValueChange={val => ons(val)}
-            onItemSelect={val => ons(val)}
+            items={cats}
+            onValueChange={val => setSearchItem(val)}
+            onItemSelect={val => setSearchItem(val)}
             setNewCategory={() => setIsNewCategory(true)}
             name="categories"
             placeholder="Select category"
@@ -100,22 +109,13 @@ const Popup = () => {
                 className="w-full xshadow-xl bg-slate-900/50 outline outline-zinc-300/30 outline-1 placeholder:text-sm placeholder:text-zinc-500"
                 value={searchItem}
                 placeholder="Create new category"
-                // onClick={() => setIsOpen(true)}
                 onChange={e => setSearchItem(e.target.value)}
-                // onKeyDown={handleKeyDown}
-                // placeholder={placeholder}
               />
               <div className="flex gap-2 mt-2">
-                <Button
-                  onClick={() => onCloseNewCategory()}
-                  className="bg-slate-900 text-white w-full"
-                  variant={'outline'}>
+                <Button onClick={() => onCloseNewCategory()} className="shrink" variant={'destructive'}>
                   Cancel
                 </Button>
-                <Button
-                  onClick={() => setIsNewCategory(false)}
-                  className="bg-slate-900 text-white w-full"
-                  variant={'outline'}>
+                <Button onClick={() => onNewCategory()} className="w-full grow" variant={'default'}>
                   Add
                 </Button>
               </div>

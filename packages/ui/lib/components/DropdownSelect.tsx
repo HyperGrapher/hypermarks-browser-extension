@@ -2,20 +2,10 @@ import React, { useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { SelectProps } from '@radix-ui/react-select';
-import { Input } from './ui/input';
 import { Button } from './ui/button';
+import { Popover, PopoverContent, PopoverAnchor } from './ui/popover';
 
-type ItemType = string | null | undefined; // (typeof tempCategories)[number];
-export const tempCategories = [
-  // 'General Programming',
-  // 'Libraries',
-  // 'Web Design and CSS',
-  // 'Youtube',
-  // 'Web',
-  // 'Rust',
-  // 'Javascript',
-  // 'Python',
-] as ItemType[];
+type ItemType = string;
 
 interface ItemSelectProps extends Omit<SelectProps, 'onValueChange'> {
   onValueChange?: (value: string) => void;
@@ -26,7 +16,9 @@ interface ItemSelectProps extends Omit<SelectProps, 'onValueChange'> {
   placeholder?: string;
   variant?: 'default' | 'small';
   valid?: boolean;
-  isNewCategory?: boolean;
+  items: {
+    [category: string]: any[];
+  };
 }
 
 const DropdownSelect = React.forwardRef<HTMLButtonElement, ItemSelectProps>(
@@ -36,34 +28,19 @@ const DropdownSelect = React.forwardRef<HTMLButtonElement, ItemSelectProps>(
       onValueChange,
       onItemSelect,
       setNewCategory,
+      items,
       name,
       newItem,
       placeholder = 'Select item',
       variant = 'default',
       valid = true,
-      isNewCategory,
       ...props
     },
     ref,
   ) => {
     const [selectedItem, setSelectedItem] = React.useState<ItemType | null>(null);
-    const [items, setItems] = React.useState<ItemType[] | null>(null);
-    const [searchItem, setSearchItem] = React.useState<string>('');
-    // const ref = React.useRef<HTMLDivElement>(null);
 
-    let uniqueItems = tempCategories;
-
-    useEffect(() => {
-      if (ref) {
-      }
-
-      if (!isNewCategory) {
-        // console.log('not valid');
-      } else {
-        // console.log('valid');
-        // btn && btn.click()
-      }
-    }, [isNewCategory]);
+    let uniqueItems = Object.entries(items).flatMap(([category, allitems]) => category);
 
     const handleValueChange = (newValue: string) => {
       const fullCategoryData = uniqueItems?.find(item => item === newValue);
@@ -99,7 +76,13 @@ const DropdownSelect = React.forwardRef<HTMLButtonElement, ItemSelectProps>(
           )}
         </SelectTrigger>
 
-        <SelectContent /* ref={contentRef} */>
+        <SelectContent id="category-content" className="max-h-[250px] overflow-y-auto xrelative" position="popper">
+          <div className="px-2 text-sm w-full pb-1">
+            <Button onClick={setNewCategory} size={'sm'} className="w-full" variant={'ghost'}>
+              Add new category
+            </Button>
+          </div>
+
           <SelectGroup>
             {uniqueItems.map(item => (
               <SelectItem key={item} value={item || ''}>
@@ -108,14 +91,6 @@ const DropdownSelect = React.forwardRef<HTMLButtonElement, ItemSelectProps>(
                 </div>
               </SelectItem>
             ))}
-
-            <div className="py-1 px-2 text-sm w-full">
-              <Button onClick={setNewCategory} className="w-full" variant={'ghost'}>
-                Add new category {valid ? 'valid' : '(not)'}
-              </Button>
-            </div>
-            {/* {uniqueItems?.length === 0 && (
-            )}  */}
           </SelectGroup>
         </SelectContent>
       </Select>
@@ -126,21 +101,3 @@ const DropdownSelect = React.forwardRef<HTMLButtonElement, ItemSelectProps>(
 DropdownSelect.displayName = 'DropdownSelect';
 
 export { DropdownSelect };
-
-/*
-
-<div className="w-full py-2">
-              <Input
-                type="text"
-                autoFocus
-                className="w-full h-6 shadow-xl bg-slate-900/50 outline outline-zinc-300/30 outline-1 placeholder:text-sm placeholder:text-zinc-500 border-0 text-sm"
-                value={searchItem}
-                placeholder='Search or create new category'
-                // onClick={() => setIsOpen(true)}
-                onChange={(e) => setSearchItem(e.target.value)}
-                // onKeyDown={handleKeyDown}
-                // placeholder={placeholder} 
-                />
-            </div>
-
-*/

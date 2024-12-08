@@ -18,7 +18,7 @@ function categorizeTab(url: string): string {
   return 'Uncategorized';
 }
 
-export async function saveCurrentTab(tags: string[] | null): Promise<boolean> {
+export async function saveCurrentTab(tags: string[] | null, category: string): Promise<boolean> {
   const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
   if (!activeTab?.id) return false;
@@ -219,9 +219,9 @@ export async function saveCurrentTab(tags: string[] | null): Promise<boolean> {
       : undefined,
   };
 
-  const category = categorizeTab(tab.url);
+  // const category = categorizeTab(tab.url);
 
-  await tabsGroupedStorage.save(category, tab);
+  await tabsGroupedStorage.save(category ?? 'Uncategorized', tab);
 
   return true;
 }
