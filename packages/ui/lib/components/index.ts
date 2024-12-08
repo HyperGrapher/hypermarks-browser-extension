@@ -1,6 +1,7 @@
 export * from './Button';
 export * from './PillsForm';
 export * from './PillsForm';
+export * from './DropdownSelect';
 
 export { Badge } from './ui/badge';
 export { Input } from './ui/input';

@@ -22,12 +22,11 @@ body {
   position: relative;
   
   /* backdrop-filter: ; */
-
+  
 }
 
 body {
   background: linear-gradient(to right bottom, hsl(216, 19%, 26%), hsl(220, 39%, 11%), hsl(0, 39%, 11%));
-
 }
 
 .ex-body:before {
