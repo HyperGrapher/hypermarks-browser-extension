@@ -64,7 +64,7 @@ const DropdownSelect = React.forwardRef<HTMLButtonElement, ItemSelectProps>(
         </SelectTrigger>
 
         <SelectContent id="category-content" className="max-h-[250px] overflow-y-auto xrelative" position="popper">
-          <div className="px-2 text-sm w-full pb-1">
+          <div className="px-2 text-sm w-full py-1">
             <Button onClick={setShowNewCategoryInput} size={'sm'} className="w-full" variant={'ghost'}>
               Add new category
             </Button>

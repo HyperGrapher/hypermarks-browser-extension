@@ -32,7 +32,7 @@ const Popup = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const groupedTabs = useStorage(tabsGroupedStorage);
   const [categories, setCategories] = useState<string[]>(
-    Object.entries(groupedTabs).flatMap(([category, _items]) => category),
+    Object.entries(groupedTabs).flatMap(([category, _items]) => category) ?? [],
   );
 
   function saveTab() {
@@ -53,7 +53,7 @@ const Popup = () => {
     chrome.runtime.sendMessage({ action: 'open-side-panel' });
   }
 
-  function onNewCategory() {
+  function onCreateNewCategory() {
     setCategories([...categories, newCategory]);
     setSelectedCategory(newCategory);
     setShowNewCategoryInput(false);
@@ -72,11 +72,11 @@ const Popup = () => {
 
   return (
     <div className={` p-2 z-10 px-4 pt-3`}>
-      <header className={`h-80`}>
+      <header className={`h-80 relative z-10`}>
         <div className="my-4 space-y-2">
           <DropdownSelect
             items={categories}
-            value={selectedCategory ?? ''}
+            value={selectedCategory ?? newCategory}
             onItemSelect={val => setNewCategory(val)}
             setShowNewCategoryInput={() => setShowNewCategoryInput(true)}
             name="categories"
@@ -98,7 +98,7 @@ const Popup = () => {
                 <Button onClick={() => onCancelNewCategory()} className="shrink" variant={'destructive'}>
                   Cancel
                 </Button>
-                <Button onClick={() => onNewCategory()} className="w-full grow" variant={'default'}>
+                <Button onClick={() => onCreateNewCategory()} className="w-full grow" variant={'default'}>
                   Add
                 </Button>
               </div>
