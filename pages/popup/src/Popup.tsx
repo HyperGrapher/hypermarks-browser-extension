@@ -28,18 +28,19 @@ const Popup = () => {
   const [message, setMessage] = useState('Save current tab');
   const [tags, setTags] = useState<string[] | null>(null);
   const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
-  const [newCategory, setNewCategory] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
   const groupedTabs = useStorage(tabsGroupedStorage);
   const [categories, setCategories] = useState<string[]>(
     Object.entries(groupedTabs).flatMap(([category, _items]) => category) ?? [],
   );
 
   function saveTab() {
-    saveCurrentTab(tags, newCategory)
+    saveCurrentTab(tags, selectedCategory)
       .then(val => {
         if (val) {
           setMessage('Tab saved!');
+          setSelectedCategory('');
+          setTags(null);
         }
       })
       .catch(err => {
@@ -54,8 +55,8 @@ const Popup = () => {
   }
 
   function onCreateNewCategory() {
-    setCategories([...categories, newCategory]);
-    setSelectedCategory(newCategory);
+    setCategories([...categories, selectedCategory]);
+    setSelectedCategory(selectedCategory);
     setShowNewCategoryInput(false);
   }
 
@@ -76,8 +77,8 @@ const Popup = () => {
         <div className="my-4 space-y-2">
           <DropdownSelect
             items={categories}
-            value={selectedCategory ?? newCategory}
-            onItemSelect={val => setNewCategory(val)}
+            value={selectedCategory}
+            onItemSelect={val => setSelectedCategory(val)}
             setShowNewCategoryInput={() => setShowNewCategoryInput(true)}
             name="categories"
             placeholder="Select category"
@@ -90,9 +91,9 @@ const Popup = () => {
                 type="text"
                 autoFocus
                 className="w-full xshadow-xl bg-slate-900/50 outline outline-zinc-300/30 outline-1 placeholder:text-sm placeholder:text-zinc-500"
-                value={newCategory}
+                value={selectedCategory}
                 placeholder="Create new category"
-                onChange={e => setNewCategory(e.target.value)}
+                onChange={e => setSelectedCategory(e.target.value)}
               />
               <div className="flex gap-2 mt-2">
                 <Button onClick={() => onCancelNewCategory()} className="shrink" variant={'destructive'}>
