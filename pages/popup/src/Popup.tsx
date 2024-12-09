@@ -27,6 +27,7 @@ import { TagsForm } from './components/TagsForm';
 const Popup = () => {
   const [message, setMessage] = useState('Save current tab');
   const [tags, setTags] = useState<string[] | null>(null);
+  const [categoryError, setCategoryError] = useState<string | null>(null);
   const [showCreateCategory, setShowCreateCategory] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const groupedTabs = useStorage(tabsGroupedStorage);
@@ -35,7 +36,7 @@ const Popup = () => {
   );
 
   function saveTab() {
-    saveCurrentTab(tags, selectedCategory)
+    saveCurrentTab(tags, selectedCategory ?? 'Uncategorized')
       .then(val => {
         if (val) {
           setMessage('Tab saved!');
@@ -55,8 +56,23 @@ const Popup = () => {
   }
 
   function onCreateNewCategory() {
-    setCategories([...categories, selectedCategory]);
+    if (selectedCategory.trim() === '') {
+      setCategoryError('Please enter a category name');
+      return;
+    }
+    if (selectedCategory.trim().length >= 30) {
+      setCategoryError('Category name is too long');
+      return;
+    }
+    const uniqueCategories = [...new Set([...categories, selectedCategory])];
+    const filtered = uniqueCategories.filter(category => category.toLowerCase() === selectedCategory.toLowerCase());
+    if (filtered.length > 0) {
+      setCategoryError('Category name already exists');
+      return;
+    }
+    setCategories(uniqueCategories);
     setSelectedCategory(selectedCategory);
+    setCategoryError(null);
     setShowCreateCategory(false);
   }
 
@@ -68,6 +84,8 @@ const Popup = () => {
   }
 
   function onCancelNewCategory() {
+    setCategoryError(null);
+    setSelectedCategory('');
     setShowCreateCategory(false);
   }
 
@@ -79,7 +97,10 @@ const Popup = () => {
             items={categories}
             value={selectedCategory}
             onItemSelect={val => setSelectedCategory(val)}
-            setShowCreateCategory={() => setShowCreateCategory(true)}
+            setShowCreateCategory={() => {
+              setSelectedCategory('');
+              setShowCreateCategory(true);
+            }}
             name="categories"
             placeholder="Select category"
             variant="default"
@@ -90,10 +111,10 @@ const Popup = () => {
               <Input
                 type="text"
                 autoFocus
-                className="w-full xshadow-xl bg-slate-900/50 outline outline-zinc-300/30 outline-1 placeholder:text-sm placeholder:text-zinc-500"
+                className="w-full  text-sm xshadow-xl bg-slate-900/50 outline outline-zinc-300/30 outline-1 placeholder:text-sm placeholder:text-zinc-500"
                 value={selectedCategory}
                 placeholder="Type category name"
-                onChange={e => setSelectedCategory(e.target.value)}
+                onChange={e => setSelectedCategory(e.target.value.trim())}
               />
               <div className="flex gap-2 mt-2">
                 <Button onClick={() => onCancelNewCategory()} size="sm" className="shrink" variant={'destructive'}>
@@ -103,6 +124,7 @@ const Popup = () => {
                   Create Category
                 </Button>
               </div>
+              {categoryError && <p className="text-red-500 text-xs pt-1">{categoryError}</p>}
             </section>
           )}
 
