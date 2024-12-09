@@ -4,7 +4,6 @@ import { Button, cn, DropdownSelect, Input } from '@extension/ui';
 import { useEffect, useRef, useState } from 'react';
 import { TagsForm } from './components/TagsForm';
 import { tabsGroupedStorage } from '@extension/storage';
-import { set } from 'react-hook-form';
 
 /*
  #* fikir su:
@@ -28,18 +27,16 @@ import { set } from 'react-hook-form';
 const Popup = () => {
   const [message, setMessage] = useState('Save current tab');
   const [tags, setTags] = useState<string[] | null>(null);
-  const [isNewCategory, setIsNewCategory] = useState(false);
-  const [searchItem, setSearchItem] = useState('');
-  const ref = useRef<HTMLInputElement>(null);
+  const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
+  const [newCategory, setNewCategory] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const groupedTabs = useStorage(tabsGroupedStorage);
-  const [cats, setCats] = useState(groupedTabs);
-
-  // useEffect(() => {
-  // console.log(tags);
-  // }, [tags]);
+  const [categories, setCategories] = useState<string[]>(
+    Object.entries(groupedTabs).flatMap(([category, _items]) => category),
+  );
 
   function saveTab() {
-    saveCurrentTab(tags, searchItem)
+    saveCurrentTab(tags, newCategory)
       .then(val => {
         if (val) {
           setMessage('Tab saved!');
@@ -56,15 +53,10 @@ const Popup = () => {
     chrome.runtime.sendMessage({ action: 'open-side-panel' });
   }
 
-  function ons(val: string | null | undefined) {
-    console.log(val);
-  }
-
   function onNewCategory() {
-    console.log('new category');
-    // groupedTabs[searchItem] = [];
-    setCats({ ...groupedTabs, [searchItem]: [] });
-    setIsNewCategory(false);
+    setCategories([...categories, newCategory]);
+    setSelectedCategory(newCategory);
+    setShowNewCategoryInput(false);
   }
 
   async function side() {
@@ -74,17 +66,8 @@ const Popup = () => {
     });
   }
 
-  function onCloseNewCategory() {
-    console.log('new category');
-    setIsNewCategory(false);
-    const btn = document.querySelector('#dropdown-selecti') as HTMLButtonElement;
-    setTimeout(() => {
-      if (btn) {
-        console.log('btn clicked');
-        btn.click();
-        btn.focus();
-      }
-    }, 1000);
+  function onCancelNewCategory() {
+    setShowNewCategoryInput(false);
   }
 
   return (
@@ -92,27 +75,27 @@ const Popup = () => {
       <header className={`h-80`}>
         <div className="my-4 space-y-2">
           <DropdownSelect
-            items={cats}
-            onValueChange={val => setSearchItem(val)}
-            onItemSelect={val => setSearchItem(val)}
-            setNewCategory={() => setIsNewCategory(true)}
+            items={categories}
+            value={selectedCategory ?? ''}
+            onItemSelect={val => setNewCategory(val)}
+            setShowNewCategoryInput={() => setShowNewCategoryInput(true)}
             name="categories"
             placeholder="Select category"
             variant="default"
-            valid={!isNewCategory}
+            valid={!showNewCategoryInput}
           />
-          {isNewCategory && (
+          {showNewCategoryInput && (
             <section>
               <Input
                 type="text"
                 autoFocus
                 className="w-full xshadow-xl bg-slate-900/50 outline outline-zinc-300/30 outline-1 placeholder:text-sm placeholder:text-zinc-500"
-                value={searchItem}
+                value={newCategory}
                 placeholder="Create new category"
-                onChange={e => setSearchItem(e.target.value)}
+                onChange={e => setNewCategory(e.target.value)}
               />
               <div className="flex gap-2 mt-2">
-                <Button onClick={() => onCloseNewCategory()} className="shrink" variant={'destructive'}>
+                <Button onClick={() => onCancelNewCategory()} className="shrink" variant={'destructive'}>
                   Cancel
                 </Button>
                 <Button onClick={() => onNewCategory()} className="w-full grow" variant={'default'}>
