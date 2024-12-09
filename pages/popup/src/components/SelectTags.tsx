@@ -1,12 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Button, cn } from '@extension/ui';
-
-import { Badge } from '@extension/ui';
-import { Input } from '@extension/ui';
-import { Popover, PopoverContent, PopoverAnchor } from '@extension/ui';
-
-import { X } from 'lucide-react';
 import { TagItem } from '@extension/shared';
+import { Badge, cn, Input, Popover, PopoverAnchor, PopoverContent } from '@extension/ui';
+import { X } from 'lucide-react';
+import React, { useRef, useState } from 'react';
 
 interface SelectPillsProps {
   data: TagItem[];
@@ -207,7 +202,7 @@ export const SelectTags: React.FC<SelectPillsProps> = ({
                 onChange={() => handleItemSelect(item)}
               />
               <label htmlFor={`pill-${item.name}`} className="flex justify-between items-center w-full cursor-pointer">
-                <span className="font-medium text-zinc-200 text-sm"> {item.name}</span>
+                <span className="font-medium text-sm text-muted-foreground text-left"> {item.name}</span>
                 <span className="text-zinc-500 text-sm/3 pr-2"> {item.value ?? 'New tag'}</span>
               </label>
             </div>

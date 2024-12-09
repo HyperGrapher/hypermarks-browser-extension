@@ -1,14 +1,12 @@
-import React, { useEffect } from 'react';
 import { cn } from '@/lib/utils';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { SelectProps } from '@radix-ui/react-select';
+import React from 'react';
 import { Button } from './ui/button';
-
-type ItemType = string;
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
 interface ItemSelectProps extends Omit<SelectProps, 'onValueChange'> {
-  onItemSelect?: (item: ItemType) => void;
-  setShowNewCategoryInput?: () => void;
+  onItemSelect?: (item: string) => void;
+  setShowCreateCategory?: () => void;
   name: string;
   placeholder?: string;
   variant?: 'default' | 'small';
@@ -21,7 +19,7 @@ const DropdownSelect = React.forwardRef<HTMLButtonElement, ItemSelectProps>(
     {
       value,
       onItemSelect,
-      setShowNewCategoryInput,
+      setShowCreateCategory,
       items,
       name,
       placeholder = 'Select item',
@@ -31,7 +29,7 @@ const DropdownSelect = React.forwardRef<HTMLButtonElement, ItemSelectProps>(
     },
     ref,
   ) => {
-    const [selectedItem, setSelectedItem] = React.useState<ItemType | null>(null);
+    const [selectedItem, setSelectedItem] = React.useState<string | null>(null);
 
     const handleValueChange = (newValue: string) => {
       const selection = items?.find(item => item === newValue);
@@ -65,8 +63,8 @@ const DropdownSelect = React.forwardRef<HTMLButtonElement, ItemSelectProps>(
 
         <SelectContent id="category-content" className="max-h-[250px] overflow-y-auto xrelative" position="popper">
           <div className="px-2 text-sm w-full py-1">
-            <Button onClick={setShowNewCategoryInput} size={'sm'} className="w-full" variant={'ghost'}>
-              Add new category
+            <Button onClick={setShowCreateCategory} size={'sm'} className="w-full" variant={'ghost'}>
+              Create a new category
             </Button>
           </div>
 

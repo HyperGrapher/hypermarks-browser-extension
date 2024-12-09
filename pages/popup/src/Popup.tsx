@@ -1,9 +1,9 @@
-import '@src/Popup.css';
 import { deleteAllTabData, saveCurrentTab, useStorage, withErrorBoundary, withSuspense } from '@extension/shared';
-import { Button, cn, DropdownSelect, Input } from '@extension/ui';
-import { useEffect, useRef, useState } from 'react';
-import { TagsForm } from './components/TagsForm';
 import { tabsGroupedStorage } from '@extension/storage';
+import { Button, cn, DropdownSelect, Input } from '@extension/ui';
+import '@src/Popup.css';
+import { useState } from 'react';
+import { TagsForm } from './components/TagsForm';
 
 /*
  #* fikir su:
@@ -27,7 +27,7 @@ import { tabsGroupedStorage } from '@extension/storage';
 const Popup = () => {
   const [message, setMessage] = useState('Save current tab');
   const [tags, setTags] = useState<string[] | null>(null);
-  const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
+  const [showCreateCategory, setShowCreateCategory] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const groupedTabs = useStorage(tabsGroupedStorage);
   const [categories, setCategories] = useState<string[]>(
@@ -57,7 +57,7 @@ const Popup = () => {
   function onCreateNewCategory() {
     setCategories([...categories, selectedCategory]);
     setSelectedCategory(selectedCategory);
-    setShowNewCategoryInput(false);
+    setShowCreateCategory(false);
   }
 
   async function side() {
@@ -68,39 +68,39 @@ const Popup = () => {
   }
 
   function onCancelNewCategory() {
-    setShowNewCategoryInput(false);
+    setShowCreateCategory(false);
   }
 
   return (
-    <div className={` p-2 z-10 px-4 pt-3`}>
+    <div className={`px-4 pt-4`}>
       <header className={`h-80 relative z-10`}>
-        <div className="my-4 space-y-2">
+        <div className="space-y-2">
           <DropdownSelect
             items={categories}
             value={selectedCategory}
             onItemSelect={val => setSelectedCategory(val)}
-            setShowNewCategoryInput={() => setShowNewCategoryInput(true)}
+            setShowCreateCategory={() => setShowCreateCategory(true)}
             name="categories"
             placeholder="Select category"
             variant="default"
-            valid={!showNewCategoryInput}
+            valid={!showCreateCategory}
           />
-          {showNewCategoryInput && (
+          {showCreateCategory && (
             <section>
               <Input
                 type="text"
                 autoFocus
                 className="w-full xshadow-xl bg-slate-900/50 outline outline-zinc-300/30 outline-1 placeholder:text-sm placeholder:text-zinc-500"
                 value={selectedCategory}
-                placeholder="Create new category"
+                placeholder="Type category name"
                 onChange={e => setSelectedCategory(e.target.value)}
               />
               <div className="flex gap-2 mt-2">
-                <Button onClick={() => onCancelNewCategory()} className="shrink" variant={'destructive'}>
+                <Button onClick={() => onCancelNewCategory()} size="sm" className="shrink" variant={'destructive'}>
                   Cancel
                 </Button>
-                <Button onClick={() => onCreateNewCategory()} className="w-full grow" variant={'default'}>
-                  Add
+                <Button onClick={() => onCreateNewCategory()} size="sm" className="w-full grow" variant={'default'}>
+                  Create Category
                 </Button>
               </div>
             </section>

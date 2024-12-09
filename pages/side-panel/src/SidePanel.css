@@ -33,3 +33,29 @@ body {
   /* opacity: 0.25; */
 
 }
+
+/* width */
+::-webkit-scrollbar {
+  width: 7px;
+  scroll-margin-left: 10px;
+  scroll-padding-left: 10px;
+  transform: translateX(-10px);
+  position: fixed;
+  right: -10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #302e2e;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #474747;
+  border-radius: 5px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #807f7f;
+}

@@ -1,42 +1,12 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import { TagItem, useStorage } from '@extension/shared';
+import { tabsGroupedStorage } from '@extension/storage';
+import { Form, FormControl, FormField, FormItem } from '@extension/ui';
 import { zodResolver } from '@hookform/resolvers/zod';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { SelectTags } from './SelectTags';
-
-import { Button, cn } from '@extension/ui';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@extension/ui';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@extension/ui';
-import { tabsGroupedStorage } from '@extension/storage';
-import { CategorizedTab, SingleTab, TagItem, useStorage, withErrorBoundary, withSuspense } from '@extension/shared';
-
-// chrome.storage.local.get(['tags'], function (result) {
-//   setTags(result.tags);
-// });
-
-const tailwindColors = [
-  { count: '1', name: 'red-500' },
-  { count: '2', name: 'blue-500' },
-  { count: '3', name: 'green-500' },
-  { count: '4', name: 'yellow-500' },
-  { count: '5', name: 'purple-500' },
-  { count: '6', name: 'pink-500' },
-  { count: '7', name: 'indigo-500' },
-  { count: '8', name: 'gray-500' },
-  { count: '9', name: 'orange-500' },
-  { count: '10', name: 'teal-500' },
-  { count: '11', name: 'cyan-500' },
-  { count: '12', name: 'emerald-500' },
-  { count: '13', name: 'violet-500' },
-  { count: '14', name: 'fuchsia-500' },
-  { count: '15', name: 'rose-500' },
-  { count: '16', name: 'amber-500' },
-  { count: '17', name: 'lime-500' },
-  { count: '18', name: 'sky-500' },
-  { count: '19', name: 'slate-500' },
-  { count: '20', name: 'zinc-500' },
-];
 
 function extractTagsWithCount(data: Record<string, any[]>): { name: string; value: number }[] {
   const tagMap: Record<string, number> = {};
@@ -70,7 +40,6 @@ export const TagsForm = ({ setTags }: { setTags: React.Dispatch<React.SetStateAc
 
   useEffect(() => {
     (async () => {
-      // const data = await tabsGroupedStorage.get();
       setTagsFromDb(extractTagsWithCount(tabsCats));
     })();
   }, []);
@@ -100,7 +69,7 @@ export const TagsForm = ({ setTags }: { setTags: React.Dispatch<React.SetStateAc
                     <SelectTags
                       data={tagsFromDb}
                       value={field.value}
-                      // placeholder="Add tags.."
+                      placeholder="Type to search in tags.."
                       onValueChange={selectedValues => {
                         setTags(selectedValues);
                         field.onChange(selectedValues);
