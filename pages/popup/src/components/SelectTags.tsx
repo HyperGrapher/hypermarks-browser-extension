@@ -19,6 +19,7 @@ export const SelectTags: React.FC<SelectPillsProps> = ({
   placeholder = 'Type to search...',
 }) => {
   const [inputValue, setInputValue] = useState<string>('');
+  const [valueError, setValueError] = useState<string | null>(null);
   const [selectedPills, setSelectedPills] = useState<string[]>(value || defaultValue);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
@@ -32,7 +33,13 @@ export const SelectTags: React.FC<SelectPillsProps> = ({
   inputValue && !isEqualValue && filteredItems.push({ name: inputValue, value: undefined });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
+    const newValue = e.target.value.trim();
+    if (newValue.length >= 15) {
+      setIsOpen(false);
+      setValueError('Tag name is too long');
+      return;
+    }
+    setValueError(null);
     setInputValue(newValue);
     setHighlightedIndex(-1);
     setIsOpen(true);
@@ -104,6 +111,13 @@ export const SelectTags: React.FC<SelectPillsProps> = ({
   };
 
   const handleItemSelect = (item: TagItem) => {
+    if (!/^\w+$/.test(item.name)) {
+      setIsOpen(false);
+      setValueError('Only letters, numbers and underscores');
+      console.log('Only letters, numbers and underscores');
+      return;
+    }
+
     const newSelectedPills = [...selectedPills, item.name];
     setSelectedPills(newSelectedPills);
     setInputValue('');
@@ -148,6 +162,8 @@ export const SelectTags: React.FC<SelectPillsProps> = ({
           />
         </PopoverAnchor>
 
+        {valueError && <p className="text-red-500 text-xs pt-1">{valueError}</p>}
+
         <section className="pb-4 flex flex-wrap gap-2 min-h-12 w-full">
           {(value || selectedPills).map(pill => (
             <Badge
@@ -167,7 +183,7 @@ export const SelectTags: React.FC<SelectPillsProps> = ({
       </div>
 
       <PopoverContent
-        className="border-zinc-700/70 text-zinc-200 shadow-lg rounded max-h-[200px] overflow-y-auto "
+        className="border-zinc-700/70 text-zinc-200 shadow-lg rounded max-h-[200px] overflow-y-auto"
         onFocusOutside={e => {
           // Prevent closing if focus is in the input
           if (e.target === inputRef.current) {
