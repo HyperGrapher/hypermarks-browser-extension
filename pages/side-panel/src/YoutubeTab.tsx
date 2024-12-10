@@ -1,10 +1,10 @@
-import React from 'react';
-import { cn } from './utils';
-import { tabsGroupedStorage } from '@extension/storage';
 import { SingleTab, useWindowSize } from '@extension/shared';
+import { tabsGroupedStorage } from '@extension/storage';
 import { Badge } from '@extension/ui';
+import { X } from 'lucide-react';
+import React from 'react';
 import truncate from 'voca/truncate';
-import Balancer from 'react-wrap-balancer';
+import { cn } from './utils';
 
 // TODO:  if no icon/thumbnail, show default ones
 // https://www.youtube.com/playlist?list=PLRnI_2_ZWhtCxHQ_3zDfW0-RgiWo8ftyj
@@ -40,10 +40,10 @@ export const YoutubeVideo = ({ item }: { item: SingleTab }) => {
       <button
         className={cn(
           'expand absolute xscale-75 insetx-0 right-1 top-1 xmt-6',
-          'size-4 aspect-square z-30 rounded-full bg-slate-700/50 flex justify-center items-center',
+          'size-4 aspect-square z-30 rounded-full bg-slate-600/30 flex justify-center items-center',
         )}
         onClick={() => deleteItem(item.datetime)}>
-        <span className="p-0 text-gray-300/70">x</span>
+        <X size={12} />
       </button>
 
       <div className="xyt-item flex items-centerx gap-2 pb-1 pt-2 px-3">
@@ -112,10 +112,10 @@ export const YoutubeChannel = ({ item }: { item: SingleTab }) => {
       <button
         className={cn(
           'expand absolute xscale-75 insetx-0 right-1 top-1 xmt-6',
-          'size-4 aspect-square z-30 rounded-full bg-slate-700/50 flex justify-center items-center',
+          'size-4 aspect-square z-30 rounded-full bg-slate-600/20 flex justify-center items-center',
         )}
         onClick={() => deleteItem(item.datetime)}>
-        <span className="p-0 text-gray-300/70">x</span>
+        <X size={12} />
       </button>
 
       <div className="xyt-item flex items-centerx gap-2 pb-1 pt-2 px-3">
@@ -179,10 +179,10 @@ export const YoutubePlaylist = ({ item }: { item: SingleTab }) => {
       <button
         className={cn(
           'expand absolute xscale-75 insetx-0 right-1 top-1 xmt-6',
-          'size-4 aspect-square z-30 rounded-full bg-slate-700/50 flex justify-center items-center',
+          'size-4 aspect-square z-30 rounded-full bg-slate-600/20 flex justify-center items-center',
         )}
         onClick={() => deleteItem(item.datetime)}>
-        <span className="p-0 text-gray-300/70">x</span>
+        <X size={12} />
       </button>
 
       <div className="xyt-item flex items-centerx gap-2 pb-1 pt-2 px-3">

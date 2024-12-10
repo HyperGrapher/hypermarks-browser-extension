@@ -36,7 +36,7 @@ const Popup = () => {
   );
 
   function saveTab() {
-    saveCurrentTab(tags, selectedCategory ?? 'Uncategorized')
+    saveCurrentTab(tags, selectedCategory || 'Uncategorized')
       .then(val => {
         if (val) {
           setMessage('Tab saved!');
@@ -77,10 +77,15 @@ const Popup = () => {
   }
 
   async function side() {
-    await chrome.sidePanel.setOptions({
-      path: 'side-panel/index.html',
-      enabled: true, // Make sure it's enabled
-    });
+    // await chrome.sidePanel.setOptions({
+    //   path: 'side-panel/index.html',
+    //   enabled: true, // Make sure it's enabled
+    // });
+    // opens sidepanel in its own window
+    // chrome.tabs.create({ url: chrome.runtime.getURL('side-panel/index.html') });
+
+    const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    chrome.sidePanel.open({ windowId: activeTab?.windowId ?? 0 });
   }
 
   function onCancelNewCategory() {
@@ -145,11 +150,8 @@ const Popup = () => {
           <Button variant="outline" className=" hover:scale-[1.02] w-full transition-all" onClick={deleteAllTabData}>
             Clear saved pages...
           </Button>
-          <Button
-            variant="secondary"
-            className="shadow hover:scale-[1.02] w-full transition-all hidden"
-            onClick={sendMessage}>
-            Side open by message
+          <Button variant="secondary" className="shadow hover:scale-[1.02] w-full transition-all" onClick={side}>
+            Display SuperTabs
           </Button>
         </div>
       </header>

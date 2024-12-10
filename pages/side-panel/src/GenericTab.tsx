@@ -7,6 +7,9 @@ import truncate from 'voca/truncate';
 import TimeAgo from 'timeago-react';
 import Balancer from 'react-wrap-balancer';
 
+import { X } from 'lucide-react';
+import { Info } from 'lucide-react';
+
 // TODO:  if no icon/thumbnail, show default ones
 // https://www.youtube.com/playlist?list=PLRnI_2_ZWhtCxHQ_3zDfW0-RgiWo8ftyj
 
@@ -33,7 +36,7 @@ export const GenericTab = ({ item }: { item: SingleTab }) => {
           'size-4 aspect-square z-30 rounded-full bg-slate-700/50 flex justify-center items-center',
         )}
         onClick={() => deleteItem(item.datetime)}>
-        <span className="p-0 text-gray-300/70">x</span>
+        <X size={12} />
       </button>
 
       <div className="xyt-item flex items-centerx gap-2 pb-1 pt-2 px-3">
@@ -77,3 +80,21 @@ export const GenericTab = ({ item }: { item: SingleTab }) => {
     </div>
   );
 };
+
+/*
+ <section className={cn('expand absolute right-1 top-1')}>
+        <button
+          className={cn('size-4 aspect-square z-30 rounded-full bg-slate-600/20 flex justify-center items-center')}
+          onClick={() => deleteItem(item.datetime)}>
+          <X size={12} />
+        </button>
+
+        <span className={cn(
+          'translate-y-1 text-slate-400',
+          'size-4 aspect-square z-30 rounded-full bg-slate-600/20 flex justify-center items-center'
+        )}>
+          <Info size={14} />
+        </span>
+      </section>
+
+*/
