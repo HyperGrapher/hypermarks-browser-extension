@@ -1,4 +1,11 @@
-import { deleteAllTabData, saveCurrentTab, useStorage, withErrorBoundary, withSuspense } from '@extension/shared';
+import {
+  deleteAllTabData,
+  saveCurrentTab,
+  getAiResponseForTab,
+  useStorage,
+  withErrorBoundary,
+  withSuspense,
+} from '@extension/shared';
 import { tabsGroupedStorage } from '@extension/storage';
 import { Button, cn, DropdownSelect, Input } from '@extension/ui';
 import '@src/Popup.css';
@@ -31,10 +38,27 @@ const Popup = () => {
   const [categoryError, setCategoryError] = useState<string | null>(null);
   const [showCreateCategory, setShowCreateCategory] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [aiREsponse, setAiResponse] = useState<any>({});
   const groupedTabs = useStorage(tabsGroupedStorage);
   const [categories, setCategories] = useState<string[]>(
     Object.entries(groupedTabs).flatMap(([category, _items]) => category) ?? [],
   );
+
+  function getAiResponse() {
+    getAiResponseForTab()
+      .then(val => {
+        if (val) {
+          setSelectedCategory(val.category);
+          setAiResponse(val);
+          setTags(null);
+        }
+      })
+      .catch(err => {
+        console.log(err);
+        setMessage('Error occured');
+      });
+    // .finally(() => setTimeout(() => setMessage('Save current tab'), 2000));
+  }
 
   function saveTab() {
     saveCurrentTab(tags, selectedCategory || 'Uncategorized')
@@ -153,9 +177,14 @@ const Popup = () => {
               )}>
               {message}
             </Button>
-            <Button variant="outline" className=" hover:scale-[1.02] w-full transition-all" onClick={deleteAllTabData}>
+            {/* <Button variant="outline" className=" hover:scale-[1.02] w-full transition-all" onClick={deleteAllTabData}>
               Clear saved pages...
+            </Button> */}
+
+            <Button variant="outline" className=" hover:scale-[1.02] w-full transition-all" onClick={getAiResponse}>
+              Get Ai Response
             </Button>
+
             <Button
               variant="secondary"
               className="shadow hover:scale-[1.02] w-full transition-all"
@@ -164,6 +193,7 @@ const Popup = () => {
             </Button>
           </div>
         )}
+        <pre>{JSON.stringify(aiREsponse, null, 2)}</pre>
       </header>
 
       <div className="absolute bottom-0 right-0 left-0 w-full opacity-10 z-0">
