@@ -14,6 +14,7 @@ import { TagsForm } from './components/TagsForm';
 /*
   eski: https://img.youtube.com/vi/2fSBLH-ISaE/0.jpg
   yeni https://i.ytimg.com/vi/2fSBLH-ISaE/hqdefault.jpg
+  shorts https://i.ytimg.com/vi/9ebdVVT4A84/hqdefault.jpg
 
   Save this:
   https://ultimate-gtk4-crystal-guide.geopjr.dev/assets/en/ui-design-1.webm
@@ -64,13 +65,15 @@ const Popup = () => {
       setCategoryError('Category name is too long');
       return;
     }
-    const uniqueCategories = [...new Set([...categories, selectedCategory])];
-    const filtered = uniqueCategories.filter(category => category.toLowerCase() === selectedCategory.toLowerCase());
-    if (filtered.length > 0) {
+
+    const categoryExists = categories.some(category => category.toLowerCase() === selectedCategory.toLowerCase());
+    if (categoryExists) {
       setCategoryError('Category name already exists');
       return;
     }
-    setCategories(uniqueCategories);
+
+    const updatedCategories = [...categories, selectedCategory];
+    setCategories(updatedCategories);
     setSelectedCategory(selectedCategory);
     setCategoryError(null);
     setShowCreateCategory(false);
@@ -119,7 +122,7 @@ const Popup = () => {
                 className="w-full  text-sm xshadow-xl bg-slate-900/50 outline outline-zinc-300/30 outline-1 placeholder:text-sm placeholder:text-zinc-500"
                 value={selectedCategory}
                 placeholder="Type category name"
-                onChange={e => setSelectedCategory(e.target.value.trim())}
+                onChange={e => setSelectedCategory(e.target.value)}
               />
               <div className="flex gap-2 mt-2">
                 <Button onClick={() => onCancelNewCategory()} size="sm" className="shrink" variant={'destructive'}>
@@ -133,27 +136,29 @@ const Popup = () => {
             </section>
           )}
 
-          <TagsForm setTags={setTags} />
+          {!showCreateCategory && <TagsForm setTags={setTags} />}
         </div>
 
-        <div className="space-y-2">
-          <Button
-            onClick={saveTab}
-            variant="default"
-            className={cn(
-              'shadow hover:scale-[1.02] w-full transition-all bg-white/70',
-              message === 'Tab saved!' ? 'bg-blue-500 hover:bg-blue-600' : '',
-              message === 'Error occured' ? 'bg-red-500 hover:bg-red-600' : '',
-            )}>
-            {message}
-          </Button>
-          <Button variant="outline" className=" hover:scale-[1.02] w-full transition-all" onClick={deleteAllTabData}>
-            Clear saved pages...
-          </Button>
-          <Button variant="secondary" className="shadow hover:scale-[1.02] w-full transition-all" onClick={side}>
-            Display SuperTabs
-          </Button>
-        </div>
+        {!showCreateCategory && (
+          <div className="space-y-2">
+            <Button
+              onClick={saveTab}
+              variant="default"
+              className={cn(
+                'shadow hover:scale-[1.02] w-full transition-all bg-white/70',
+                message === 'Tab saved!' ? 'bg-blue-500 hover:bg-blue-600' : '',
+                message === 'Error occured' ? 'bg-red-500 hover:bg-red-600' : '',
+              )}>
+              {message}
+            </Button>
+            <Button variant="outline" className=" hover:scale-[1.02] w-full transition-all" onClick={deleteAllTabData}>
+              Clear saved pages...
+            </Button>
+            <Button variant="secondary" className="shadow hover:scale-[1.02] w-full transition-all" onClick={side}>
+              Display SuperTabs
+            </Button>
+          </div>
+        )}
       </header>
 
       <div className="absolute bottom-0 right-0 left-0 w-full opacity-10 z-0">

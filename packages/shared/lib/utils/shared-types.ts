@@ -14,6 +14,12 @@ export namespace YouTube {
     thumbnail: string;
   }
 
+  export interface Short {
+    channelName: string;
+    avatar: string;
+    thumbnail: string;
+  }
+
   export interface Playlist {
     title: string;
     channelName: string;
@@ -35,9 +41,21 @@ export namespace YouTube {
   }
 }
 
+interface Xpost {
+  profileName: string;
+  handleName: string;
+  avatar: string;
+  date: string;
+  content: string;
+  views: number;
+  likes: number;
+  comments: number;
+}
+
 export type ItemType =
   | 'other'
   | 'yt-video'
+  | 'yt-shorts'
   | 'yt-channel'
   | 'yt-playlist'
   | 'github-repo'
@@ -76,7 +94,9 @@ export type SingleTab = {
   tags: string[];
   datetime: string; // ISO string representing the saved time
   itemType: ItemType;
+  xpost?: Xpost | undefined;
   youtubeVideo: YouTube.Video | undefined;
+  youtubeShort: YouTube.Short | undefined;
   youtubeChannel: YouTube.Channel | undefined;
   youtubePlaylist: YouTube.Playlist | undefined;
 };

@@ -117,6 +117,8 @@ function TabList({ groupedTabs }: { groupedTabs: { [category: string]: SingleTab
             {items.map((item, index) =>
               item.itemType === 'yt-video' ? (
                 <YoutubeVideo key={item.datetime} item={item} />
+              ) : item.itemType === 'yt-shorts' ? (
+                <YoutubeVideo key={item.datetime} item={item} />
               ) : item.itemType === 'yt-playlist' ? (
                 <YoutubePlaylist key={item.datetime} item={item} />
               ) : item.itemType === 'yt-channel' ? (

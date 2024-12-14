@@ -69,9 +69,8 @@ export const YoutubeVideo = ({ item }: { item: SingleTab }) => {
             width={336 / 2}
             height={188 / 2}
             className="max-w-28 -translate-y-[11px] object-contain"
-            src={item.youtubeVideo?.thumbnail}
+            src={item.itemType === 'yt-video' ? item.youtubeVideo?.thumbnail || '' : item.youtubeShort?.thumbnail || ''}
             onError={e => (e.currentTarget.src = chrome.runtime.getURL('side-panel/thumbnail.png'))}
-            alt={item.title}
           />
         </div>
         <div className="max-w-sm pr-2 w-full">
@@ -139,13 +138,8 @@ export const YoutubeChannel = ({ item }: { item: SingleTab }) => {
       </section>
 
       <div className="flex gap-2 z-20 w-full items-center pl-2">
-        <div className="">
-          <img
-            width={360 / 2}
-            height={360 / 2}
-            className="size-8 object-cover xaspect-square rounded-full"
-            src={item.youtubeChannel?.avatar}
-          />
+        <div className="size-8 object-cover aspect-square ">
+          <img width={360 / 2} height={360 / 2} className="rounded-full" src={item.youtubeChannel?.avatar} />
         </div>
         <div className="max-w-sm pr-2 w-full">
           <p className="text-slate-500 truncatex whitespace-break-spaces text-xs/3 leading-3">
@@ -211,8 +205,7 @@ export const YoutubePlaylist = ({ item }: { item: SingleTab }) => {
             width={480 / 2}
             height={360 / 2}
             className="max-w-28 object-contain"
-            src={item.youtubePlaylist?.thumbnail}
-            alt={item.title}
+            src={item.youtubePlaylist?.thumbnail ?? ''}
             // TODO: resize thumbnail image
             onError={e => (e.currentTarget.src = chrome.runtime.getURL('side-panel/thumbnail.png'))}
           />

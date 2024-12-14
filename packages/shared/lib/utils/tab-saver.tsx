@@ -30,6 +30,10 @@ export async function saveCurrentTab(tags: string[] | null, category: string): P
         return window.location.hostname.includes('youtube.com') && window.location.pathname.startsWith('/watch');
       }
 
+      function isYouTubeShorts(): boolean {
+        return window.location.hostname.includes('youtube.com') && window.location.pathname.startsWith('/shorts');
+      }
+
       function isYouTubeChannel(): boolean {
         return (
           window.location.hostname.includes('youtube.com') &&
@@ -43,6 +47,7 @@ export async function saveCurrentTab(tags: string[] | null, category: string): P
 
       function getItemType(): ItemType {
         if (window.location.pathname.startsWith('/watch')) return 'yt-video';
+        if (window.location.pathname.startsWith('/shorts')) return 'yt-shorts';
         if (window.location.pathname.startsWith('/channel')) return 'yt-channel';
         if (window.location.pathname.startsWith('/@')) return 'yt-channel';
         if (window.location.pathname.startsWith('/playlist')) return 'yt-playlist';
@@ -101,6 +106,18 @@ export async function saveCurrentTab(tags: string[] | null, category: string): P
         return { title, channelName, avatar, description, thumbnail };
       }
 
+      function getYoutubeShortsDetails(): YT.Short | null {
+        if (!isYouTubeShorts()) return null;
+
+        const avatar =
+          document.querySelector<HTMLImageElement>('#metapanel img.yt-core-image.yt-core-image--loaded')?.src || '';
+        const channelName = document.querySelector('#metapanel span.yt-core-attributed-string > a')?.textContent || '';
+        const youtubeVideoId = window.location.pathname.split('/')[2];
+        const thumbnail = youtubeVideoId ? `http://img.youtube.com/vi/${youtubeVideoId}/0.jpg` : '';
+
+        return { avatar, channelName, thumbnail };
+      }
+
       function getYoutubeListDetails(): YT.Playlist | null {
         if (!isYouTubeList()) return null;
 
@@ -145,11 +162,13 @@ export async function saveCurrentTab(tags: string[] | null, category: string): P
         if (origin.includes('youtube.com')) {
           if (getItemType() === 'yt-video') {
             return getYouTubeVideoDetails()?.description ?? '';
+          } else if (getItemType() === 'yt-shorts') {
+            return 'No description available for shorts';
           } else if (getItemType() === 'yt-channel') {
             return getYoutubeChannelDetails()?.description ?? '';
           } else if (getItemType() === 'yt-playlist') {
             return getYoutubeListDetails()?.description ?? '';
-          }
+          } else return '';
         }
 
         if (origin.includes('github.com')) {
@@ -182,6 +201,7 @@ export async function saveCurrentTab(tags: string[] | null, category: string): P
         item_type: getItemType(),
         youtube_video: getYouTubeVideoDetails(),
         youtube_channel: getYoutubeChannelDetails(),
+        youtube_short: getYoutubeShortsDetails(),
         youtube_list: getYoutubeListDetails(),
       };
     },
@@ -207,6 +227,7 @@ export async function saveCurrentTab(tags: string[] | null, category: string): P
     itemType: data.item_type,
     note: undefined,
     youtubeChannel: data.youtube_channel ?? undefined,
+    youtubeShort: data.youtube_short ?? undefined,
     youtubePlaylist: data.youtube_list ?? undefined,
     youtubeVideo: data.youtube_video
       ? {
