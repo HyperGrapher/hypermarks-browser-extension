@@ -100,3 +100,13 @@ export const tabsGroupedStorage: TabsGroupedStorage = {
     });
   },
 };
+
+export async function deleteTab(datetime: string) {
+  console.log(datetime);
+  try {
+    await tabsGroupedStorage.delete(datetime);
+    console.log(`Tab with datetime ${datetime} deleted successfully.`);
+  } catch (error) {
+    console.error('Error deleting tab:', error);
+  }
+}

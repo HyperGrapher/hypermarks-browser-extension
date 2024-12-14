@@ -79,7 +79,7 @@ const Popup = () => {
     setShowCreateCategory(false);
   }
 
-  async function side() {
+  async function openSidePanel() {
     // await chrome.sidePanel.setOptions({
     //   path: 'side-panel/index.html',
     //   enabled: true, // Make sure it's enabled
@@ -89,6 +89,8 @@ const Popup = () => {
 
     const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
     chrome.sidePanel.open({ windowId: activeTab?.windowId ?? 0 });
+    // close popup window
+    setTimeout(() => window.close(), 300);
   }
 
   function onCancelNewCategory() {
@@ -154,7 +156,10 @@ const Popup = () => {
             <Button variant="outline" className=" hover:scale-[1.02] w-full transition-all" onClick={deleteAllTabData}>
               Clear saved pages...
             </Button>
-            <Button variant="secondary" className="shadow hover:scale-[1.02] w-full transition-all" onClick={side}>
+            <Button
+              variant="secondary"
+              className="shadow hover:scale-[1.02] w-full transition-all"
+              onClick={openSidePanel}>
               Display SuperTabs
             </Button>
           </div>

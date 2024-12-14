@@ -1,27 +1,15 @@
-import React from 'react';
 import { cn } from './utils';
-import { tabsGroupedStorage } from '@extension/storage';
-import { SingleTab, useWindowSize } from '@extension/shared';
+import { deleteTab } from '@extension/storage';
+import { openTab, SingleTab, useWindowSize } from '@extension/shared';
 import { Badge } from '@extension/ui';
 import truncate from 'voca/truncate';
 import TimeAgo from 'timeago-react';
 import Balancer from 'react-wrap-balancer';
-
 import { X } from 'lucide-react';
 import { Info } from 'lucide-react';
 
 // TODO:  if no icon/thumbnail, show default ones
 // https://www.youtube.com/playlist?list=PLRnI_2_ZWhtCxHQ_3zDfW0-RgiWo8ftyj
-
-async function deleteItem(datetime: string) {
-  console.log(datetime);
-  try {
-    await tabsGroupedStorage.delete(datetime);
-    console.log(`Tab with datetime ${datetime} deleted successfully.`);
-  } catch (error) {
-    console.error('Error deleting tab:', error);
-  }
-}
 
 export const GenericTab = ({ item }: { item: SingleTab }) => {
   return (
@@ -35,7 +23,7 @@ export const GenericTab = ({ item }: { item: SingleTab }) => {
           'expand absolute xscale-75 insetx-0 right-1 top-1 xmt-6',
           'size-4 aspect-square z-30 rounded-full bg-slate-700/50 flex justify-center items-center',
         )}
-        onClick={() => deleteItem(item.datetime)}>
+        onClick={() => deleteTab(item.datetime)}>
         <X size={12} />
       </button>
 
@@ -48,14 +36,12 @@ export const GenericTab = ({ item }: { item: SingleTab }) => {
         />
 
         <div className="">
-          <a
-            href={item.url}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            onClick={async () => await openTab(item.url)}
             title={item.title}
             className="whitespace-break-spaces truncate font-semibold inline text-slate-300">
             <Balancer>{truncate(item.title, 80)}</Balancer>
-          </a>
+          </button>
         </div>
         {/* <TimeAgo datetime={item.datetime} className="text-slate-500" /> */}
       </div>

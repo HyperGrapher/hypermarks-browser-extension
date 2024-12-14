@@ -74,7 +74,7 @@ export const YoutubeVideo = ({ item }: { item: SingleTab }) => {
           />
         </div>
         <div className="max-w-sm pr-2 w-full">
-          <p className="text-slate-500 truncatex whitespace-break-spaces text-xs/3 leading-3`">
+          <p className="text-slate-500 truncatex xwhitespace-break-spaces text-xs/3 leading-3 wrap-text-anywhere ">
             {/* {item.youtubeVideo?.description.slice(0, maxCharForDesc)} */}
             {truncate(item.description, maxCharForDesc)}
             {/* {remove_linebreaks(item.youtube?.yt_video_desc).slice(0, maxCharForDesc)} */}
@@ -142,7 +142,7 @@ export const YoutubeChannel = ({ item }: { item: SingleTab }) => {
           <img width={360 / 2} height={360 / 2} className="rounded-full" src={item.youtubeChannel?.avatar} />
         </div>
         <div className="max-w-sm pr-2 w-full">
-          <p className="text-slate-500 truncatex whitespace-break-spaces text-xs/3 leading-3">
+          <p className="text-slate-500 truncatex whitespace-break-spaces text-xs/3 leading-3 text-wrap">
             {truncate(item.youtubeChannel?.description, 325)}
             {/* {item.youtubeChannel?.description.slice(0, 325)} */}
             {/* {remove_linebreaks(item.youtube?.yt_video_desc).slice(0, maxCharForDesc)} */}

@@ -47,3 +47,12 @@ export async function deleteAllTabData(): Promise<void> {
     console.error('Error clearing page list:', error);
   }
 }
+
+export async function openTab(url: string) {
+  const settings = await chrome.storage.sync.get('user-prefs'); // {openInNewTab: true}
+  if (settings.openInNewTab) {
+    chrome.tabs.create({ url });
+    return;
+  }
+  chrome.tabs.update({ url });
+}
