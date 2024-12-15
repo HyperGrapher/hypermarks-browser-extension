@@ -50,7 +50,7 @@ export async function deleteAllTabData(): Promise<void> {
 
 export async function openTab(url: string) {
   const settings = await chrome.storage.sync.get('user-prefs'); // {openInNewTab: true}
-  if (settings.openInNewTab) {
+  if (!settings.openInNewTab) {
     chrome.tabs.create({ url });
     return;
   }

@@ -32,14 +32,7 @@ const FormSchema = z.object({
 type FormSchema = z.infer<typeof FormSchema>;
 
 export const TagsForm = () => {
-  const [tagsWithCount, setTagsWithCount] = useState<TagItem[]>([]);
   const tabs = useStorage(tabsGroupedStorage);
-
-  useEffect(() => {
-    (async () => {
-      setTagsWithCount(extractTagsWithCount(tabs));
-    })();
-  }, []);
 
   const form = useForm<FormSchema>({
     resolver: zodResolver(FormSchema),
@@ -59,8 +52,7 @@ export const TagsForm = () => {
               <FormItem>
                 <FormControl>
                   <SelectTags
-                    data={tagsWithCount}
-                    value={field.value}
+                    data={extractTagsWithCount(tabs)}
                     placeholder="Type to search in tags.."
                     onValueChange={selectedValues => {
                       field.onChange(selectedValues);

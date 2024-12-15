@@ -1,4 +1,4 @@
-import { SingleTab, useWindowSize } from '@extension/shared';
+import { openTab, SingleTab, useWindowSize } from '@extension/shared';
 import { tabsGroupedStorage } from '@extension/storage';
 import { Badge } from '@extension/ui';
 import { X } from 'lucide-react';
@@ -47,46 +47,43 @@ export const YoutubeVideo = ({ item }: { item: SingleTab }) => {
       </button>
 
       <div className="xyt-item flex items-centerx gap-2 pb-1 pt-2 px-3">
-        <img className="size-4 translate-y-[1px]" src={item.icon} alt="icon" />
+        <img
+          className="size-4 translate-y-[1px]"
+          src={item.icon ?? ''}
+          alt=""
+          onError={e => (e.currentTarget.src = chrome.runtime.getURL('side-panel/icon-fallback.png'))}
+        />
 
         <div className="">
-          <a
-            href={item.url}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            onClick={async () => await openTab(item.url)}
             title={item.title}
-            className="whitespace-break-spaces truncate font-semibold inline leading-[0.1rem] ">
-            {truncate(item.title, 80)}
-            {/* {maxCharForDesc?.toString()} */}
-            {/* {width?.toString()} -{maxCharForDesc?.toString()} */}
-          </a>
+            className="font-semibold inline text-left">
+            <span className="wrap-text-anywhere line-clamp-2">{item.title}</span>
+          </button>
         </div>
       </div>
 
-      <div className="flex gap-2 xh-24 pr-2 z-20 w-full relative">
-        <div className="rounded overflow-clip relative -xtranslate-y-2  bgx-red-500/20 w-[183px] h-[62px]">
+      <div className="flex gap-2 z-20 w-full items-center pl-2">
+        <div className="rounded-md overflow-clip relative w-[183px] h-[62px]">
           <img
             width={336 / 2}
             height={188 / 2}
-            className="max-w-28 -translate-y-[11px] object-contain"
+            className="max-w-28 -translate-y-[11px] object-contain rounded-md"
             src={item.itemType === 'yt-video' ? item.youtubeVideo?.thumbnail || '' : item.youtubeShort?.thumbnail || ''}
             onError={e => (e.currentTarget.src = chrome.runtime.getURL('side-panel/thumbnail.png'))}
           />
         </div>
         <div className="max-w-sm pr-2 w-full">
-          <p className="text-slate-500 truncatex xwhitespace-break-spaces text-xs/3 leading-3 wrap-text-anywhere ">
-            {/* {item.youtubeVideo?.description.slice(0, maxCharForDesc)} */}
-            {truncate(item.description, maxCharForDesc)}
-            {/* {remove_linebreaks(item.youtube?.yt_video_desc).slice(0, maxCharForDesc)} */}
-          </p>
+          <p className="text-slate-500 text-xs/3 leading-3 wrap-text-anywhere line-clamp-5">{item.description}</p>
         </div>
       </div>
-      <section className="pt-1 flex flex-wrap gap-0 w-full">
+      <section className="pt-1 flex flex-wrap gap-0.5 w-full">
         {item.tags.map(pill => (
           <Badge
             key={pill}
             variant="outline"
-            className="scale-90 hover:cursor-pointer font-light py-0 text-xs group bg-blue-700/20 hover:bg-blue-700/40">
+            className=" hover:cursor-pointer font-light py-0 text-[10px] bg-blue-700/20 hover:bg-blue-700/40">
             {pill}
           </Badge>
         ))}
@@ -121,15 +118,12 @@ export const YoutubeChannel = ({ item }: { item: SingleTab }) => {
         <img src={item.icon ?? ''} alt="icon" className="size-4 translate-y-[1px]" />
 
         <div className="">
-          <a
-            href={item.url}
-            target="_blank"
+          <button
+            onClick={async () => await openTab(item.url)}
             title={item.title}
-            rel="noopener noreferrer"
-            className="whitespace-break-spaces truncate font-semibold inline text-slate-300">
-            {truncate(item.title, 80)}
-            {/* {width?.toString()} -{maxCharForDesc?.toString()} */}
-          </a>
+            className="font-semibold inline text-left">
+            <span className="wrap-text-anywhere line-clamp-2">{item.title}</span>
+          </button>
         </div>
       </div>
       <section className="bg-gray-800 hidden xflex items-center gap-2 px-2 py-1 text-xs/3 text-slate-400">
@@ -139,22 +133,20 @@ export const YoutubeChannel = ({ item }: { item: SingleTab }) => {
 
       <div className="flex gap-2 z-20 w-full items-center pl-2">
         <div className="size-8 object-cover aspect-square ">
-          <img width={360 / 2} height={360 / 2} className="rounded-full" src={item.youtubeChannel?.avatar} />
+          <img width={360 / 2} height={360 / 2} className="rounded-md" src={item.youtubeChannel?.avatar} />
         </div>
         <div className="max-w-sm pr-2 w-full">
-          <p className="text-slate-500 truncatex whitespace-break-spaces text-xs/3 leading-3 text-wrap">
-            {truncate(item.youtubeChannel?.description, 325)}
-            {/* {item.youtubeChannel?.description.slice(0, 325)} */}
-            {/* {remove_linebreaks(item.youtube?.yt_video_desc).slice(0, maxCharForDesc)} */}
+          <p className="text-slate-500 text-xs/3 leading-3 wrap-text-anywhere line-clamp-5">
+            {item.youtubeChannel?.description}
           </p>
         </div>
       </div>
-      <section className="pt-1 flex flex-wrap gap-0 w-full">
+      <section className="pt-1 flex flex-wrap gap-0.5 w-full">
         {item.tags.map(pill => (
           <Badge
             key={pill}
             variant="outline"
-            className="scale-90 hover:cursor-pointer font-light py-0 text-xs group bg-blue-700/20 hover:bg-blue-700/40">
+            className=" hover:cursor-pointer font-light py-0 text-[10px] bg-blue-700/20 hover:bg-blue-700/40">
             {pill}
           </Badge>
         ))}
@@ -183,15 +175,12 @@ export const YoutubePlaylist = ({ item }: { item: SingleTab }) => {
         <img src={item.icon ?? ''} alt="icon" className="size-4 translate-y-[1px]" />
 
         <div className="">
-          <a
-            href={item.url}
-            target="_blank"
+          <button
+            onClick={async () => await openTab(item.url)}
             title={item.title}
-            rel="noopener noreferrer"
-            className="whitespace-break-spaces truncate font-semibold inline">
-            {truncate(item.title, 80)}
-            {/* {width?.toString()} -{maxCharForDesc?.toString()} */}
-          </a>
+            className="font-semibold inline text-left">
+            <span className="wrap-text-anywhere line-clamp-2">{item.title}</span>
+          </button>
         </div>
       </div>
       <section className="bg-gray-800 hidden xflex items-center gap-2 px-2 py-1 text-xs/3 text-slate-400">
@@ -211,20 +200,18 @@ export const YoutubePlaylist = ({ item }: { item: SingleTab }) => {
           />
         </div>
         <div className="max-w-sm pr-2 w-full">
-          <p className="text-slate-500 truncatex whitespace-break-spaces text-xs/3 leading-3`">
-            {}
-            {item.youtubePlaylist?.description.slice(0, 325)}
-            {/* {remove_linebreaks(item.youtube?.yt_video_desc).slice(0, maxCharForDesc)} */}
+          <p className="text-slate-500 text-xs/3 leading-3 wrap-text-anywhere line-clamp-5">
+            {item.youtubePlaylist?.description}
           </p>
         </div>
       </div>
 
-      <section className="pt-1 flex flex-wrap gap-0 w-full">
+      <section className="pt-1 flex flex-wrap gap-0.5 w-full">
         {item.tags.map(pill => (
           <Badge
             key={pill}
             variant="outline"
-            className="scale-90 hover:cursor-pointer font-light py-0 text-xs group bg-blue-700/20 hover:bg-blue-700/40">
+            className=" hover:cursor-pointer font-light py-0 text-[10px] bg-blue-700/20 hover:bg-blue-700/40">
             {pill}
           </Badge>
         ))}

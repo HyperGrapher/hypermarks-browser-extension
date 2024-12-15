@@ -6,19 +6,11 @@ import { useAtom } from 'jotai';
 
 interface SelectPillsProps {
   data: TagItem[];
-  defaultValue?: string[];
-  value?: string[];
   onValueChange?: (selectedValues: string[]) => void;
   placeholder?: string;
 }
 
-export const SelectTags: React.FC<SelectPillsProps> = ({
-  data,
-  defaultValue = [],
-  value,
-  onValueChange,
-  placeholder = 'Type to search...',
-}) => {
+export const SelectTags: React.FC<SelectPillsProps> = ({ data, onValueChange, placeholder = 'Type to search...' }) => {
   const [inputValue, setInputValue] = useState<string>('');
   const [valueError, setValueError] = useState<string | null>(null);
   // const [selectedPills, setSelectedPills] = useState<string[]>(value || defaultValue);
