@@ -5,12 +5,14 @@ import {
   useStorage,
   withErrorBoundary,
   withSuspense,
+  tagsAtom,
 } from '@extension/shared';
 import { tabsGroupedStorage } from '@extension/storage';
 import { Button, cn, DropdownSelect, Input } from '@extension/ui';
 import '@src/Popup.css';
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { TagsForm } from './components/TagsForm';
+import { useAtom } from 'jotai';
 
 /*
  #* fikir su:
@@ -34,7 +36,7 @@ import { TagsForm } from './components/TagsForm';
 
 const Popup = () => {
   const [message, setMessage] = useState('Save current tab');
-  const [tags, setTags] = useState<string[] | null>(null);
+  const [tags, setTags] = useAtom(tagsAtom); // Jotai
   const [categoryError, setCategoryError] = useState<string | null>(null);
   const [showCreateCategory, setShowCreateCategory] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
@@ -43,21 +45,28 @@ const Popup = () => {
   const [categories, setCategories] = useState<string[]>(
     Object.entries(groupedTabs).flatMap(([category, _items]) => category) ?? [],
   );
+  const [isPending, startTransition] = useTransition();
 
   function getAiResponse() {
     getAiResponseForTab()
       .then(val => {
+        if (!val.category || !Array.isArray(val.tags)) {
+          setMessage('Invalid AI response');
+          return;
+        }
+
         if (val) {
-          setSelectedCategory(val.category);
+          console.log(val.category, 'val.category');
+          setSelectedCategory(val.category); // Update the selected category
+          setTags(prevTags => Array.from(new Set([...prevTags, ...val.tags])));
           setAiResponse(val);
-          setTags(null);
+          onCreateNewCategory(val.category);
         }
       })
       .catch(err => {
         console.log(err);
         setMessage('Error occured');
       });
-    // .finally(() => setTimeout(() => setMessage('Save current tab'), 2000));
   }
 
   function saveTab() {
@@ -66,39 +75,44 @@ const Popup = () => {
         if (val) {
           setMessage('Tab saved!');
           setSelectedCategory('');
-          setTags(null);
+          setTags([]);
+
+          setTimeout(() => window.close(), 750);
         }
       })
       .catch(err => {
         console.log(err);
         setMessage('Error occured');
-      })
-      .finally(() => setTimeout(() => setMessage('Save current tab'), 2000));
+      });
   }
 
   function sendMessage() {
     chrome.runtime.sendMessage({ action: 'open-side-panel' });
   }
 
-  function onCreateNewCategory() {
-    if (selectedCategory.trim() === '') {
+  function onCreateNewCategory(categoryName: string) {
+    const trimmedCategory = categoryName.trim();
+    if (trimmedCategory === '') {
       setCategoryError('Please enter a category name');
+      console.log('Please enter a category name');
       return;
     }
-    if (selectedCategory.trim().length >= 30) {
+    if (trimmedCategory.length >= 30) {
       setCategoryError('Category name is too long');
+      console.log('Category name is too long');
       return;
     }
 
-    const categoryExists = categories.some(category => category.toLowerCase() === selectedCategory.toLowerCase());
+    const categoryExists = categories.some(category => category.toLowerCase() === trimmedCategory.toLowerCase());
     if (categoryExists) {
       setCategoryError('Category name already exists');
+      console.log('Category name already exists');
       return;
     }
 
-    const updatedCategories = [...categories, selectedCategory];
+    const updatedCategories = [...categories, trimmedCategory];
     setCategories(updatedCategories);
-    setSelectedCategory(selectedCategory);
+    setSelectedCategory(trimmedCategory); // Keep the new category selected
     setCategoryError(null);
     setShowCreateCategory(false);
   }
@@ -154,7 +168,11 @@ const Popup = () => {
                 <Button onClick={() => onCancelNewCategory()} size="sm" className="shrink" variant={'destructive'}>
                   Cancel
                 </Button>
-                <Button onClick={() => onCreateNewCategory()} size="sm" className="w-full grow" variant={'default'}>
+                <Button
+                  onClick={() => onCreateNewCategory(selectedCategory)}
+                  size="sm"
+                  className="w-full grow"
+                  variant={'default'}>
                   Create Category
                 </Button>
               </div>
@@ -162,7 +180,7 @@ const Popup = () => {
             </section>
           )}
 
-          {!showCreateCategory && <TagsForm setTags={setTags} />}
+          {!showCreateCategory && <TagsForm />}
         </div>
 
         {!showCreateCategory && (

@@ -16,8 +16,11 @@ export async function generateCategoryAndTags(title: string, description: string
         - Personal Development
         - Health & Fitness
         - AI &Machine Learning
+        - Music & Audio
+        - News & Geopolitics
         - Other
-      - "tags": A list of 1-5 related keywords or phrases that further describe the content. try not to be too specific.
+      - "tags": A list of 1-5 related keywords or phrases that further describe the content. Tags must not contain any spaces, use abbrevations when applicable
+         and try not to be too specific.
   
       Example:
   
@@ -38,7 +41,7 @@ export async function generateCategoryAndTags(title: string, description: string
       Output:
       {
         "category": "Web Development",
-        "tags": ["React.js", "JavaScript", "tutorial", "frontend"]
+        "tags": ["React", "JavaScript", "tutorial", "frontend"]
       }
   
       Now, analyze the following content and provide a similar structured result.

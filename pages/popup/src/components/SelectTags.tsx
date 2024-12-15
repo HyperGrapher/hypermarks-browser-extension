@@ -1,7 +1,8 @@
-import { TagItem } from '@extension/shared';
+import { TagItem, tagsAtom } from '@extension/shared';
 import { Badge, cn, Input, Popover, PopoverAnchor, PopoverContent } from '@extension/ui';
 import { X } from 'lucide-react';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useAtom } from 'jotai';
 
 interface SelectPillsProps {
   data: TagItem[];
@@ -20,7 +21,8 @@ export const SelectTags: React.FC<SelectPillsProps> = ({
 }) => {
   const [inputValue, setInputValue] = useState<string>('');
   const [valueError, setValueError] = useState<string | null>(null);
-  const [selectedPills, setSelectedPills] = useState<string[]>(value || defaultValue);
+  // const [selectedPills, setSelectedPills] = useState<string[]>(value || defaultValue);
+  const [selectedPills, setSelectedPills] = useAtom(tagsAtom);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -165,7 +167,7 @@ export const SelectTags: React.FC<SelectPillsProps> = ({
         {valueError && <p className="text-red-500 text-xs pt-1">{valueError}</p>}
 
         <section className="pb-4 flex flex-wrap gap-2 min-h-12 w-full">
-          {(value || selectedPills).map(pill => (
+          {selectedPills.map(pill => (
             <Badge
               key={pill}
               variant="secondary"

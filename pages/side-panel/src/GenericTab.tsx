@@ -39,8 +39,8 @@ export const GenericTab = ({ item }: { item: SingleTab }) => {
           <button
             onClick={async () => await openTab(item.url)}
             title={item.title}
-            className="whitespace-break-spaces truncate font-semibold inline text-slate-300">
-            <Balancer>{truncate(item.title, 80)}</Balancer>
+            className="whitespace-pre-line truncate text-left font-semibold inline text-slate-300 wrap-text-anywhere">
+            {truncate(item.title, 80)}
           </button>
         </div>
         {/* <TimeAgo datetime={item.datetime} className="text-slate-500" /> */}
@@ -53,12 +53,12 @@ export const GenericTab = ({ item }: { item: SingleTab }) => {
           </p>
         </div>
       </div>
-      <section className="pt-1 flex flex-wrap gap-2 w-full">
+      <section className="pt-1 flex flex-wrap gap-0 w-full">
         {item.tags.map(pill => (
           <Badge
             key={pill}
             variant="outline"
-            className="hover:cursor-pointer gap-1 font-light py-0 text-xs group bg-zinc-700/30 hover:bg-zinc-400/30">
+            className="scale-90 hover:cursor-pointer font-light py-0 text-xs group bg-zinc-700/30 hover:bg-zinc-400/30">
             {pill}
           </Badge>
         ))}
