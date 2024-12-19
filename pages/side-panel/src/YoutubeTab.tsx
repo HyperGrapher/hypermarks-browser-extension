@@ -4,7 +4,6 @@ import { tabsGroupedStorage } from '@extension/storage';
 import { Badge } from '@extension/ui';
 import { X } from 'lucide-react';
 import React from 'react';
-import truncate from 'voca/truncate';
 import { cn, searchTagsAtom } from './utils';
 import { useAtom } from 'jotai';
 
@@ -68,7 +67,7 @@ export const YoutubeVideo = ({ item }: { item: SingleTab }) => {
       </div>
 
       <div className="z-20 flex w-full items-center gap-2 pl-2">
-        <div className="relative h-[62px] w-[183px] text-clip rounded-md">
+        <div className="relative h-[62px] w-[183px] overflow-clip rounded-md">
           <img
             width={336 / 2}
             height={188 / 2}
@@ -82,7 +81,7 @@ export const YoutubeVideo = ({ item }: { item: SingleTab }) => {
           <p className="wrap-text-anywhere line-clamp-5 text-xs/3 leading-3 text-slate-500">{item.description}</p>
         </div>
       </div>
-      <section className="flex w-full flex-wrap gap-0.5 pt-1">
+      <section className="flex w-full overflow-x-clip gap-0.5 pt-1">
         {item.tags.map(pill => (
           <Badge
             onClick={() => setSearchTags(prev => [...new Set([...prev, pill])])}
@@ -199,7 +198,7 @@ export const YoutubePlaylist = ({ item }: { item: SingleTab }) => {
       </section>
 
       <div className="z-20 flex w-full gap-2">
-        <div className="text-clip rounded">
+        <div className="overflow-clip rounded">
           <img
             width={480 / 2}
             height={360 / 2}
