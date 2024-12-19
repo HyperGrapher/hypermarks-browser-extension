@@ -1,5 +1,6 @@
 import '@src/SidePanel.css';
-import { CategorizedTab, SingleTab, useStorage, withErrorBoundary, withSuspense } from '@extension/shared';
+import type { CategorizedTab, SingleTab } from '@extension/shared';
+import { useStorage, withErrorBoundary, withSuspense } from '@extension/shared';
 import { tabsGroupedStorage } from '@extension/storage';
 import { useEffect, useState } from 'react';
 import { Button, cn } from '@extension/ui';
@@ -31,8 +32,8 @@ const SidePanel = () => {
   return (
     <div className={`xbg-black/80 xmin-h-screen`}>
       <header className={`App-header`}>
-        <div className="bg-zinc-800 w-full h-12 hidden">{/* <pre>{JSON.stringify(tabsCats, null, 1)}</pre> */}</div>
-        <div className="App-content py-4 px-2">
+        <div className="hidden h-12 w-full bg-zinc-800">{/* <pre>{JSON.stringify(tabsCats, null, 1)}</pre> */}</div>
+        <div className="App-content px-2 py-4">
           {/* <h3 className="text-lg font-semibold text-zinc-400">Saved Tabs</h3> */}
           <TabList groupedTabs={tabsCats} />
         </div>
@@ -101,7 +102,7 @@ function TabList({ groupedTabs }: { groupedTabs: { [category: string]: SingleTab
 
       {/* Tag Input for Filtering */}
       {view === 'tags' && (
-        <div className="mt-4 text-xs/3 text-slate-400 flex gap-2">
+        <div className="mt-4 flex gap-2 text-xs/3 text-slate-400">
           <input
             type="text"
             placeholder="Enter tags (comma-separated)"

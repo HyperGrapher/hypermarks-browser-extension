@@ -5,6 +5,7 @@ import { SessionAccessLevelEnum, StorageEnum } from './enums';
  * Chrome reference error while running `processTailwindFeatures` in tailwindcss.
  *  To avoid this, we need to check if the globalThis.chrome is available and add fallback logic.
  */
+// eslint-disable-next-line no-undef
 const chrome = globalThis.chrome;
 
 /**

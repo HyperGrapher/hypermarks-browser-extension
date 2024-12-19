@@ -7,6 +7,7 @@ function addReload() {
 
   initClient({
     // @ts-expect-error That's because of the dynamic code loading
+    // eslint-disable-next-line no-undef
     id: __HMR_ID,
     onUpdate: reload,
   });

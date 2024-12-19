@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import { SelectProps } from '@radix-ui/react-select';
+import type { SelectProps } from '@radix-ui/react-select';
 import React from 'react';
 import { Button } from './ui/button';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from './ui/select';
@@ -61,8 +61,8 @@ const DropdownSelect = React.forwardRef<HTMLButtonElement, ItemSelectProps>(
           )}
         </SelectTrigger>
 
-        <SelectContent id="category-content" className="max-h-[250px] overflow-y-auto xrelative" position="popper">
-          <div className="px-2 text-sm w-full py-1">
+        <SelectContent id="category-content" className="xrelative max-h-[250px] overflow-y-auto" position="popper">
+          <div className="w-full px-2 py-1 text-sm">
             <Button onClick={setShowCreateCategory} size={'sm'} className="w-full" variant={'ghost'}>
               Create a new category
             </Button>
@@ -71,8 +71,8 @@ const DropdownSelect = React.forwardRef<HTMLButtonElement, ItemSelectProps>(
           <SelectGroup>
             {items.map(item => (
               <SelectItem key={item} value={item || ''}>
-                <div className="flex items-center w-full gap-2">
-                  <span className="text-sm text-muted-foreground text-left">{item}</span>
+                <div className="flex w-full items-center gap-2">
+                  <span className="text-muted-foreground text-left text-sm">{item}</span>
                 </div>
               </SelectItem>
             ))}

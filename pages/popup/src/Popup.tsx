@@ -171,13 +171,12 @@ const Popup = () => {
             <section>
               <Input
                 type="text"
-                autoFocus
-                className="w-full  text-sm xshadow-xl bg-slate-900/50 outline outline-zinc-300/30 outline-1 placeholder:text-sm placeholder:text-zinc-500"
+                className="xshadow-xl  w-full bg-slate-900/50 text-sm outline outline-1 outline-zinc-300/30 placeholder:text-sm placeholder:text-zinc-500"
                 value={selectedCategory}
                 placeholder="Type category name"
                 onChange={e => setSelectedCategory(e.target.value)}
               />
-              <div className="flex gap-2 mt-2">
+              <div className="mt-2 flex gap-2">
                 <Button onClick={() => onCancelNewCategory()} size="sm" className="shrink" variant={'destructive'}>
                   Cancel
                 </Button>
@@ -189,7 +188,7 @@ const Popup = () => {
                   Create Category
                 </Button>
               </div>
-              {categoryError && <p className="text-red-500 text-xs pt-1">{categoryError}</p>}
+              {categoryError && <p className="pt-1 text-xs text-red-500">{categoryError}</p>}
             </section>
           )}
 
@@ -239,9 +238,9 @@ const Popup = () => {
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2">
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2">
                 <path d="M12 19v-7m0 0V5m0 7H5m7 0h7"></path>
               </svg>
               {message}
@@ -251,13 +250,13 @@ const Popup = () => {
               Clear saved pages...
             </Button> */}
 
-            <Button variant="outline" className=" hover:scale-[1.02] w-full transition-all" onClick={getAiResponse}>
+            <Button variant="outline" className=" w-full transition-all hover:scale-[1.02]" onClick={getAiResponse}>
               Get Ai Response
             </Button>
 
             <Button
               variant="secondary"
-              className="shadow hover:scale-[1.02] w-full transition-all"
+              className="w-full shadow transition-all hover:scale-[1.02]"
               onClick={openSidePanel}>
               Display SuperTabs
             </Button>
@@ -266,14 +265,14 @@ const Popup = () => {
         {/* <pre>{JSON.stringify(aiREsponse, null, 2)}</pre> */}
       </header>
 
-      <div className="absolute bottom-0 left-0 right-0 w-full opacity-10 z-0">
+      <div className="absolute inset-x-0 bottom-0 z-0 w-full opacity-10">
         <svg
           width="100%"
           height="100%"
           id="svg"
           viewBox="0 0 1440 590"
           xmlns="http://www.w3.org/2000/svg"
-          className="transition duration-300 ease-in-out delay-150 grayscale">
+          className="grayscale transition delay-150 duration-300 ease-in-out">
           <defs>
             <linearGradient id="gradient" x1="0%" y1="50%" x2="100%" y2="50%">
               <stop offset="5%" stopColor="#F78DA7"></stop>
@@ -286,7 +285,7 @@ const Popup = () => {
             strokeWidth="0"
             fill="url(#gradient)"
             fillOpacity="0.53"
-            className="transition-all duration-300 ease-in-out delay-150 path-0"></path>
+            className="path-0 transition-all delay-150 duration-300 ease-in-out"></path>
           <defs>
             <linearGradient id="gradient" x1="0%" y1="50%" x2="100%" y2="50%">
               <stop offset="5%" stopColor="#F78DA7"></stop>
@@ -299,7 +298,7 @@ const Popup = () => {
             strokeWidth="0"
             fill="url(#gradient)"
             fillOpacity="1"
-            className="transition-all duration-300 ease-in-out delay-150 path-1"></path>
+            className="path-1 transition-all delay-150 duration-300 ease-in-out"></path>
         </svg>
       </div>
     </div>
@@ -308,5 +307,5 @@ const Popup = () => {
 
 export default withErrorBoundary(
   withSuspense(Popup, <div> Loading ... </div>),
-  <div className="text-red-500 min-h-16"> Error Occured </div>,
+  <div className="min-h-16 text-red-500"> Error Occured </div>,
 );

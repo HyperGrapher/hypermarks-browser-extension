@@ -1,7 +1,7 @@
 import { StorageEnum } from '../base/enums';
 import { createStorage } from '../base/base';
 import type { BaseStorage } from '../base/types';
-import { CategorizedTab, SingleTab } from '../../../shared';
+import type { CategorizedTab, SingleTab } from '../../../shared';
 
 // async function updateTabsForRenamedTag(oldTag: string, newTag: string) {
 //  const tabsGrouped = await tabsGroupedStorage.get();

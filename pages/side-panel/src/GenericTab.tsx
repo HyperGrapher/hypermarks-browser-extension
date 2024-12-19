@@ -1,10 +1,10 @@
 import { cn, searchTagsAtom } from './utils';
 import { deleteTab } from '@extension/storage';
-import { openTab, SingleTab, useWindowSize } from '@extension/shared';
+import type { SingleTab } from '@extension/shared';
+import { openTab, useWindowSize } from '@extension/shared';
 import { Badge } from '@extension/ui';
 import TimeAgo from 'timeago-react';
-import { X } from 'lucide-react';
-import { Info } from 'lucide-react';
+import { X, Info } from 'lucide-react';
 import { useAtom } from 'jotai';
 
 // TODO:  if no icon/thumbnail, show default ones
@@ -28,11 +28,11 @@ export const GenericTab = ({ item }: { item: SingleTab }) => {
         <X size={12} />
       </button>
 
-      <div className="xyt-item flex items-centerx gap-2 pb-1 pt-2 px-3">
+      <div className="xyt-item items-centerx flex gap-2 px-3 pb-1 pt-2">
         <img
           src={item.icon ?? ''}
           alt="icon"
-          className="size-4 translate-y-[1px]"
+          className="size-4 translate-y-px"
           onError={e => (e.currentTarget.src = chrome.runtime.getURL('side-panel/icon-fallback.png'))}
         />
 
@@ -40,25 +40,25 @@ export const GenericTab = ({ item }: { item: SingleTab }) => {
           <button
             onClick={async () => await openTab(item.url)}
             title={item.title}
-            className="text-left font-semibold inline text-slate-300">
+            className="inline text-left font-semibold text-slate-300">
             <span className="wrap-text-anywhere line-clamp-2">{item.title}</span>
           </button>
         </div>
         {/* <TimeAgo datetime={item.datetime} className="text-slate-500" /> */}
       </div>
 
-      <div className="flex gap-2 z-20 w-full items-center pl-2">
-        <div className="max-w-sm pr-2 w-full">
-          <p className="text-slate-500 text-xs/3 leading-3 wrap-text-anywhere line-clamp-5">{item?.description}</p>
+      <div className="z-20 flex w-full items-center gap-2 pl-2">
+        <div className="w-full max-w-sm pr-2">
+          <p className="wrap-text-anywhere line-clamp-5 text-xs/3 leading-3 text-slate-500">{item?.description}</p>
         </div>
       </div>
-      <section className="pt-1 flex flex-wrap gap-0.5 w-full">
+      <section className="flex w-full flex-wrap gap-0.5 pt-1">
         {item.tags.map(pill => (
           <Badge
             onClick={() => setSearchTags(prev => [...new Set([...prev, pill])])}
             key={pill}
             variant="outline"
-            className="hover:cursor-pointer font-light py-0 text-[10px] bg-blue-700/20 hover:bg-blue-700/40">
+            className="bg-blue-700/20 py-0 text-[10px] font-light hover:cursor-pointer hover:bg-blue-700/40">
             {pill}
           </Badge>
         ))}

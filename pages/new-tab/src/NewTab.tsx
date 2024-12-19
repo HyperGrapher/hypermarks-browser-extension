@@ -5,7 +5,7 @@ import { Button } from '@extension/ui';
 const NewTab = () => {
   return (
     <div className={`App`}>
-      <header className={``}>
+      <header>
         <p>
           Edit <code>pages/new-tab/src/NewTab.tsx</code>
         </p>
@@ -17,4 +17,4 @@ const NewTab = () => {
   );
 };
 
-export default withErrorBoundary(withSuspense(NewTab, <div>'loading'</div>), <div> Error Occur </div>);
+export default withErrorBoundary(withSuspense(NewTab, <div>loading</div>), <div> Error Occur </div>);

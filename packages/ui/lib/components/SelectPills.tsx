@@ -150,17 +150,17 @@ export const SelectPills: React.FC<SelectPillsProps> = ({
 
   return (
     <Popover open={isOpen} onOpenChange={handleOpenChange}>
-      <div className="flex flex-wrap gap-2 min-h-12 w-full">
+      <div className="flex min-h-12 w-full flex-wrap gap-2">
         {(value || selectedPills).map(pill => (
           <Badge
             key={pill}
             variant="secondary"
             onClick={() => handlePillRemove(pill)}
-            className="hover:cursor-pointer gap-1 group">
+            className="group gap-1 hover:cursor-pointer">
             {pill}
             <button
               onClick={() => handlePillRemove(pill)}
-              className="appearance-none text-muted-foreground group-hover:text-foreground transition-colors">
+              className="text-muted-foreground group-hover:text-foreground appearance-none transition-colors">
               <X size={12} />
             </button>
           </Badge>
@@ -215,7 +215,7 @@ export const SelectPills: React.FC<SelectPillsProps> = ({
                   checked={highlightedIndex === index}
                   onChange={() => handleItemSelect(item)}
                 />
-                <label htmlFor={`pill-${item.name}`} className="flex items-center w-full cursor-pointer">
+                <label htmlFor={`pill-${item.name}`} className="flex w-full cursor-pointer items-center">
                   {item.name}
                 </label>
               </div>

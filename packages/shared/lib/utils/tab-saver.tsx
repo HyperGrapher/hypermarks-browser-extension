@@ -1,6 +1,6 @@
 import { tabsGroupedStorage } from '@extension/storage';
 import { getActiveTabIcon } from './chrome-utils';
-import { YouTube as YT, ItemType, SingleTab } from './shared-types';
+import type { YouTube as YT, ItemType, SingleTab } from './shared-types';
 import { generateCategoryAndTags } from './gemini-ai';
 
 const notificationOptions = {

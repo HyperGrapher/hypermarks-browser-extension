@@ -1,4 +1,5 @@
-import { TagItem, tagsAtom } from '@extension/shared';
+import type { TagItem } from '@extension/shared';
+import { tagsAtom } from '@extension/shared';
 import { Badge, cn, Input, Popover, PopoverAnchor, PopoverContent } from '@extension/ui';
 import { X } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
@@ -20,7 +21,7 @@ export const SelectTags: React.FC<SelectPillsProps> = ({ data, onValueChange, pl
   const inputRef = useRef<HTMLInputElement | null>(null);
   const radioGroupRef = useRef<HTMLDivElement>(null);
 
-  let filteredItems = data.filter(
+  const filteredItems = data.filter(
     item => item.name.toLowerCase().startsWith(inputValue.toLowerCase()) && !selectedPills.includes(item.name),
   );
   const isEqualValue = filteredItems.some(item => item.name === inputValue);
@@ -142,12 +143,12 @@ export const SelectTags: React.FC<SelectPillsProps> = ({ data, onValueChange, pl
 
   return (
     <Popover open={isOpen} onOpenChange={handleOpenChange}>
-      <div className="flex flex-wrap gap-2 min-h-12 w-full">
+      <div className="flex min-h-12 w-full flex-wrap gap-2">
         <PopoverAnchor asChild>
           <Input
             ref={inputRef}
             type="text"
-            className="w-full shadow-xl bg-slate-900/50 outline outline-zinc-300/30 outline-1 placeholder:text-sm placeholder:text-zinc-500 border-0 text-sm"
+            className="w-full border-0 bg-slate-900/50 text-sm shadow-xl outline outline-1 outline-zinc-300/30 placeholder:text-sm placeholder:text-zinc-500"
             value={inputValue}
             onClick={() => setIsOpen(true)}
             onChange={handleInputChange}
@@ -156,19 +157,19 @@ export const SelectTags: React.FC<SelectPillsProps> = ({ data, onValueChange, pl
           />
         </PopoverAnchor>
 
-        {valueError && <p className="text-red-500 text-xs pt-1">{valueError}</p>}
+        {valueError && <p className="pt-1 text-xs text-red-500">{valueError}</p>}
 
-        <section className="pb-4 flex flex-wrap gap-2 min-h-12 w-full">
+        <section className="flex min-h-12 w-full flex-wrap gap-2 pb-4">
           {selectedPills.map(pill => (
             <Badge
               key={pill}
               variant="secondary"
               onClick={() => handlePillRemove(pill)}
-              className="hover:cursor-pointer gap-1 group">
+              className="group gap-1 hover:cursor-pointer">
               {pill}
               <button
                 onClick={() => handlePillRemove(pill)}
-                className="appearance-none text-muted-foreground group-hover:text-foreground transition-colors">
+                className="appearance-none text-muted-foreground transition-colors group-hover:text-foreground">
                 <X size={12} />
               </button>
             </Badge>
@@ -177,7 +178,7 @@ export const SelectTags: React.FC<SelectPillsProps> = ({ data, onValueChange, pl
       </div>
 
       <PopoverContent
-        className="border-zinc-700/70 text-zinc-200 shadow-lg rounded max-h-[200px] overflow-y-auto"
+        className="max-h-[200px] overflow-y-auto rounded border-zinc-700/70 text-zinc-200 shadow-lg"
         onFocusOutside={e => {
           // Prevent closing if focus is in the input
           if (e.target === inputRef.current) {
@@ -211,9 +212,9 @@ export const SelectTags: React.FC<SelectPillsProps> = ({ data, onValueChange, pl
                 checked={highlightedIndex === index}
                 onChange={() => handleItemSelect(item)}
               />
-              <label htmlFor={`pill-${item.name}`} className="flex justify-between items-center w-full cursor-pointer">
-                <span className="font-medium text-sm text-muted-foreground text-left"> {item.name}</span>
-                <span className="text-zinc-500 text-sm/3 pr-2"> {item.value ?? 'New tag'}</span>
+              <label htmlFor={`pill-${item.name}`} className="flex w-full cursor-pointer items-center justify-between">
+                <span className="text-left text-sm font-medium text-muted-foreground"> {item.name}</span>
+                <span className="pr-2 text-sm/3 text-zinc-500"> {item.value ?? 'New tag'}</span>
               </label>
             </div>
           ))}

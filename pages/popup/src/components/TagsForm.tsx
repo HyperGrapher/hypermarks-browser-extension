@@ -29,12 +29,12 @@ const FormSchema = z.object({
   tags: z.array(z.string()).min(1, 'Please select at least one tag'),
 });
 
-type FormSchema = z.infer<typeof FormSchema>;
+type FormSchemaType = z.infer<typeof FormSchema>;
 
 export const TagsForm = () => {
   const tabs = useStorage(tabsGroupedStorage);
 
-  const form = useForm<FormSchema>({
+  const form = useForm<FormSchemaType>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       tags: [],

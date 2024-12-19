@@ -40,17 +40,17 @@ const FormSchema = z.object({
   colors: z.array(z.string()).min(1, 'Please select at least one color'),
 });
 
-type FormSchema = z.infer<typeof FormSchema>;
+type FormSchemaType = z.infer<typeof FormSchema>;
 
 export const PillsFormDemo = ({ setTags }: { setTags: React.Dispatch<React.SetStateAction<string[] | null>> }) => {
-  const form = useForm<FormSchema>({
+  const form = useForm<FormSchemaType>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       colors: [],
     },
   });
 
-  function onSubmit(data: FormSchema) {
+  function onSubmit(data: FormSchemaType) {
     console.log(data);
     // toast.success(`Selected colors: ${data.colors.join(", ")}`);
   }
@@ -80,10 +80,6 @@ export const PillsFormDemo = ({ setTags }: { setTags: React.Dispatch<React.SetSt
                       onValueChange={selectedValues => {
                         setTags(selectedValues);
                         field.onChange(selectedValues);
-                        console.log({ val: field.value, selectedValues });
-
-                        if (selectedValues.length === 0) {
-                        }
                       }}
                       placeholder="Search colors eg. orange-500"
                     />
