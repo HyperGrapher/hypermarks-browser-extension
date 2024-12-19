@@ -225,6 +225,7 @@ const Popup = () => {
             </Button>
 
             <button
+              id="save-tab"
               onClick={saveTab}
               className={cn(
                 ' ai-button',
