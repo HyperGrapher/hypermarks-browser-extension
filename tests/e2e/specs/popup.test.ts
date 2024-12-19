@@ -8,6 +8,8 @@ describe('Chrome Extension Popup Test', () => {
   beforeAll(async () => {
     const distPath = path.resolve(__dirname, '../../../dist');
 
+    console.log({ distPath });
+
     // Launch Puppeteer with the extension loaded
     browser = await puppeteer.launch({
       args: ['--no-sandbox', `--disable-extensions-except=${distPath}`, `--load-extension=${distPath}`],
@@ -17,7 +19,7 @@ describe('Chrome Extension Popup Test', () => {
     await page.goto('https://example.com/');
 
     // wait for the background page to load
-    // await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, 1000));
     const targets = browser.targets();
     const backgroundTarget = targets.find(
       target => target.type() === 'background_page' || target.type() === 'service_worker',
