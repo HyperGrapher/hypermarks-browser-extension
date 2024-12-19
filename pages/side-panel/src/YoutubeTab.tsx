@@ -4,7 +4,8 @@ import { Badge } from '@extension/ui';
 import { X } from 'lucide-react';
 import React from 'react';
 import truncate from 'voca/truncate';
-import { cn } from './utils';
+import { cn, searchTagsAtom } from './utils';
+import { useAtom } from 'jotai';
 
 // TODO:  if no icon/thumbnail, show default ones
 // https://www.youtube.com/playlist?list=PLRnI_2_ZWhtCxHQ_3zDfW0-RgiWo8ftyj
@@ -26,6 +27,7 @@ function remove_linebreaks(str: string | undefined) {
 
 export const YoutubeVideo = ({ item }: { item: SingleTab }) => {
   const [showDetail, setShowDetail] = React.useState(false);
+  const [searchTags, setSearchTags] = useAtom(searchTagsAtom);
   const { width = 360, height } = useWindowSize();
 
   const maxCharForDesc =
@@ -81,6 +83,7 @@ export const YoutubeVideo = ({ item }: { item: SingleTab }) => {
       <section className="pt-1 flex flex-wrap gap-0.5 w-full">
         {item.tags.map(pill => (
           <Badge
+            onClick={() => setSearchTags(prev => [...new Set([...prev, pill])])}
             key={pill}
             variant="outline"
             className=" hover:cursor-pointer font-light py-0 text-[10px] bg-blue-700/20 hover:bg-blue-700/40">
@@ -99,6 +102,8 @@ export const YoutubeVideo = ({ item }: { item: SingleTab }) => {
 };
 
 export const YoutubeChannel = ({ item }: { item: SingleTab }) => {
+  const [searchTags, setSearchTags] = useAtom(searchTagsAtom);
+
   return (
     <div
       className={cn(
@@ -144,6 +149,7 @@ export const YoutubeChannel = ({ item }: { item: SingleTab }) => {
       <section className="pt-1 flex flex-wrap gap-0.5 w-full">
         {item.tags.map(pill => (
           <Badge
+            onClick={() => setSearchTags(prev => [...new Set([...prev, pill])])}
             key={pill}
             variant="outline"
             className=" hover:cursor-pointer font-light py-0 text-[10px] bg-blue-700/20 hover:bg-blue-700/40">
@@ -156,6 +162,8 @@ export const YoutubeChannel = ({ item }: { item: SingleTab }) => {
 };
 
 export const YoutubePlaylist = ({ item }: { item: SingleTab }) => {
+  const [searchTags, setSearchTags] = useAtom(searchTagsAtom);
+
   return (
     <div
       className={cn(
@@ -209,6 +217,7 @@ export const YoutubePlaylist = ({ item }: { item: SingleTab }) => {
       <section className="pt-1 flex flex-wrap gap-0.5 w-full">
         {item.tags.map(pill => (
           <Badge
+            onClick={() => setSearchTags(prev => [...new Set([...prev, pill])])}
             key={pill}
             variant="outline"
             className=" hover:cursor-pointer font-light py-0 text-[10px] bg-blue-700/20 hover:bg-blue-700/40">

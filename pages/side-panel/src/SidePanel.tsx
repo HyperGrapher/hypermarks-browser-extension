@@ -1,10 +1,12 @@
 import '@src/SidePanel.css';
 import { CategorizedTab, SingleTab, useStorage, withErrorBoundary, withSuspense } from '@extension/shared';
 import { tabsGroupedStorage } from '@extension/storage';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, cn } from '@extension/ui';
 import { YoutubePlaylist, YoutubeVideo, YoutubeChannel } from './YoutubeTab';
 import { GenericTab } from './GenericTab';
+import { useAtom } from 'jotai';
+import { searchTagsAtom } from './utils';
 
 function getTabsByCategory(groupedTabs: { [category: string]: SingleTab[] }): CategorizedTab[] {
   return Object.entries(groupedTabs).flatMap(([category, items]) => items.map(item => ({ category, item })));
@@ -19,6 +21,9 @@ function getTabsChronologically(groupedTabs: { [category: string]: SingleTab[] }
 function getTabsByTags(groupedTabs: { [category: string]: SingleTab[] }, tags: string[]): CategorizedTab[] {
   return getTabsByCategory(groupedTabs).filter(tab => tags.every(tag => tab.item.tags.includes(tag)));
 }
+
+// TODO: This sidepanel needs some width space to show all the content it has
+// https://groups.google.com/a/chromium.org/g/chromium-extensions/c/cJmdMLmpbjg
 
 const SidePanel = () => {
   const tabsCats = useStorage(tabsGroupedStorage);
@@ -41,6 +46,15 @@ export default withErrorBoundary(withSuspense(SidePanel, <div> Loading ... </div
 function TabList({ groupedTabs }: { groupedTabs: { [category: string]: SingleTab[] } }) {
   const [view, setView] = useState<'categories' | 'chronological' | 'tags'>('categories');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [searchTags, setSearchTags] = useAtom(searchTagsAtom);
+
+  useEffect(() => {
+    console.log(searchTags);
+    if (searchTags.length > 0) {
+      setView('tags');
+      setSelectedTags(searchTags);
+    } else setView('categories');
+  }, [searchTags]);
 
   // Determine the tabs to display based on the selected view
   let tabsToDisplay: { [category: string]: SingleTab[] };
@@ -87,14 +101,14 @@ function TabList({ groupedTabs }: { groupedTabs: { [category: string]: SingleTab
 
       {/* Tag Input for Filtering */}
       {view === 'tags' && (
-        <div className="mt-4 text-xs/3 text-slate-400">
+        <div className="mt-4 text-xs/3 text-slate-400 flex gap-2">
           <input
             type="text"
             placeholder="Enter tags (comma-separated)"
             className="bg-gray-700 p-2 text-white"
             onChange={e => setSelectedTags(e.target.value.split(',').map(tag => tag.trim()))}
           />
-          <pre>{JSON.stringify(groupedTabs, null, 2)}</pre>
+          <Button onClick={() => setSearchTags([])}>Clear</Button>
         </div>
       )}
 

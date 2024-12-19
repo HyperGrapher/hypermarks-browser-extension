@@ -10,7 +10,7 @@ import {
 import { tabsGroupedStorage } from '@extension/storage';
 import { Button, cn, DropdownSelect, Input } from '@extension/ui';
 import '@src/Popup.css';
-import { useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { TagsForm } from './components/TagsForm';
 import { useAtom } from 'jotai';
 
@@ -31,6 +31,9 @@ import { useAtom } from 'jotai';
 
   popup wave SVG:
   https://svgwave.in/
+
+  https://x.com/ryanflorence/status/1868523934834102330/photo/1
+
   
  */
 
@@ -39,13 +42,18 @@ const Popup = () => {
   const [tags, setTags] = useAtom(tagsAtom); // Jotai
   const [categoryError, setCategoryError] = useState<string | null>(null);
   const [showCreateCategory, setShowCreateCategory] = useState(false);
+  const [aiSuccess, setAiSuccess] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [aiREsponse, setAiResponse] = useState<any>({});
   const groupedTabs = useStorage(tabsGroupedStorage);
   const [categories, setCategories] = useState<string[]>(
     Object.entries(groupedTabs).flatMap(([category, _items]) => category) ?? [],
   );
-  const [isPending, startTransition] = useTransition();
+
+  function handleAiSuccess() {
+    setAiSuccess(true);
+    setTimeout(() => setAiSuccess(false), 740);
+  }
 
   function getAiResponse() {
     getAiResponseForTab()
@@ -61,6 +69,7 @@ const Popup = () => {
           setTags(prevTags => Array.from(new Set([...prevTags, ...val.tags])));
           setAiResponse(val);
           onCreateNewCategory(val.category);
+          handleAiSuccess();
         }
       })
       .catch(err => {
@@ -76,7 +85,7 @@ const Popup = () => {
           setMessage('Tab saved!');
           setSelectedCategory('');
           setTags([]);
-
+          setAiSuccess(true); // todo iki adet var. biri bu, digeri getAiResponse'da
           setTimeout(() => window.close(), 750);
         }
       })
@@ -138,8 +147,12 @@ const Popup = () => {
   }
 
   return (
-    <div className={`px-4 pt-4`}>
-      <header className={`h-80 relative z-10`}>
+    <div
+      className={cn(`px-4 pt-4 duration-700`, {
+        'after:animate-pulse after:absolute after:inset-0 after:w-full after:h-screen after:bg-blue-500/5 after:z-50 after:border-2 after:border-green-500/50':
+          aiSuccess,
+      })}>
+      <header className={`relative z-10`}>
         <div className="space-y-2">
           <DropdownSelect
             items={categories}
@@ -180,7 +193,23 @@ const Popup = () => {
             </section>
           )}
 
-          {!showCreateCategory && <TagsForm />}
+          {!showCreateCategory && (
+            <>
+              <div className="my-2">
+                <textarea
+                  className={cn(
+                    'txt focus:bg-slate-800/50 bg-slate-900/50 outline outline-zinc-300/30 outline-1 placeholder:text-sm',
+                    'placeholder:text-zinc-500 border-0 text-sm',
+                  )}
+                  placeholder="Type to add a note... (optional)"
+                  autoCorrect="off"
+                  spellCheck="false"
+                />
+              </div>
+
+              <TagsForm />
+            </>
+          )}
         </div>
 
         {!showCreateCategory && (
@@ -189,12 +218,35 @@ const Popup = () => {
               onClick={saveTab}
               variant="default"
               className={cn(
-                'shadow hover:scale-[1.02] w-full transition-all bg-white/70',
+                'shadow hover:scale-[1.02] w-full transition-all bg-white/70 hidden',
                 message === 'Tab saved!' ? 'bg-blue-500 hover:bg-blue-600' : '',
                 message === 'Error occured' ? 'bg-red-500 hover:bg-red-600' : '',
               )}>
               {message}
             </Button>
+
+            <button
+              onClick={saveTab}
+              className={cn(
+                ' ai-button',
+                message === 'Tab saved!' ? 'bg-blue-500 hover:bg-blue-600' : '',
+                message === 'Error occured' ? 'bg-red-500 hover:bg-red-600' : '',
+              )}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="1.25rem"
+                height="1.25rem"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2">
+                <path d="M12 19v-7m0 0V5m0 7H5m7 0h7"></path>
+              </svg>
+              {message}
+            </button>
+
             {/* <Button variant="outline" className=" hover:scale-[1.02] w-full transition-all" onClick={deleteAllTabData}>
               Clear saved pages...
             </Button> */}
@@ -211,10 +263,10 @@ const Popup = () => {
             </Button>
           </div>
         )}
-        <pre>{JSON.stringify(aiREsponse, null, 2)}</pre>
+        {/* <pre>{JSON.stringify(aiREsponse, null, 2)}</pre> */}
       </header>
 
-      <div className="absolute bottom-0 right-0 left-0 w-full opacity-10 z-0">
+      <div className="absolute bottom-0 left-0 right-0 w-full opacity-10 z-0">
         <svg
           width="100%"
           height="100%"

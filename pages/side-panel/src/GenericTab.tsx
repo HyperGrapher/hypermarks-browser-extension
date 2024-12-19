@@ -1,15 +1,18 @@
-import { cn } from './utils';
+import { cn, searchTagsAtom } from './utils';
 import { deleteTab } from '@extension/storage';
 import { openTab, SingleTab, useWindowSize } from '@extension/shared';
 import { Badge } from '@extension/ui';
 import TimeAgo from 'timeago-react';
 import { X } from 'lucide-react';
 import { Info } from 'lucide-react';
+import { useAtom } from 'jotai';
 
 // TODO:  if no icon/thumbnail, show default ones
 // https://www.youtube.com/playlist?list=PLRnI_2_ZWhtCxHQ_3zDfW0-RgiWo8ftyj
 
 export const GenericTab = ({ item }: { item: SingleTab }) => {
+  const [searchTags, setSearchTags] = useAtom(searchTagsAtom);
+
   return (
     <div
       className={cn(
@@ -52,6 +55,7 @@ export const GenericTab = ({ item }: { item: SingleTab }) => {
       <section className="pt-1 flex flex-wrap gap-0.5 w-full">
         {item.tags.map(pill => (
           <Badge
+            onClick={() => setSearchTags(prev => [...new Set([...prev, pill])])}
             key={pill}
             variant="outline"
             className="hover:cursor-pointer font-light py-0 text-[10px] bg-blue-700/20 hover:bg-blue-700/40">
