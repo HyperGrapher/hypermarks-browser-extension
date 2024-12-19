@@ -10,7 +10,7 @@ describe('Chrome Extension Popup Test', () => {
 
     // Launch Puppeteer with the extension loaded
     browser = await puppeteer.launch({
-      args: [`--disable-extensions-except=${distPath}`, `--load-extension=${distPath}`],
+      args: ['--no-sandbox', `--disable-extensions-except=${distPath}`, `--load-extension=${distPath}`],
     });
 
     const page = await browser.newPage();
@@ -33,9 +33,9 @@ describe('Chrome Extension Popup Test', () => {
     await extensionPage.setViewport({ width: 320, height: 400 });
 
     await extensionPage.goto(popupUrl);
-    await extensionPage.screenshot({ path: 'popup-1.png' });
-    await new Promise(resolve => setTimeout(resolve, 500));
-    await extensionPage.screenshot({ path: 'popup-2.png' });
+    await extensionPage.screenshot({ path: 'caps/popup-1.png' });
+    await new Promise(resolve => setTimeout(resolve, 250));
+    await extensionPage.screenshot({ path: 'caps/popup-2.png' });
 
     // take a screenshot
   });
