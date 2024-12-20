@@ -41,15 +41,18 @@ export namespace YouTube {
   }
 }
 
-interface Xpost {
+export interface Xpost {
   profileName: string;
-  handleName: string;
+  handle: string;
   avatar: string;
-  date: string;
+  isPremium: boolean;
+  isFollowing: boolean;
+  datetime: Date;
+  datetimeStr: string;
   content: string;
   views: number;
   likes: number;
-  comments: number;
+  comments: string;
 }
 
 export type ItemType =

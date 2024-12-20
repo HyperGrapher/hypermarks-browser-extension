@@ -1,7 +1,8 @@
 import { tabsGroupedStorage } from '@extension/storage';
 import { getActiveTabIcon } from './chrome-utils';
-import type { YouTube as YT, ItemType, SingleTab } from './shared-types';
+import type { YouTube as YT, ItemType, SingleTab, Xpost } from './shared-types';
 import { generateCategoryAndTags } from './gemini-ai';
+// import { getXPostContent } from './xcom-queries';
 
 const notificationOptions = {
   type: 'basic',
@@ -27,6 +28,10 @@ export async function getAiResponseForTab(): Promise<{ category: string; tags: s
   const pageInfo = await chrome.scripting.executeScript({
     target: { tabId: activeTab.id },
     func: () => {
+      function isXPost(): boolean {
+        return window.location.hostname.includes('x.com') && window.location.pathname.includes('/status/');
+      }
+
       function isYouTubeVideo(): boolean {
         return window.location.hostname.includes('youtube.com') && window.location.pathname.startsWith('/watch');
       }
@@ -47,11 +52,18 @@ export async function getAiResponseForTab(): Promise<{ category: string; tags: s
       }
 
       function getItemType(): ItemType {
-        if (window.location.pathname.startsWith('/watch')) return 'yt-video';
-        if (window.location.pathname.startsWith('/shorts')) return 'yt-shorts';
-        if (window.location.pathname.startsWith('/channel')) return 'yt-channel';
-        if (window.location.pathname.startsWith('/@')) return 'yt-channel';
-        if (window.location.pathname.startsWith('/playlist')) return 'yt-playlist';
+        if (window.location.hostname.includes('youtube.com') && window.location.pathname.startsWith('/watch'))
+          return 'yt-video';
+        if (window.location.hostname.includes('youtube.com') && window.location.pathname.startsWith('/shorts'))
+          return 'yt-shorts';
+        if (window.location.hostname.includes('youtube.com') && window.location.pathname.startsWith('/channel'))
+          return 'yt-channel';
+        if (window.location.hostname.includes('youtube.com') && window.location.pathname.startsWith('/@'))
+          return 'yt-channel';
+        if (window.location.hostname.includes('youtube.com') && window.location.pathname.startsWith('/playlist'))
+          return 'yt-playlist';
+        if (window.location.hostname.includes('x.com') && window.location.pathname.includes('/status/'))
+          return 'x-post';
         return 'other';
       }
 
@@ -143,6 +155,7 @@ export async function getAiResponseForTab(): Promise<{ category: string; tags: s
         const metadataElems = document.querySelectorAll(
           '#page-header .yt-content-metadata-view-model-wiz__metadata-row--metadata-row-inline span[role="text"][dir="auto"].yt-core-attributed-string.yt-content-metadata-view-model-wiz__metadata-text',
         );
+        // TODO: make these number for better search
         let videos = '0 videos';
         let views = '0 views';
 
@@ -155,6 +168,68 @@ export async function getAiResponseForTab(): Promise<{ category: string; tags: s
         });
 
         return { title, channelName, avatar, description, viewCount: views, videoCount: videos, thumbnail };
+      }
+
+      function getXPostContent(): Xpost | null {
+        if (!isXPost) return null;
+
+        let profileName = '';
+        let handle = '';
+        let avatar = '';
+        let content = '';
+        let views = 0;
+        let likes = 0;
+        let comments = '';
+        let datetime;
+        let datetimeStr = '';
+        let isPremium = false;
+        let isFollowing = false;
+
+        isPremium = !!document.querySelector(
+          '[data-testid="tweet"] [data-testid="User-Name"] [data-testid="icon-verified"]',
+        );
+        profileName = document.querySelector('[data-testid="tweet"] [data-testid="User-Name"] span')?.textContent || '';
+        handle =
+          document.querySelector('[data-testid="tweet"] [data-testid="User-Name"] a')?.getAttribute('href') || '';
+        handle = handle.slice(1);
+        // convert to boolean, and then get the oppsite value
+        isFollowing = !!!document.querySelector(`[data-testid="tweet"] [aria-label="Follow @${handle}"]`);
+
+        console.log({ handle });
+
+        const viewsStr =
+          document.querySelector('[data-testid="tweet"] [data-testid="app-text-transition-container"]')?.textContent ||
+          '0';
+        const likesStr =
+          document.querySelector(
+            '[data-testid="tweet"] [data-testid="like"] [data-testid="app-text-transition-container"]',
+          )?.textContent || '0';
+        views = Number(viewsStr);
+        likes = Number(likesStr);
+
+        datetime = document.querySelector('[data-testid="tweet"] time')?.getAttribute('datetime');
+        // TODO: Check in tests if date is "1970-01-01T00:00:00.000Z"
+        datetime = new Date(datetime ?? 0);
+
+        datetimeStr = document.querySelector('[data-testid="tweet"] time')?.textContent || '';
+        content = document.querySelector('[data-testid="tweet"] [data-testid="tweetText"]')?.textContent?.trim() || '';
+
+        const obj = {
+          isFollowing,
+          likes,
+          views,
+          handle,
+          profileName,
+          datetime,
+          datetimeStr,
+          isPremium,
+          content,
+          avatar,
+          comments,
+        } satisfies Xpost;
+        console.log(obj);
+
+        return obj;
       }
 
       function getDescription(origin: string): string {
@@ -204,6 +279,7 @@ export async function getAiResponseForTab(): Promise<{ category: string; tags: s
         youtube_channel: getYoutubeChannelDetails(),
         youtube_short: getYoutubeShortsDetails(),
         youtube_list: getYoutubeListDetails(),
+        xpost: getXPostContent(),
       };
     },
   });
@@ -232,6 +308,10 @@ export async function saveCurrentTab(tags: string[] | null, category: string): P
   const pageInfo = await chrome.scripting.executeScript({
     target: { tabId: activeTab.id },
     func: () => {
+      function isXPost(): boolean {
+        return window.location.hostname.includes('x.com') && window.location.pathname.includes('/status/');
+      }
+
       function isYouTubeVideo(): boolean {
         return window.location.hostname.includes('youtube.com') && window.location.pathname.startsWith('/watch');
       }
@@ -257,6 +337,8 @@ export async function saveCurrentTab(tags: string[] | null, category: string): P
         if (window.location.pathname.startsWith('/channel')) return 'yt-channel';
         if (window.location.pathname.startsWith('/@')) return 'yt-channel';
         if (window.location.pathname.startsWith('/playlist')) return 'yt-playlist';
+        if (window.location.hostname.includes('x.com') && window.location.pathname.includes('/status/'))
+          return 'x-post';
         return 'other';
       }
 
@@ -395,6 +477,68 @@ export async function saveCurrentTab(tags: string[] | null, category: string): P
         return description;
       }
 
+      function getXPostContent(): Xpost | null {
+        if (!isXPost) return null;
+
+        let profileName = '';
+        let handle = '';
+        let avatar = '';
+        let content = '';
+        let views = 0;
+        let likes = 0;
+        let comments = '';
+        let datetime;
+        let datetimeStr = '';
+        let isPremium = false;
+        let isFollowing = false;
+
+        isPremium = !!document.querySelector(
+          '[data-testid="tweet"] [data-testid="User-Name"] [data-testid="icon-verified"]',
+        );
+        profileName = document.querySelector('[data-testid="tweet"] [data-testid="User-Name"] span')?.textContent || '';
+        handle =
+          document.querySelector('[data-testid="tweet"] [data-testid="User-Name"] a')?.getAttribute('href') || '';
+        handle = handle.slice(1);
+        // convert to boolean, and then get the oppsite value
+        isFollowing = !!!document.querySelector(`[data-testid="tweet"] [aria-label="Follow @${handle}"]`);
+
+        console.log({ handle });
+
+        const viewsStr =
+          document.querySelector('[data-testid="tweet"] [data-testid="app-text-transition-container"]')?.textContent ||
+          '0';
+        const likesStr =
+          document.querySelector(
+            '[data-testid="tweet"] [data-testid="like"] [data-testid="app-text-transition-container"]',
+          )?.textContent || '0';
+        views = Number(viewsStr);
+        likes = Number(likesStr);
+
+        datetime = document.querySelector('[data-testid="tweet"] time')?.getAttribute('datetime');
+        // TODO: Check in tests if date is "1970-01-01T00:00:00.000Z", this is kinda smoke test.
+        datetime = new Date(datetime ?? 0);
+
+        datetimeStr = document.querySelector('[data-testid="tweet"] time')?.textContent || '';
+        content = document.querySelector('[data-testid="tweet"] [data-testid="tweetText"]')?.textContent?.trim() || '';
+
+        const obj = {
+          isFollowing,
+          likes,
+          views,
+          handle,
+          profileName,
+          datetime,
+          datetimeStr,
+          isPremium,
+          content,
+          avatar,
+          comments,
+        } satisfies Xpost;
+        console.log(obj);
+
+        return obj;
+      }
+
       const origin = window.location.hostname.startsWith('www')
         ? window.location.hostname.slice(4)
         : window.location.hostname;
@@ -409,6 +553,7 @@ export async function saveCurrentTab(tags: string[] | null, category: string): P
         youtube_channel: getYoutubeChannelDetails(),
         youtube_short: getYoutubeShortsDetails(),
         youtube_list: getYoutubeListDetails(),
+        xpost: getXPostContent(),
       };
     },
   });
