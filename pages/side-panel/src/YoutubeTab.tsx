@@ -33,11 +33,13 @@ export const YoutubeVideo = ({ item }: { item: SingleTab }) => {
   const maxCharForDesc =
     width >= 360 && width < 399 ? 134 : width >= 400 && width <= 499 ? 145 : width > 500 ? 260 : 111;
 
+  // border-violet-300/20 bg-violet-600/10
+
   return (
     <div
       className={cn(
-        'px-1 pb-1 rounded shadow-lg border border-violet-300/20',
-        'bg-violet-600/10 w-full relative max-h-36 ',
+        'px-1 pb-1 rounded shadow-lg border border-gray-300/20',
+        'bg-slate-700/20 w-full relative max-h-36 flex flex-col card selection:bg-sky-600/80 selection:text-sky-300',
       )}>
       <button
         className={cn(
@@ -165,11 +167,12 @@ export const YoutubeChannel = ({ item }: { item: SingleTab }) => {
 export const YoutubePlaylist = ({ item }: { item: SingleTab }) => {
   const [searchTags, setSearchTags] = useAtom(searchTagsAtom);
 
+  // border-green-300/20 bg-green-600/10
   return (
     <div
       className={cn(
-        'px-1 pb-1 rounded shadow-lg border border-green-300/20',
-        'bg-green-600/10 w-full relative max-h-36',
+        'px-1 pb-1 rounded shadow-lg border border-gray-300/20',
+        'bg-slate-700/20 w-full relative max-h-36 flex flex-col card selection:bg-sky-600/80 selection:text-sky-300',
       )}>
       <button
         className={cn(
