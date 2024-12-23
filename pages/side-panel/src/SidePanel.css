@@ -3,45 +3,8 @@ body {
   overflow-x: hidden;
 }
 
-img.thumb {
-  /* Adjust the top and bottom values as needed */
-  /* clip-path: inset(12px 0); */
-  /* position: relative; */
-  /* object-fit: cover; */
-  /* max-width: 124px; */
-  /* min-width: 153px; */
-  /* object-fit: contain; */
-  /* height: 360px; */
-  /* width: 480px; */
-}
-
-body {
-  background: linear-gradient(to right bottom, hsl(216, 19%, 26%), hsl(220, 39%, 11%), hsl(0, 39%, 11%));
-  /* background: linear-gradient(to right top, hsl(216, 19%, 26%), hsl(220, 39%, 11%), hsl(0, 39%, 11%)); */
-  /* background: linear-gradient(to right, #1e1e1e, #2b2b2b); */
-  /* background: linear-gradient(to bottom, #1e1e1e, #2b2b2b); */
-
-  height: 100vh;
-  width: 100vw;
-  overflow-x: hidden;
-  overflow-y: auto;
-  min-block-size: 100vb;
-}
-
-.card {
-  /* background: linear-gradient(to right, #1a18204f, #1c1d2b57); */
-  /* opacity: 0.25; */
-
-}
-
-/* width */
 ::-webkit-scrollbar {
-  width: 7px;
-  scroll-margin-left: 10px;
-  scroll-padding-left: 10px;
-  transform: translateX(-10px);
-  position: fixed;
-  right: -10px;
+  width: 5px;
 }
 
 /* Track */
@@ -59,3 +22,28 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #807f7f;
 }
+
+/* img.thumb { */
+  /* Adjust the top and bottom values as needed */
+  /* clip-path: inset(12px 0); */
+  /* position: relative; */
+  /* object-fit: cover; */
+  /* max-width: 124px; */
+  /* min-width: 153px; */
+  /* object-fit: contain; */
+  /* height: 360px; */
+  /* width: 480px; */
+/* } */
+
+body {
+  background: linear-gradient(to right bottom, hsl(216, 19%, 26%), hsl(220, 39%, 11%), hsl(0, 39%, 11%));
+  /* background: linear-gradient(to right top, hsl(216, 19%, 26%), hsl(220, 39%, 11%), hsl(0, 39%, 11%)); */
+  /* background: linear-gradient(to right, #1e1e1e, #2b2b2b); */
+  /* background: linear-gradient(to bottom, #1e1e1e, #2b2b2b); */
+
+  height: 100vh;
+  width: 100vw;
+  min-block-size: 100vb;
+  scrollbar-gutter: stable;
+}
+

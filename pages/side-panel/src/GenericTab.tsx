@@ -1,17 +1,19 @@
 import { cn, searchTagsAtom } from './utils';
-import { deleteTab } from '@extension/storage';
 import type { SingleTab } from '@extension/shared';
 import { openTab, useWindowSize } from '@extension/shared';
 import { Badge } from '@extension/ui';
 import TimeAgo from 'timeago-react';
-import { X, Info } from 'lucide-react';
+import { X, Info, MoreVertical } from 'lucide-react';
 import { useAtom } from 'jotai';
+import { DropdownMenuButton } from './DropdownMenuButton';
+import { useState } from 'react';
 
 // TODO:  if no icon/thumbnail, show default ones
 // https://www.youtube.com/playlist?list=PLRnI_2_ZWhtCxHQ_3zDfW0-RgiWo8ftyj
 
 export const GenericTab = ({ item }: { item: SingleTab }) => {
   const [searchTags, setSearchTags] = useAtom(searchTagsAtom);
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div
@@ -19,14 +21,15 @@ export const GenericTab = ({ item }: { item: SingleTab }) => {
         'px-1 pb-1 rounded shadow-lg border border-gray-300/20',
         'bg-slate-700/20 w-full relative max-h-36 flex flex-col card selection:bg-sky-600/80 selection:text-sky-300',
       )}>
-      <button
-        className={cn(
-          'expand absolute xscale-75 insetx-0 right-1 top-1 xmt-6',
-          'size-4 aspect-square z-30 rounded-full bg-slate-700/50 flex justify-center items-center',
-        )}
-        onClick={() => deleteTab(item.datetime)}>
-        <X size={12} />
-      </button>
+      <DropdownMenuButton setIsOpen={setIsOpen} itemId={item.datetime}>
+        <button
+          className={cn(
+            'expand absolute xscale-75 insetx-0 right-1 top-1 xmt-6',
+            'size-4 aspect-square z-30 rounded-full bg-slate-700/50 flex justify-center items-center',
+          )}>
+          <MoreVertical size={12} />
+        </button>
+      </DropdownMenuButton>
 
       <div className="xyt-item items-centerx flex gap-2 px-3 pb-1 pt-2">
         <img

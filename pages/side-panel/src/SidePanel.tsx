@@ -33,7 +33,7 @@ const SidePanel = () => {
     <div className={`xbg-black/80 xmin-h-screen`}>
       <header className={`App-header`}>
         <div className="hidden h-12 w-full bg-zinc-800">{/* <pre>{JSON.stringify(tabsCats, null, 1)}</pre> */}</div>
-        <div className="App-content px-2 py-4">
+        <div className="px-2 py-4">
           {/* <h3 className="text-lg font-semibold text-zinc-400">Saved Tabs</h3> */}
           <TabList groupedTabs={tabsCats} />
         </div>
@@ -86,7 +86,7 @@ function TabList({ groupedTabs }: { groupedTabs: { [category: string]: SingleTab
   }
 
   return (
-    <div className="App-content">
+    <div>
       {/* View Switcher */}
       <div className="flex gap-4">
         <Button onClick={() => setView('categories')} variant="link">
