@@ -3,11 +3,21 @@ import type { CategorizedTab, SingleTab } from '@extension/shared';
 import { useStorage, withErrorBoundary, withSuspense } from '@extension/shared';
 import { tabsGroupedStorage } from '@extension/storage';
 import { useEffect, useState } from 'react';
-import { Button, cn } from '@extension/ui';
+import { Button, cn, Input, Label } from '@extension/ui';
 import { YoutubePlaylist, YoutubeVideo, YoutubeChannel } from './YoutubeTab';
 import { GenericTab } from './GenericTab';
 import { useAtom } from 'jotai';
-import { searchTagsAtom } from './utils';
+import { searchTagsAtom, drawerAtom } from './utils';
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from '@extension/ui';
 
 function getTabsByCategory(groupedTabs: { [category: string]: SingleTab[] }): CategorizedTab[] {
   return Object.entries(groupedTabs).flatMap(([category, items]) => items.map(item => ({ category, item })));
@@ -48,6 +58,7 @@ function TabList({ groupedTabs }: { groupedTabs: { [category: string]: SingleTab
   const [view, setView] = useState<'categories' | 'chronological' | 'tags'>('categories');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [searchTags, setSearchTags] = useAtom(searchTagsAtom);
+  const [drawer, setDrawer] = useAtom(drawerAtom);
 
   useEffect(() => {
     console.log(searchTags);
@@ -88,6 +99,7 @@ function TabList({ groupedTabs }: { groupedTabs: { [category: string]: SingleTab
   return (
     <div>
       {/* View Switcher */}
+      <pre>{drawer.open ? 'open' : 'closed'}</pre>
       <div className="flex gap-4">
         <Button onClick={() => setView('categories')} variant="link">
           By Category
@@ -145,7 +157,38 @@ function TabList({ groupedTabs }: { groupedTabs: { [category: string]: SingleTab
           </div>
         ))
       )}
+
+      <Drawer open={drawer.open} onOpenChange={val => setDrawer({ item: drawer.item, open: val, edit: false })}>
+        <DrawerContent className="bg-grad">
+          <DrawerHeader className="text-left">
+            <DrawerTitle>{drawer.item?.title}</DrawerTitle>
+            <DrawerDescription>{drawer.item?.description}</DrawerDescription>
+          </DrawerHeader>
+          <ProfileForm className="px-4" />
+          <DrawerFooter className="pt-2">
+            <DrawerClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DrawerClose>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
     </div>
+  );
+}
+
+function ProfileForm({ className }: React.ComponentProps<'form'>) {
+  return (
+    <form className={cn('grid items-start gap-4', className)}>
+      <div className="grid gap-2">
+        <Label htmlFor="email">Email</Label>
+        <Input type="email" id="email" defaultValue="shadcn@example.com" />
+      </div>
+      <div className="grid gap-2">
+        <Label htmlFor="username">Username</Label>
+        <Input id="username" defaultValue="@shadcn" />
+      </div>
+      <Button type="submit">Save changes</Button>
+    </form>
   );
 }
 

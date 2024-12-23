@@ -47,3 +47,10 @@ body {
   scrollbar-gutter: stable;
 }
 
+.bg-grad {
+  background: linear-gradient(to bottom, hsl(218, 22%, 10%), hsl(220, 39%, 11%), hsl(210, 60%, 8%));
+  /* background: linear-gradient(to bottom, #1e1e1e, #2b2b2b);s */
+
+
+
+}

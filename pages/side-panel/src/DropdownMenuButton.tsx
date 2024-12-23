@@ -31,47 +31,50 @@ import {
 } from '@extension/ui';
 import { Button } from '@extension/ui';
 import { deleteTab } from '@extension/storage';
+import { useAtom } from 'jotai';
+import { drawerAtom } from './utils';
+import type { CategorizedTab, SingleTab } from '@extension/shared';
 
 export function DropdownMenuButton({
   children,
-  itemId,
-  setIsOpen,
+  item,
+  //   setIsOpen,
 }: {
   children: React.ReactNode;
-  itemId: string;
-  setIsOpen: (val: boolean) => void;
+  item: SingleTab;
+  //   setIsOpen: (val: boolean) => void;
 }) {
+  const [drawer, setDrawer] = useAtom(drawerAtom);
+
   return (
-    <DropdownMenu onOpenChange={val => setIsOpen(val)}>
+    <DropdownMenu>
       <DropdownMenuTrigger asChild>
         {/* <Button variant="outline">Open</Button> */}
         {children}
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56 -translate-x-3">
-        {/* <DropdownMenuLabel>My Account</DropdownMenuLabel> */}
-        <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem>
-            {/* <User /> */}
             <span>Open in current tab</span>
-            <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuItem>
-            {/* <CreditCard /> */}
             <span>Open in new tab</span>
-            <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuItem>
-            {/* <Settings /> */}
             <span>Open in new window</span>
-            <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              setTimeout(() => {
+                setDrawer({ item, open: true, edit: false });
+              }, 100);
+            }}
+            className="bg-green-600/20 rounded-md">
             <Users />
-            <span>Team</span>
+            <span>Show details</span>
           </DropdownMenuItem>
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
@@ -112,7 +115,7 @@ export function DropdownMenuButton({
           <span>API</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => deleteTab(itemId)}>
+        <DropdownMenuItem onClick={() => deleteTab(item.datetime)} className="bg-red-600/20 rounded-md">
           <Delete />
           <span>Delete item</span>
           <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>

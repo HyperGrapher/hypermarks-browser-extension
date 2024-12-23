@@ -9,6 +9,7 @@ export { Popover, PopoverContent, PopoverAnchor } from './ui/popover';
 export * from './ui/card';
 export * from './ui/form';
 export * from './ui/button';
+export * from './ui/label';
 
 export {
   DropdownMenu,
