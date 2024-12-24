@@ -34,6 +34,7 @@ const manifest = deepmerge(
       service_worker: 'background.iife.js',
       // type: 'module',
     },
+
     action: {
       default_popup: 'popup/index.html',
       default_icon: 'icon-34.png',

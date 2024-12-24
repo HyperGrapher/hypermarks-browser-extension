@@ -58,6 +58,8 @@ function TabList({ groupedTabs }: { groupedTabs: { [category: string]: SingleTab
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [searchTags, setSearchTags] = useAtom(searchTagsAtom);
 
+  chrome.storage.local.get('tweet_screenshot').then(data => console.log(data.tweet_screenshot));
+
   useEffect(() => {
     console.log(searchTags);
     if (searchTags.length > 0) {

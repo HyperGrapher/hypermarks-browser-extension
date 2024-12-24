@@ -90,20 +90,20 @@ const Popup = () => {
   async function saveTab() {
     await captureTweetScreenshot();
     console.log('saveTab');
-    saveCurrentTab(tags, selectedCategory || 'Uncategorized')
-      .then(val => {
-        if (val) {
-          setMessage('Tab saved!');
-          setSelectedCategory('');
-          setTags([]);
-          setAiSuccess(true); // todo iki adet var. biri bu, digeri getAiResponse'da
-          // setTimeout(() => window.close(), 750);
-        }
-      })
-      .catch(err => {
-        console.log(err);
-        setMessage('Error occured');
-      });
+    // saveCurrentTab(tags, selectedCategory || 'Uncategorized')
+    //   .then(val => {
+    //     if (val) {
+    //       setMessage('Tab saved!');
+    //       setSelectedCategory('');
+    //       setTags([]);
+    //       setAiSuccess(true); // todo iki adet var. biri bu, digeri getAiResponse'da
+    //       // setTimeout(() => window.close(), 750);
+    //     }
+    //   })
+    //   .catch(err => {
+    //     console.log(err);
+    //     setMessage('Error occured');
+    //   });
   }
 
   function sendMessage() {
@@ -225,7 +225,7 @@ const Popup = () => {
         {!showCreateCategory && (
           <div className="space-y-2">
             <Button
-              onClick={saveTab}
+              onClick={async () => await saveTab()}
               variant="default"
               className={cn(
                 'shadow hover:scale-[1.02] w-full transition-all bg-white/70 hidden',

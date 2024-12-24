@@ -308,37 +308,50 @@ export async function getAiResponseForTab() /* : Promise<{ category: string; tag
   return aiResult;
 }
 
+// https://github.com/GoogleChrome/chrome-extensions-samples/blob/main/functional-samples/cookbook.offscreen-dom/offscreen.js
 export async function captureTweetScreenshot() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   console.log({ sharedTabId: tab.id });
 
-  // Get element bounds
-  chrome.tabs.sendMessage(tab.id!, { action: 'getElementBounds' }, response => {
+  chrome.runtime.sendMessage({ action: 'captureTweetScreenshot', tabId: tab.id }, response => {
     console.log(response);
 
     if (response?.success) {
-      const bounds = response.bounds;
-
-      // Capture element screenshot
-      chrome.runtime.sendMessage({ action: 'captureElement', bounds }, screenshotResponse => {
-        if (screenshotResponse?.success) {
-          const base64Image = screenshotResponse.screenshot;
-          console.log('base64Image');
-          console.log(base64Image);
-
-          // Save the base64 image to local storage
-          const key = `tweet_screenshot`; // Unique key for each image
-          // chrome.storage.local.set(key, base64Image);
-
-          console.log(`Screenshot saved to local storage with key: ${key}`);
-        } else {
-          console.log(screenshotResponse?.error || screenshotResponse);
-        }
-      });
+      console.log('Screenshot saved:', response.key);
     } else {
-      console.error('Failed to get element bounds');
+      console.log('Error capturing tweet screenshot:', response?.error);
     }
+    return true;
   });
+
+  // Get element bounds
+
+  // chrome.tabs.sendMessage(tab.id!, { action: 'getElementBounds' }, response => {
+  //   console.log(response);
+
+  //   if (response?.success) {
+  //     const bounds = response.bounds;
+
+  //     // Capture element screenshot
+  //     chrome.runtime.sendMessage({ action: 'captureElement', bounds }, screenshotResponse => {
+  //       if (screenshotResponse?.success) {
+  //         const base64Image = screenshotResponse.screenshot;
+  //         console.log('base64Image');
+  //         console.log(base64Image);
+
+  //         // Save the base64 image to local storage
+  //         const key = `tweet_screenshot`; // Unique key for each image
+  //         // chrome.storage.local.set(key, base64Image);
+
+  //         console.log(`Screenshot saved to local storage with key: ${key}`);
+  //       } else {
+  //         console.log(screenshotResponse?.error || screenshotResponse);
+  //       }
+  //     });
+  //   } else {
+  //     console.error('Failed to get element bounds');
+  //   }
+  // });
 }
 
 export async function saveCurrentTab(tags: string[] | null, category: string): Promise<boolean> {
