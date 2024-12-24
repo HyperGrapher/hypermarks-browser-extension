@@ -20,6 +20,9 @@ importers:
       jotai:
         specifier: ^2.10.3
         version: 2.10.3(@types/react@18.3.12)(react@18.3.1)
+      js-abbreviation-number:
+        specifier: ^1.4.0
+        version: 1.4.0
       lucide-react:
         specifier: ^0.460.0
         version: 0.460.0(react@18.3.1)
@@ -43,8 +46,8 @@ importers:
         version: 3.23.8
     devDependencies:
       '@types/chrome':
-        specifier: ^0.0.283
-        version: 0.0.283
+        specifier: ^0.0.287
+        version: 0.0.287
       '@types/node':
         specifier: ^22.9.1
         version: 22.9.1
@@ -352,6 +355,28 @@ importers:
       tsx:
         specifier: ^4.19.1
         version: 4.19.1
+
+  pages/content:
+    dependencies:
+      '@extension/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+      '@extension/storage':
+        specifier: workspace:*
+        version: link:../../packages/storage
+    devDependencies:
+      '@extension/hmr':
+        specifier: workspace:*
+        version: link:../../packages/hmr
+      '@extension/tsconfig':
+        specifier: workspace:*
+        version: link:../../packages/tsconfig
+      '@extension/vite-config':
+        specifier: workspace:*
+        version: link:../../packages/vite-config
+      cross-env:
+        specifier: ^7.0.3
+        version: 7.0.3
 
   pages/new-tab:
     dependencies:
@@ -2276,8 +2301,8 @@ packages:
   '@types/babel__traverse@7.20.6':
     resolution: {integrity: sha512-r1bzfrm0tomOI8g1SzvCaQHo6Lcv6zu0EA+W2kHrt8dyrHQxGzBBL4kdkzIS+jBMV+EYcMAEAqXqYaLJq5rOZg==}
 
-  '@types/chrome@0.0.283':
-    resolution: {integrity: sha512-bPnu1JqeQxMceRP0oxFYrauoe0BlWxxQxhYL58gWLg5Ywsd3i3Dd6By9OW7BdkNQMokodWzBLR5FHDIeQZvJWg==}
+  '@types/chrome@0.0.287':
+    resolution: {integrity: sha512-wWhBNPNXZHwycHKNYnexUcpSbrihVZu++0rdp6GEk5ZgAglenLx+RwdEouh6FrHS0XQiOxSd62yaujM1OoQlZQ==}
 
   '@types/estree@1.0.6':
     resolution: {integrity: sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==}
@@ -3965,6 +3990,9 @@ packages:
         optional: true
       react:
         optional: true
+
+  js-abbreviation-number@1.4.0:
+    resolution: {integrity: sha512-4sSNspIdfSjCrKm97JZRFgaNgkwBIiVL+hb+piWXqmFW9HaixGa+3G+dSClZvryUZqlcFhMOG3gCeUuAP6lLig==}
 
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
@@ -7026,7 +7054,7 @@ snapshots:
     dependencies:
       '@babel/types': 7.26.3
 
-  '@types/chrome@0.0.283':
+  '@types/chrome@0.0.287':
     dependencies:
       '@types/filesystem': 0.0.36
       '@types/har-format': 1.2.15
@@ -9200,6 +9228,8 @@ snapshots:
     optionalDependencies:
       '@types/react': 18.3.12
       react: 18.3.1
+
+  js-abbreviation-number@1.4.0: {}
 
   js-tokens@4.0.0: {}
 

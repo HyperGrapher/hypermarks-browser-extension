@@ -46,13 +46,13 @@ export interface Xpost {
   handle: string;
   avatar: string;
   isPremium: boolean;
-  isFollowing: boolean;
-  datetime: Date;
+  datetime: string;
   datetimeStr: string;
   content: string;
-  views: number;
-  likes: number;
+  views: string;
+  likes: string;
   comments: string;
+  photos?: string[];
 }
 
 export type ItemType =
@@ -97,7 +97,7 @@ export type SingleTab = {
   tags: string[];
   datetime: string; // ISO string representing the saved time
   itemType: ItemType;
-  xpost?: Xpost | undefined;
+  xpost: Xpost | undefined;
   youtubeVideo: YouTube.Video | undefined;
   youtubeShort: YouTube.Short | undefined;
   youtubeChannel: YouTube.Channel | undefined;

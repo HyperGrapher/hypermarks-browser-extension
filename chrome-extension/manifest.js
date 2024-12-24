@@ -28,11 +28,11 @@ const manifest = deepmerge(
     version: packageJson.version,
     description: '__MSG_extensionDescription__',
     host_permissions: ['<all_urls>'],
-    permissions: ['storage', 'scripting', 'tabs', 'notifications', 'contextMenus'],
+    permissions: ['storage', 'scripting', 'tabs', 'notifications', 'contextMenus', 'activeTab', 'offscreen'],
     options_page: 'options/index.html',
     background: {
       service_worker: 'background.iife.js',
-      type: 'module',
+      // type: 'module',
     },
     action: {
       default_popup: 'popup/index.html',
@@ -44,10 +44,20 @@ const manifest = deepmerge(
     icons: {
       128: 'icon-128.png',
     },
+    content_scripts: [
+      {
+        matches: ['http://*/*', 'https://*/*', '<all_urls>'],
+        js: ['content/index.iife.js'],
+      },
+    ],
     web_accessible_resources: [
       {
         resources: ['*.js', '*.css', '*.svg', 'icon-128.png', 'icon-34.png'],
         matches: ['*://*/*'],
+      },
+      {
+        resources: ['offscreen.html', 'offscreen.js', '*.js', '*.css', '*.svg', 'icon-128.png', 'icon-34.png'],
+        matches: ['<all_urls>'],
       },
     ],
   },

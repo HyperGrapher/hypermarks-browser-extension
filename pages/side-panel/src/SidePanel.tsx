@@ -5,7 +5,7 @@ import { tabsGroupedStorage } from '@extension/storage';
 import { useEffect, useState } from 'react';
 import { Button, cn, Input, Label } from '@extension/ui';
 import { YoutubePlaylist, YoutubeVideo, YoutubeChannel } from './YoutubeTab';
-import { GenericTab } from './GenericTab';
+import { GenericTab, XPostItem } from './GenericTab';
 import { useAtom } from 'jotai';
 import { searchTagsAtom, drawerAtom } from './utils';
 import {
@@ -97,6 +97,7 @@ function TabList({ groupedTabs }: { groupedTabs: { [category: string]: SingleTab
   return (
     <div>
       {/* View Switcher */}
+
       <div className="flex gap-4">
         <Button onClick={() => setView('categories')} variant="link">
           By Category
@@ -147,6 +148,8 @@ function TabList({ groupedTabs }: { groupedTabs: { [category: string]: SingleTab
                 <YoutubePlaylist key={item.datetime} item={item} />
               ) : item.itemType === 'yt-channel' ? (
                 <YoutubeChannel key={item.datetime} item={item} />
+              ) : item.itemType === 'x-post' ? (
+                <XPostItem key={item.datetime} item={item} />
               ) : (
                 <GenericTab key={item.datetime} item={item} />
               ),

@@ -1,7 +1,7 @@
 import { tabsGroupedStorage } from '@extension/storage';
 import { getActiveTabIcon } from './chrome-utils';
 import type { YouTube as YT, ItemType, SingleTab, Xpost } from './shared-types';
-import { generateCategoryAndTags } from './gemini-ai';
+// import { generateCategoryAndTags } from './gemini-ai';
 // import { getXPostContent } from './xcom-queries';
 
 const notificationOptions = {
@@ -20,7 +20,7 @@ function categorizeTab(url: string): string {
   return 'Uncategorized';
 }
 
-export async function getAiResponseForTab(): Promise<{ category: string; tags: string[] }> {
+export async function getAiResponseForTab() /* : Promise<{ category: string; tags: string[] }> */ {
   const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
   if (!activeTab?.id) throw new Error('No active tab found');
@@ -177,45 +177,53 @@ export async function getAiResponseForTab(): Promise<{ category: string; tags: s
         let handle = '';
         let avatar = '';
         let content = '';
-        let views = 0;
-        let likes = 0;
+        let views = '';
+        let likes = '';
         let comments = '';
         let datetime;
         let datetimeStr = '';
         let isPremium = false;
-        let isFollowing = false;
+        avatar =
+          document.querySelector<HTMLImageElement>(
+            '[data-testid="tweet"][tabindex="-1"] [data-testid="Tweet-User-Avatar"] img',
+          )?.src || '';
+
+        if (avatar.endsWith('normal.jpg')) avatar = avatar.replace('normal.jpg', '400x400.jpg');
 
         isPremium = !!document.querySelector(
-          '[data-testid="tweet"] [data-testid="User-Name"] [data-testid="icon-verified"]',
+          '[data-testid="tweet"][tabindex="-1"] [data-testid="User-Name"] [data-testid="icon-verified"]',
         );
-        profileName = document.querySelector('[data-testid="tweet"] [data-testid="User-Name"] span')?.textContent || '';
+
+        profileName =
+          document
+            .querySelector('[data-testid="tweet"][tabindex="-1"] [data-testid="User-Name"] span')
+            ?.textContent?.trim() || '';
         handle =
-          document.querySelector('[data-testid="tweet"] [data-testid="User-Name"] a')?.getAttribute('href') || '';
-        handle = handle.slice(1);
-        // convert to boolean, and then get the oppsite value
-        isFollowing = !!!document.querySelector(`[data-testid="tweet"] [aria-label="Follow @${handle}"]`);
+          document
+            .querySelector('[data-testid="tweet"][tabindex="-1"] [data-testid="User-Name"] a')
+            ?.getAttribute('href') || '';
+        handle = handle.slice(1); // remove "/" char at the start
 
-        console.log({ handle });
-
-        const viewsStr =
-          document.querySelector('[data-testid="tweet"] [data-testid="app-text-transition-container"]')?.textContent ||
-          '0';
-        const likesStr =
+        views =
+          document.querySelector('[data-testid="tweet"][tabindex="-1"] [data-testid="app-text-transition-container"]')
+            ?.textContent || '0';
+        likes =
           document.querySelector(
-            '[data-testid="tweet"] [data-testid="like"] [data-testid="app-text-transition-container"]',
+            '[data-testid="tweet"][tabindex="-1"] [data-testid="like"] [data-testid="app-text-transition-container"]',
           )?.textContent || '0';
-        views = Number(viewsStr);
-        likes = Number(likesStr);
 
-        datetime = document.querySelector('[data-testid="tweet"] time')?.getAttribute('datetime');
-        // TODO: Check in tests if date is "1970-01-01T00:00:00.000Z"
-        datetime = new Date(datetime ?? 0);
+        datetime = document.querySelector('[data-testid="tweet"][tabindex="-1"] time')?.getAttribute('datetime');
 
-        datetimeStr = document.querySelector('[data-testid="tweet"] time')?.textContent || '';
-        content = document.querySelector('[data-testid="tweet"] [data-testid="tweetText"]')?.textContent?.trim() || '';
+        // TODO: Check in tests if date is "1970-01-01T00:00:00.000Z", this is kinda smoke test.
+        datetime = new Date(datetime ?? 0).toISOString();
+
+        datetimeStr = document.querySelector('[data-testid="tweet"][tabindex="-1"] time')?.textContent || '';
+        content =
+          document
+            .querySelector('[data-testid="tweet"][tabindex="-1"] [data-testid="tweetText"]')
+            ?.textContent?.trim() || '';
 
         const obj = {
-          isFollowing,
           likes,
           views,
           handle,
@@ -227,7 +235,7 @@ export async function getAiResponseForTab(): Promise<{ category: string; tags: s
           avatar,
           comments,
         } satisfies Xpost;
-        console.log(obj);
+        // console.log(obj);
 
         return obj;
       }
@@ -294,16 +302,49 @@ export async function getAiResponseForTab(): Promise<{ category: string; tags: s
   const titleCleaned = data.title.endsWith('- YouTube') ? data.title.slice(0, -10) : data.title;
 
   console.log(`aiResult for: \n${data.title} \n${data.description}`);
-  const aiResult = await generateCategoryAndTags(data.title, data.description);
+  const aiResult = {}; //await generateCategoryAndTags(data.title, data.description);
   console.log(aiResult);
 
   return aiResult;
 }
 
+export async function captureTweetScreenshot() {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  console.log({ sharedTabId: tab.id });
+
+  // Get element bounds
+  chrome.tabs.sendMessage(tab.id!, { action: 'getElementBounds' }, response => {
+    console.log(response);
+
+    if (response?.success) {
+      const bounds = response.bounds;
+
+      // Capture element screenshot
+      chrome.runtime.sendMessage({ action: 'captureElement', bounds }, screenshotResponse => {
+        if (screenshotResponse?.success) {
+          const base64Image = screenshotResponse.screenshot;
+          console.log('base64Image');
+          console.log(base64Image);
+
+          // Save the base64 image to local storage
+          const key = `tweet_screenshot`; // Unique key for each image
+          // chrome.storage.local.set(key, base64Image);
+
+          console.log(`Screenshot saved to local storage with key: ${key}`);
+        } else {
+          console.log(screenshotResponse?.error || screenshotResponse);
+        }
+      });
+    } else {
+      console.error('Failed to get element bounds');
+    }
+  });
+}
+
 export async function saveCurrentTab(tags: string[] | null, category: string): Promise<boolean> {
   const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
-
   if (!activeTab?.id) return false;
+
   const favicon = await getActiveTabIcon();
   const pageInfo = await chrome.scripting.executeScript({
     target: { tabId: activeTab.id },
@@ -484,45 +525,72 @@ export async function saveCurrentTab(tags: string[] | null, category: string): P
         let handle = '';
         let avatar = '';
         let content = '';
-        let views = 0;
-        let likes = 0;
+        let views = '';
+        let likes = '';
         let comments = '';
         let datetime;
         let datetimeStr = '';
         let isPremium = false;
-        let isFollowing = false;
+        // let photos = ''; // data-testid="tweetPhoto"
+
+        let photoElems = document.querySelectorAll<HTMLImageElement>(
+          '[data-testid="tweet"][tabindex="-1"] [data-testid="tweetPhoto"] img',
+        );
+
+        let photos: string[] = [];
+        for (let i = 0; i < photoElems.length; i++) {
+          photos.push(photoElems[i].src);
+        }
+
+        avatar =
+          document.querySelector<HTMLImageElement>(
+            '[data-testid="tweet"][tabindex="-1"] [data-testid="Tweet-User-Avatar"] img',
+          )?.src || '';
+
+        if (avatar.endsWith('normal.jpg')) avatar = avatar.replace('normal.jpg', '400x400.jpg');
 
         isPremium = !!document.querySelector(
-          '[data-testid="tweet"] [data-testid="User-Name"] [data-testid="icon-verified"]',
+          '[data-testid="tweet"][tabindex="-1"] [data-testid="User-Name"] [data-testid="icon-verified"]',
         );
-        profileName = document.querySelector('[data-testid="tweet"] [data-testid="User-Name"] span')?.textContent || '';
+
+        profileName =
+          document
+            .querySelector('[data-testid="tweet"][tabindex="-1"] [data-testid="User-Name"] span')
+            ?.textContent?.trim() || '';
         handle =
-          document.querySelector('[data-testid="tweet"] [data-testid="User-Name"] a')?.getAttribute('href') || '';
-        handle = handle.slice(1);
-        // convert to boolean, and then get the oppsite value
-        isFollowing = !!!document.querySelector(`[data-testid="tweet"] [aria-label="Follow @${handle}"]`);
+          document
+            .querySelector('[data-testid="tweet"][tabindex="-1"] [data-testid="User-Name"] a')
+            ?.getAttribute('href') || '';
+        handle = handle.slice(1); // remove "/" char at the start
 
-        console.log({ handle });
-
-        const viewsStr =
-          document.querySelector('[data-testid="tweet"] [data-testid="app-text-transition-container"]')?.textContent ||
-          '0';
-        const likesStr =
+        // data-testid="app-text-transition-container"
+        comments =
           document.querySelector(
-            '[data-testid="tweet"] [data-testid="like"] [data-testid="app-text-transition-container"]',
+            '[data-testid="tweet"][tabindex="-1"] [data-testid="reply"] [data-testid="app-text-transition-container"]',
           )?.textContent || '0';
-        views = Number(viewsStr);
-        likes = Number(likesStr);
 
-        datetime = document.querySelector('[data-testid="tweet"] time')?.getAttribute('datetime');
+        views =
+          document.querySelector('[data-testid="tweet"][tabindex="-1"] [data-testid="app-text-transition-container"]')
+            ?.textContent || '0';
+        likes =
+          document.querySelector(
+            '[data-testid="tweet"][tabindex="-1"] [data-testid="like"] [data-testid="app-text-transition-container"]',
+          )?.textContent || '0';
+
+        datetime = document.querySelector('[data-testid="tweet"][tabindex="-1"] time')?.getAttribute('datetime');
+        console.log({ datetime });
+
         // TODO: Check in tests if date is "1970-01-01T00:00:00.000Z", this is kinda smoke test.
-        datetime = new Date(datetime ?? 0);
+        datetime = new Date(datetime ?? 0).toISOString();
+        console.log({ datetime });
 
-        datetimeStr = document.querySelector('[data-testid="tweet"] time')?.textContent || '';
-        content = document.querySelector('[data-testid="tweet"] [data-testid="tweetText"]')?.textContent?.trim() || '';
+        datetimeStr = document.querySelector('[data-testid="tweet"][tabindex="-1"] time')?.textContent || '';
+        content =
+          document
+            .querySelector('[data-testid="tweet"][tabindex="-1"] [data-testid="tweetText"]')
+            ?.textContent?.trim() || '';
 
         const obj = {
-          isFollowing,
           likes,
           views,
           handle,
@@ -533,6 +601,7 @@ export async function saveCurrentTab(tags: string[] | null, category: string): P
           content,
           avatar,
           comments,
+          photos,
         } satisfies Xpost;
         console.log(obj);
 
@@ -577,6 +646,7 @@ export async function saveCurrentTab(tags: string[] | null, category: string): P
     tags: tags ?? [],
     itemType: data.item_type,
     note: undefined,
+    xpost: data.xpost ?? undefined,
     youtubeChannel: data.youtube_channel ?? undefined,
     youtubeShort: data.youtube_short ?? undefined,
     youtubePlaylist: data.youtube_list ?? undefined,

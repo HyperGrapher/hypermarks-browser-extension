@@ -6,6 +6,7 @@ import {
   withErrorBoundary,
   withSuspense,
   tagsAtom,
+  captureTweetScreenshot,
 } from '@extension/shared';
 import { tabsGroupedStorage } from '@extension/storage';
 import { Button, cn, DropdownSelect, Input } from '@extension/ui';
@@ -50,35 +51,45 @@ const Popup = () => {
     Object.entries(groupedTabs).flatMap(([category, _items]) => category) ?? [],
   );
 
+  useEffect(() => {
+    // chrome.storage.local
+    //   .get('tweet_screenshot')
+    //   .then(val => {
+    //     console.log(val.tweet_screenshot);
+    //   })
+    //   .catch(err => console.log(err));
+  }, []);
+
   function handleAiSuccess() {
     setAiSuccess(true);
     setTimeout(() => setAiSuccess(false), 740);
   }
 
   function getAiResponse() {
-    getAiResponseForTab()
-      .then(val => {
-        if (!val.category || !Array.isArray(val.tags)) {
-          setMessage('Invalid AI response');
-          return;
-        }
-
-        if (val) {
-          console.log(val.category, 'val.category');
-          setSelectedCategory(val.category); // Update the selected category
-          setTags(prevTags => Array.from(new Set([...prevTags, ...val.tags])));
-          setAiResponse(val);
-          onCreateNewCategory(val.category);
-          handleAiSuccess();
-        }
-      })
-      .catch(err => {
-        console.log(err);
-        setMessage('Error occured');
-      });
+    // getAiResponseForTab()
+    //   .then(val => {
+    //     if (!val.category || !Array.isArray(val.tags)) {
+    //       setMessage('Invalid AI response');
+    //       return;
+    //     }
+    //     if (val) {
+    //       console.log(val.category, 'val.category');
+    //       setSelectedCategory(val.category); // Update the selected category
+    //       setTags(prevTags => Array.from(new Set([...prevTags, ...val.tags])));
+    //       setAiResponse(val);
+    //       onCreateNewCategory(val.category);
+    //       handleAiSuccess();
+    //     }
+    //   })
+    //   .catch(err => {
+    //     console.log(err);
+    //     setMessage('Error occured');
+    //   });
   }
 
-  function saveTab() {
+  async function saveTab() {
+    await captureTweetScreenshot();
+    console.log('saveTab');
     saveCurrentTab(tags, selectedCategory || 'Uncategorized')
       .then(val => {
         if (val) {
@@ -86,7 +97,7 @@ const Popup = () => {
           setSelectedCategory('');
           setTags([]);
           setAiSuccess(true); // todo iki adet var. biri bu, digeri getAiResponse'da
-          setTimeout(() => window.close(), 750);
+          // setTimeout(() => window.close(), 750);
         }
       })
       .catch(err => {

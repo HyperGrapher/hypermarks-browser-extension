@@ -16,7 +16,7 @@ export function DropdownMenuButton({ children, item }: { children: React.ReactNo
   const [, setDrawer] = useAtom(drawerAtom);
 
   function onOpenTab(action: OpenAction) {
-    openTabByAction(item?.url ?? '', action);
+    openTabByAction(item.url, action);
   }
 
   return (
