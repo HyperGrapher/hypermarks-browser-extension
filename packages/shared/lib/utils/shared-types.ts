@@ -108,3 +108,10 @@ export type CategorizedTab = {
   category: string;
   item: SingleTab;
 };
+
+export type OpenAction = 'new-window' | 'new-tab' | 'current-tab' | 'incognito';
+
+export interface ItemAndCategoty {
+  item: SingleTab;
+  category: string;
+}

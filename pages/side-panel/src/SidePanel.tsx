@@ -1,5 +1,5 @@
 import '@src/SidePanel.css';
-import type { CategorizedTab, SingleTab } from '@extension/shared';
+import type { CategorizedTab, ItemAndCategoty, SingleTab } from '@extension/shared';
 import { useStorage, withErrorBoundary, withSuspense } from '@extension/shared';
 import { tabsGroupedStorage } from '@extension/storage';
 import { useEffect, useState } from 'react';
@@ -16,7 +16,6 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-  DrawerTrigger,
 } from '@extension/ui';
 
 function getTabsByCategory(groupedTabs: { [category: string]: SingleTab[] }): CategorizedTab[] {
@@ -58,7 +57,6 @@ function TabList({ groupedTabs }: { groupedTabs: { [category: string]: SingleTab
   const [view, setView] = useState<'categories' | 'chronological' | 'tags'>('categories');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [searchTags, setSearchTags] = useAtom(searchTagsAtom);
-  const [drawer, setDrawer] = useAtom(drawerAtom);
 
   useEffect(() => {
     console.log(searchTags);
@@ -99,7 +97,6 @@ function TabList({ groupedTabs }: { groupedTabs: { [category: string]: SingleTab
   return (
     <div>
       {/* View Switcher */}
-      <pre>{drawer.open ? 'open' : 'closed'}</pre>
       <div className="flex gap-4">
         <Button onClick={() => setView('categories')} variant="link">
           By Category
@@ -157,21 +154,39 @@ function TabList({ groupedTabs }: { groupedTabs: { [category: string]: SingleTab
           </div>
         ))
       )}
+      <DetailDrawer />
+    </div>
+  );
+}
 
-      <Drawer open={drawer.open} onOpenChange={val => setDrawer({ item: drawer.item, open: val, edit: false })}>
-        <DrawerContent className="bg-grad">
-          <DrawerHeader className="text-left">
-            <DrawerTitle>{drawer.item?.title}</DrawerTitle>
-            <DrawerDescription>{drawer.item?.description}</DrawerDescription>
-          </DrawerHeader>
-          <ProfileForm className="px-4" />
-          <DrawerFooter className="pt-2">
-            <DrawerClose asChild>
-              <Button variant="outline">Cancel</Button>
-            </DrawerClose>
-          </DrawerFooter>
-        </DrawerContent>
-      </Drawer>
+function DetailDrawer() {
+  const [drawer, setDrawer] = useAtom(drawerAtom);
+  const [item, setItem] = useState<{ item: SingleTab; category: string } | null>(null);
+  // const storage = useStorage(tabsGroupedStorage);
+  tabsGroupedStorage.getByIdWithCategory(drawer.item?.datetime ?? '').then(val => setItem(val));
+
+  return (
+    <Drawer open={drawer.open} onOpenChange={val => setDrawer({ item: drawer.item, open: val, edit: false })}>
+      <DrawerContent className="bg-grad">
+        <DrawerHeader className="text-left">
+          <DrawerTitle>{drawer.item?.title}</DrawerTitle>
+          <DrawerDescription>{item?.item.description}</DrawerDescription>
+        </DrawerHeader>
+        {drawer.edit ? <ProfileForm className="px-4" /> : <ItemDisplay data={item} />}
+        <DrawerFooter className="pt-2">
+          <DrawerClose asChild>
+            <Button variant="outline">Cancel</Button>
+          </DrawerClose>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
+  );
+}
+
+function ItemDisplay({ data }: { data: ItemAndCategoty | null }) {
+  return (
+    <div className="">
+      <pre className="text-xs">{JSON.stringify(data, null, 4)}</pre>
     </div>
   );
 }

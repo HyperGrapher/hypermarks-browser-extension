@@ -1,67 +1,40 @@
-import {
-  Cloud,
-  CreditCard,
-  Keyboard,
-  LifeBuoy,
-  LogOut,
-  Mail,
-  MessageSquare,
-  Plus,
-  PlusCircle,
-  Settings,
-  User,
-  UserPlus,
-  Users,
-  Delete,
-} from 'lucide-react';
-
+import { Delete, Edit, Eye } from 'lucide-react';
+import { OpenAction, openTabByAction, type SingleTab } from '@extension/shared';
+import { deleteTab } from '@extension/storage';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuPortal,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@extension/ui';
-import { Button } from '@extension/ui';
-import { deleteTab } from '@extension/storage';
 import { useAtom } from 'jotai';
 import { drawerAtom } from './utils';
-import type { CategorizedTab, SingleTab } from '@extension/shared';
 
-export function DropdownMenuButton({
-  children,
-  item,
-  //   setIsOpen,
-}: {
-  children: React.ReactNode;
-  item: SingleTab;
-  //   setIsOpen: (val: boolean) => void;
-}) {
-  const [drawer, setDrawer] = useAtom(drawerAtom);
+export function DropdownMenuButton({ children, item }: { children: React.ReactNode; item: SingleTab }) {
+  const [, setDrawer] = useAtom(drawerAtom);
+
+  function onOpenTab(action: OpenAction) {
+    openTabByAction(item?.url ?? '', action);
+  }
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        {/* <Button variant="outline">Open</Button> */}
-        {children}
-      </DropdownMenuTrigger>
+      <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
       <DropdownMenuContent className="w-56 -translate-x-3">
         <DropdownMenuGroup>
-          <DropdownMenuItem>
+          <DropdownMenuItem className="text-sm" onClick={() => onOpenTab('current-tab')}>
             <span>Open in current tab</span>
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem className="text-sm" onClick={() => onOpenTab('new-tab')}>
             <span>Open in new tab</span>
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem className="text-sm" onClick={() => onOpenTab('new-window')}>
             <span>Open in new window</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem className="text-sm" onClick={() => onOpenTab('incognito')}>
+            <span>Open in incognito window</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
@@ -70,55 +43,28 @@ export function DropdownMenuButton({
             onClick={() => {
               setTimeout(() => {
                 setDrawer({ item, open: true, edit: false });
-              }, 100);
+              }, 0);
             }}
-            className="bg-green-600/20 rounded-md">
-            <Users />
+            className="bg-green-600/15 rounded-md text-sm">
+            <Eye />
             <span>Show details</span>
           </DropdownMenuItem>
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger>
-              <UserPlus />
-              <span>Invite users</span>
-            </DropdownMenuSubTrigger>
-            <DropdownMenuPortal>
-              <DropdownMenuSubContent>
-                <DropdownMenuItem>
-                  <Mail />
-                  <span>Programming and related</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <MessageSquare />
-                  <span>Message</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <PlusCircle />
-                  <span>More...</span>
-                </DropdownMenuItem>
-              </DropdownMenuSubContent>
-            </DropdownMenuPortal>
-          </DropdownMenuSub>
-          <DropdownMenuItem>
-            <Plus />
-            <span>New Team</span>
-            <DropdownMenuShortcut>⌘+T</DropdownMenuShortcut>
+
+          <DropdownMenuItem
+            className="text-sm"
+            onClick={() => {
+              setTimeout(() => {
+                setDrawer({ item, open: true, edit: true });
+              }, 0);
+            }}>
+            <Edit />
+            <span>Edit item</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <LifeBuoy />
-          <span>Support</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem disabled>
-          <Cloud />
-          <span>API</span>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => deleteTab(item.datetime)} className="bg-red-600/20 rounded-md">
+        <DropdownMenuItem onClick={() => deleteTab(item.datetime)} className="bg-red-600/15 rounded-md text-sm">
           <Delete />
           <span>Delete item</span>
-          <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

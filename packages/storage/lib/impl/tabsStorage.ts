@@ -26,37 +26,38 @@ import type { CategorizedTab, SingleTab } from '../../../shared';
 //   [category: string]: SingleTabType[];
 // }
 
-type TabsStorage = BaseStorage<CategorizedTab[]> & {
-  save: (data: CategorizedTab) => Promise<void>;
-};
+// type TabsStorage = BaseStorage<CategorizedTab[]> & {
+//   save: (data: CategorizedTab) => Promise<void>;
+// };
 
-interface StorageConfig {
-  storageEnum: StorageEnum;
-  liveUpdate: boolean;
-}
+// interface StorageConfig {
+//   storageEnum: StorageEnum;
+//   liveUpdate: boolean;
+// }
 
-const storage = createStorage<CategorizedTab[]>('tabs-storage-key', [], {
-  storageEnum: StorageEnum.Local,
-  liveUpdate: true,
-} as StorageConfig);
+// const storage = createStorage<CategorizedTab[]>('tabs-storage-key', [], {
+//   storageEnum: StorageEnum.Local,
+//   liveUpdate: true,
+// } as StorageConfig);
 
 // You can extend it with your own methods
-export const tabsStorage: TabsStorage = {
-  ...storage,
-  save: async (data: CategorizedTab) => {
-    try {
-      await storage.set(prev => [...prev, data]);
-    } catch (error) {
-      console.error('Failed to save tab:', error);
-    }
-  },
-};
+// export const tabsStorage: TabsStorage = {
+//   ...storage,
+//   save: async (data: CategorizedTab) => {
+//     try {
+//       await storage.set(prev => [...prev, data]);
+//     } catch (error) {
+//       console.error('Failed to save tab:', error);
+//     }
+//   },
+// };
 
 // Improved Saving
 
 type TabsGroupedStorage = BaseStorage<{ [category: string]: SingleTab[] }> & {
   save: (category: string, tab: SingleTab) => Promise<void>;
   delete: (datetime: string) => Promise<void>;
+  getByIdWithCategory: (datetime: string) => Promise<{ item: SingleTab; category: string } | null>;
 };
 
 const groupedStorage = createStorage<{ [category: string]: SingleTab[] }>(
@@ -98,6 +99,16 @@ export const tabsGroupedStorage: TabsGroupedStorage = {
       // TODO: Check if return is needed
       return updatedStorage;
     });
+  },
+  getByIdWithCategory: async (datetime: string) => {
+    const storage = await groupedStorage.get(); // Fetch current storage state
+    for (const [category, tabs] of Object.entries(storage)) {
+      const foundTab = tabs.find(tab => tab.datetime === datetime);
+      if (foundTab) {
+        return { item: foundTab, category };
+      }
+    }
+    return null; // Return null if the tab is not found
   },
 };
 

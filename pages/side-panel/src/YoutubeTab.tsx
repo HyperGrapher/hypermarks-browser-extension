@@ -3,22 +3,14 @@ import { openTab, useWindowSize } from '@extension/shared';
 import { tabsGroupedStorage } from '@extension/storage';
 import { Badge } from '@extension/ui';
 import { X } from 'lucide-react';
+import { MoreVertical } from 'lucide-react';
 import React from 'react';
 import { cn, searchTagsAtom } from './utils';
 import { useAtom } from 'jotai';
+import { DropdownMenuButton } from './DropdownMenuButton';
 
 // TODO:  if no icon/thumbnail, show default ones
 // https://www.youtube.com/playlist?list=PLRnI_2_ZWhtCxHQ_3zDfW0-RgiWo8ftyj
-
-async function deleteItem(datetime: string) {
-  console.log(datetime);
-  try {
-    await tabsGroupedStorage.delete(datetime);
-    console.log(`Tab with datetime ${datetime} deleted successfully.`);
-  } catch (error) {
-    console.error('Error deleting tab:', error);
-  }
-}
 
 function remove_linebreaks(str: string | undefined) {
   if (str === undefined) return '';
@@ -41,14 +33,15 @@ export const YoutubeVideo = ({ item }: { item: SingleTab }) => {
         'px-1 pb-1 rounded shadow-lg border border-gray-300/20',
         'bg-slate-700/20 w-full relative max-h-36 flex flex-col card selection:bg-sky-600/80 selection:text-sky-300',
       )}>
-      <button
-        className={cn(
-          'expand absolute xscale-75 insetx-0 right-1 top-1 xmt-6',
-          'size-4 aspect-square z-30 rounded-full bg-slate-600/30 flex justify-center items-center',
-        )}
-        onClick={() => deleteItem(item.datetime)}>
-        <X size={12} />
-      </button>
+      <DropdownMenuButton item={item}>
+        <button
+          className={cn(
+            'expand absolute xscale-75 insetx-0 right-1 top-1 xmt-6',
+            'size-6 aspect-square z-30 rounded-full bg-slate-700/50 flex justify-center items-center',
+          )}>
+          <MoreVertical size={12} />
+        </button>
+      </DropdownMenuButton>
 
       <div className="xyt-item items-centerx flex gap-2 px-3 pb-1 pt-2">
         <img
@@ -113,14 +106,15 @@ export const YoutubeChannel = ({ item }: { item: SingleTab }) => {
         'px-1 pb-1 rounded shadow-lg border border-gray-300/20',
         'bg-slate-600/10 w-full relative max-h-36 flex flex-col',
       )}>
-      <button
-        className={cn(
-          'expand absolute xscale-75 insetx-0 right-1 top-1 xmt-6',
-          'size-4 aspect-square z-30 rounded-full bg-slate-600/20 flex justify-center items-center',
-        )}
-        onClick={() => deleteItem(item.datetime)}>
-        <X size={12} />
-      </button>
+      <DropdownMenuButton item={item}>
+        <button
+          className={cn(
+            'expand absolute xscale-75 insetx-0 right-1 top-1 xmt-6',
+            'size-6 aspect-square z-30 rounded-full bg-slate-700/50 flex justify-center items-center',
+          )}>
+          <MoreVertical size={12} />
+        </button>
+      </DropdownMenuButton>
 
       <div className="xyt-item items-centerx flex gap-2 px-3 pb-1 pt-2">
         <img src={item.icon ?? ''} alt="icon" className="size-4 translate-y-px" />
@@ -174,14 +168,15 @@ export const YoutubePlaylist = ({ item }: { item: SingleTab }) => {
         'px-1 pb-1 rounded shadow-lg border border-gray-300/20',
         'bg-slate-700/20 w-full relative max-h-36 flex flex-col card selection:bg-sky-600/80 selection:text-sky-300',
       )}>
-      <button
-        className={cn(
-          'expand absolute xscale-75 insetx-0 right-1 top-1 xmt-6',
-          'size-4 aspect-square z-30 rounded-full bg-slate-600/20 flex justify-center items-center',
-        )}
-        onClick={() => deleteItem(item.datetime)}>
-        <X size={12} />
-      </button>
+      <DropdownMenuButton item={item}>
+        <button
+          className={cn(
+            'expand absolute xscale-75 insetx-0 right-1 top-1 xmt-6',
+            'size-6 aspect-square z-30 rounded-full bg-slate-700/50 flex justify-center items-center',
+          )}>
+          <MoreVertical size={12} />
+        </button>
+      </DropdownMenuButton>
 
       <div className="xyt-item items-centerx flex gap-2 px-3 pb-1 pt-2">
         <img src={item.icon ?? ''} alt="icon" className="size-4 translate-y-px" />

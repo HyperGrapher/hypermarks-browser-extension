@@ -1,3 +1,5 @@
+import { OpenAction } from './shared-types';
+
 export async function getActiveTabIcon(): Promise<string | null> {
   return new Promise((resolve, reject) => {
     chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
@@ -52,6 +54,24 @@ export async function openTab(url: string) {
   const settings = await chrome.storage.sync.get('user-prefs'); // {openInNewTab: true}
   if (!settings.openInNewTab) {
     chrome.tabs.create({ url });
+    return;
+  }
+  chrome.tabs.update({ url });
+}
+
+export async function openTabByAction(url: string, action: OpenAction) {
+  if (action === 'new-tab') {
+    chrome.tabs.create({ url });
+    return;
+  }
+  if (action === 'new-window') {
+    // open in new window
+    chrome.windows.create({ url });
+    return;
+  }
+  if (action === 'incognito') {
+    // open in new window
+    chrome.windows.create({ url, incognito: true });
     return;
   }
   chrome.tabs.update({ url });
