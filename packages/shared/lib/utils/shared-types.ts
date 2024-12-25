@@ -53,7 +53,8 @@ export interface Xpost {
   likes: string;
   comments: string;
   photos?: string[];
-  screencap?: string;
+  screenshot?: string;
+  hasScreenshot?: boolean;
 }
 
 export type ItemType =
@@ -116,3 +117,10 @@ export interface ItemAndCategoty {
   item: SingleTab;
   category: string;
 }
+
+export type SiteMeta = {
+  title: string;
+  icon: string;
+  url: string;
+  origin: string;
+} | null;

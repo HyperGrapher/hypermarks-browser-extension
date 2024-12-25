@@ -1,12 +1,13 @@
 import {
   deleteAllTabData,
   saveCurrentTab,
-  getAiResponseForTab,
   useStorage,
   withErrorBoundary,
   withSuspense,
   tagsAtom,
-  captureTweetScreenshot,
+  captureTweetScreenshotAndSaveTab,
+  getActiveTabMeta,
+  SiteMeta,
 } from '@extension/shared';
 import { tabsGroupedStorage } from '@extension/storage';
 import { Button, cn, DropdownSelect, Input } from '@extension/ui';
@@ -46,18 +47,16 @@ const Popup = () => {
   const [aiSuccess, setAiSuccess] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [aiREsponse, setAiResponse] = useState<any>({});
+  const [sitemeta, setSitemeta] = useState<SiteMeta>();
   const groupedTabs = useStorage(tabsGroupedStorage);
   const [categories, setCategories] = useState<string[]>(
     Object.entries(groupedTabs).flatMap(([category, _items]) => category) ?? [],
   );
 
   useEffect(() => {
-    // chrome.storage.local
-    //   .get('tweet_screenshot')
-    //   .then(val => {
-    //     console.log(val.tweet_screenshot);
-    //   })
-    //   .catch(err => console.log(err));
+    getActiveTabMeta().then(meta => {
+      setSitemeta(meta);
+    });
   }, []);
 
   function handleAiSuccess() {
@@ -88,26 +87,34 @@ const Popup = () => {
   }
 
   async function saveTab() {
-    await captureTweetScreenshot();
-    console.log('saveTab');
-    saveCurrentTab(tags, selectedCategory || 'Uncategorized')
-      .then(val => {
-        if (val) {
-          setMessage('Tab saved!');
-          setSelectedCategory('');
-          setTags([]);
-          setAiSuccess(true); // todo iki adet var. biri bu, digeri getAiResponse'da
-          // setTimeout(() => window.close(), 750);
-        }
-      })
-      .catch(err => {
-        console.log(err);
+    if (sitemeta?.origin.includes('//x.com')) {
+      try {
+        const data = await captureTweetScreenshotAndSaveTab(tags, selectedCategory || 'Uncategorized');
+        console.log('saveTab', data.title);
+        setMessage('Tab saved!');
+        setSelectedCategory('');
+        setTags([]);
+        setAiSuccess(true); // todo iki adet var. biri bu, digeri getAiResponse'da
+        setTimeout(() => window.close(), 10);
+      } catch (error) {
         setMessage('Error occured');
-      });
-  }
-
-  function sendMessage() {
-    // chrome.runtime.sendMessage({ action: 'open-side-panel' });
+      }
+    } else {
+      saveCurrentTab(tags, selectedCategory || 'Uncategorized')
+        .then(val => {
+          if (val) {
+            setMessage('Tab saved!');
+            setSelectedCategory('');
+            setTags([]);
+            setAiSuccess(true); // todo iki adet var. biri bu, digeri getAiResponse'da
+            setTimeout(() => window.close(), 750);
+          }
+        })
+        .catch(err => {
+          console.log(err);
+          setMessage('Error occured');
+        });
+    }
   }
 
   function onCreateNewCategory(categoryName: string) {
@@ -142,9 +149,8 @@ const Popup = () => {
     //   path: 'side-panel/index.html',
     //   enabled: true, // Make sure it's enabled
     // });
-    // opens sidepanel in its own window
+    // WARN opens sidepanel in its own window
     // chrome.tabs.create({ url: chrome.runtime.getURL('side-panel/index.html') });
-
     const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
     chrome.sidePanel.open({ windowId: activeTab?.windowId ?? 0 });
     // close popup window
@@ -164,6 +170,8 @@ const Popup = () => {
           aiSuccess,
       })}>
       <header className={`relative z-10`}>
+        <p>{sitemeta?.title}</p>
+
         <div className="space-y-2">
           <DropdownSelect
             items={categories}

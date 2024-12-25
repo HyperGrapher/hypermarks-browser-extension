@@ -56,7 +56,6 @@ export default withErrorBoundary(withSuspense(SidePanel, <div> Loading ... </div
 function TabList({ groupedTabs }: { groupedTabs: { [category: string]: SingleTab[] } }) {
   const [view, setView] = useState<'categories' | 'chronological' | 'tags'>('categories');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [cap, setCap] = useState<string>('');
   const [searchTags, setSearchTags] = useAtom(searchTagsAtom);
 
   // TODO: Zoom factor
@@ -128,9 +127,6 @@ function TabList({ groupedTabs }: { groupedTabs: { [category: string]: SingleTab
   return (
     <div>
       {/* View Switcher */}
-
-      {cap ? <img src={cap} alt="" /> : 'no caps'}
-
       <div className="flex gap-4">
         <Button onClick={() => setView('categories')} variant="link">
           By Category

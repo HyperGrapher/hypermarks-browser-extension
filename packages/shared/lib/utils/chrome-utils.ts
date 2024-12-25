@@ -1,4 +1,28 @@
-import { OpenAction } from './shared-types';
+import { OpenAction, SiteMeta } from './shared-types';
+
+export async function getActiveTabMeta(): Promise<SiteMeta | null> {
+  return new Promise((resolve, reject) => {
+    chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+      if (chrome.runtime.lastError) {
+        reject(chrome.runtime.lastError);
+        return;
+      }
+      const activeTab = tabs[0];
+      if (activeTab) {
+        const origin = activeTab.url ? new URL(activeTab.url).origin : '';
+        const titleAndIconAndUrl = {
+          title: activeTab.title ?? '',
+          icon: activeTab.favIconUrl ?? '',
+          url: activeTab.url ?? '',
+          origin,
+        };
+        resolve(titleAndIconAndUrl);
+      } else {
+        resolve(null);
+      }
+    });
+  });
+}
 
 export async function getActiveTabIcon(): Promise<string | null> {
   return new Promise((resolve, reject) => {
