@@ -49,9 +49,9 @@ export interface Xpost {
   datetime: string;
   datetimeStr: string;
   content: string;
-  views: string;
-  likes: string;
-  comments: string;
+  views: number;
+  likes: number;
+  comments: number;
   photos?: string[];
   screenshot?: string;
   hasScreenshot?: boolean;
@@ -87,6 +87,7 @@ export type ItemType =
   | 'amazon-product'
   | 'amazon-user'
   | 'reddit'
+  | 'bilyoner'
   | undefined;
 
 export type SingleTab = {
@@ -99,6 +100,7 @@ export type SingleTab = {
   tags: string[];
   datetime: string; // ISO string representing the saved time
   itemType: ItemType;
+  tempCaps?: string;
   xpost: Xpost | undefined;
   youtubeVideo: YouTube.Video | undefined;
   youtubeShort: YouTube.Short | undefined;

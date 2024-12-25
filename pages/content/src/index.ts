@@ -3,10 +3,12 @@ console.log('>>>>>>>> 888 Content script loaded <<<<<<<<');
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'getElementBounds') {
     console.log('getElementBounds');
+    const className = request.className;
+    console.log({ className });
 
     console.log('yes received co');
 
-    const element = document.querySelector('article[data-testid="tweet"][tabindex="-1"]');
+    const element = document.querySelector(className);
     console.log(element ? 'Yes element found' : 'nope element not found');
 
     if (element) {

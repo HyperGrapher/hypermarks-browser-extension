@@ -44,8 +44,10 @@ console.log("Edit 'chrome-extension/src/background/index.ts' and save to reload.
 chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   if (request.action === 'captureTweetScreenshot') {
     const tabId = request.tabId;
+    const className = request.className;
+    console.log({ className });
 
-    chrome.tabs.sendMessage(tabId, { action: 'getElementBounds' }, async response => {
+    chrome.tabs.sendMessage(tabId, { action: 'getElementBounds', className }, async response => {
       const offscreenUrl = chrome.runtime.getURL('offscreen.html');
       if (response?.success) {
         try {

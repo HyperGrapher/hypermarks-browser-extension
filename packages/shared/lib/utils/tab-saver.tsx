@@ -1,6 +1,7 @@
 import { tabsGroupedStorage } from '@extension/storage';
 import { getActiveTabIcon } from './chrome-utils';
 import type { YouTube as YT, ItemType, SingleTab, Xpost } from './shared-types';
+import { parseAbbrTwitterNumber } from './abbreviated-string-parser';
 
 const notificationOptions = {
   type: 'basic',
@@ -14,10 +15,18 @@ const notificationOptions = {
 export async function captureTweetScreenshotAndSaveTab(tags: string[] | null, category: string): Promise<SingleTab> {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
+  let className = 'article[data-testid="tweet"][tabindex="-1"]';
+  if (tab.url?.includes('bilyoner.com')) {
+    className = '.betslip.betslip--active';
+  }
+  if (tab.url?.includes('//x.com') && tab.url?.includes('/status/')) {
+    className = 'article[data-testid="tweet"][tabindex="-1"]';
+  }
+
   // Wrap chrome.runtime.sendMessage in a Promise
   const screenshotSaved = new Promise<{ success: boolean; croppedScreenshot?: string; error?: string }>(
     (resolve, reject) => {
-      chrome.runtime.sendMessage({ action: 'captureTweetScreenshot', tabId: tab.id }, response => {
+      chrome.runtime.sendMessage({ action: 'captureTweetScreenshot', tabId: tab.id, className }, response => {
         if (chrome.runtime.lastError) {
           reject(new Error(chrome.runtime.lastError.message));
           return;
@@ -34,8 +43,7 @@ export async function captureTweetScreenshotAndSaveTab(tags: string[] | null, ca
 
   try {
     const screenshotResponse = await screenshotSaved;
-    console.log('Screenshot saved');
-    console.log(screenshotResponse.croppedScreenshot);
+    console.log('Screenshot cropped');
 
     // return data to popup
     return await saveCurrentTab(tags, category, screenshotResponse.croppedScreenshot);
@@ -86,6 +94,8 @@ export async function saveCurrentTab(
         if (window.location.pathname.startsWith('/channel')) return 'yt-channel';
         if (window.location.pathname.startsWith('/@')) return 'yt-channel';
         if (window.location.pathname.startsWith('/playlist')) return 'yt-playlist';
+        if (window.location.hostname.includes('bilyoner.com') && document.querySelector('.betslip.betslip--active'))
+          return 'bilyoner';
         if (window.location.hostname.includes('x.com') && window.location.pathname.includes('/status/'))
           return 'x-post';
         return 'other';
@@ -226,6 +236,37 @@ export async function saveCurrentTab(
         return description;
       }
 
+      type MultiplierMap = {
+        [key: string]: number;
+      };
+
+      const parseAbbrTwitterNumber = (value: string): number => {
+        // Define multipliers for different suffixes
+        const multipliers: MultiplierMap = {
+          K: 1000,
+          M: 1000000,
+          B: 1000000000,
+        };
+
+        // If the input is just a number without suffix
+        if (!isNaN(Number(value))) {
+          return Number(value);
+        }
+
+        // Extract the number and suffix parts
+        const match = value.match(/^(\d+(\.\d+)?)([KMB])$/);
+
+        if (!match) {
+          throw new Error('Invalid number format');
+        }
+
+        const [, numberPart, , suffix] = match;
+        const number = parseFloat(numberPart);
+        const multiplier = multipliers[suffix];
+
+        return number * multiplier;
+      };
+
       function getXPostContent(): Xpost | null {
         if (!isXPost) return null;
 
@@ -233,13 +274,12 @@ export async function saveCurrentTab(
         let handle = '';
         let avatar = '';
         let content = '';
-        let views = '';
-        let likes = '';
-        let comments = '';
+        let views: string | number = '0';
+        let likes: string | number = '0';
+        let comments: string | number = '0';
         let datetime;
         let datetimeStr = '';
         let isPremium = false;
-        // let photos = ''; // data-testid="tweetPhoto"
 
         let photoElems = document.querySelectorAll<HTMLImageElement>(
           '[data-testid="tweet"][tabindex="-1"] [data-testid="tweetPhoto"] img',
@@ -271,7 +311,6 @@ export async function saveCurrentTab(
             ?.getAttribute('href') || '';
         handle = handle.slice(1); // remove "/" char at the start
 
-        // data-testid="app-text-transition-container"
         comments =
           document.querySelector(
             '[data-testid="tweet"][tabindex="-1"] [data-testid="reply"] [data-testid="app-text-transition-container"]',
@@ -286,11 +325,9 @@ export async function saveCurrentTab(
           )?.textContent || '0';
 
         datetime = document.querySelector('[data-testid="tweet"][tabindex="-1"] time')?.getAttribute('datetime');
-        console.log({ datetime });
 
         // TODO: Check in tests if date is "1970-01-01T00:00:00.000Z", this is kinda smoke test.
         datetime = new Date(datetime ?? 0).toISOString();
-        console.log({ datetime });
 
         datetimeStr = document.querySelector('[data-testid="tweet"][tabindex="-1"] time')?.textContent || '';
         content =
@@ -299,8 +336,9 @@ export async function saveCurrentTab(
             ?.textContent?.trim() || '';
 
         const obj = {
-          likes,
-          views,
+          likes: parseAbbrTwitterNumber(likes),
+          views: parseAbbrTwitterNumber(views),
+          comments: parseAbbrTwitterNumber(comments),
           handle,
           profileName,
           datetime,
@@ -308,7 +346,6 @@ export async function saveCurrentTab(
           isPremium,
           content,
           avatar,
-          comments,
           photos,
         } satisfies Xpost;
         console.log(obj);
@@ -358,6 +395,7 @@ export async function saveCurrentTab(
     itemType: data.item_type,
     note: undefined,
     xpost: xpost,
+    tempCaps: data.item_type?.startsWith('bilyoner') ? croppedScreenshot : undefined,
     youtubeChannel: data.youtube_channel ?? undefined,
     youtubeShort: data.youtube_short ?? undefined,
     youtubePlaylist: data.youtube_list ?? undefined,
@@ -592,17 +630,29 @@ export async function EXgetAiResponseForTabEX() /* : Promise<{ category: string;
 
       function getXPostContent(): Xpost | null {
         if (!isXPost) return null;
+        console.log('GETTING XPOST');
 
         let profileName = '';
         let handle = '';
         let avatar = '';
         let content = '';
-        let views = '';
-        let likes = '';
-        let comments = '';
+        let views: string | number = '0';
+        let likes: string | number = '0';
+        let comments: string | number = '0';
         let datetime;
         let datetimeStr = '';
         let isPremium = false;
+        // let photos = ''; // data-testid="tweetPhoto"
+
+        let photoElems = document.querySelectorAll<HTMLImageElement>(
+          '[data-testid="tweet"][tabindex="-1"] [data-testid="tweetPhoto"] img',
+        );
+
+        let photos: string[] = [];
+        for (let i = 0; i < photoElems.length; i++) {
+          photos.push(photoElems[i].src);
+        }
+
         avatar =
           document.querySelector<HTMLImageElement>(
             '[data-testid="tweet"][tabindex="-1"] [data-testid="Tweet-User-Avatar"] img',
@@ -624,6 +674,12 @@ export async function EXgetAiResponseForTabEX() /* : Promise<{ category: string;
             ?.getAttribute('href') || '';
         handle = handle.slice(1); // remove "/" char at the start
 
+        // data-testid="app-text-transition-container"
+        comments =
+          document.querySelector(
+            '[data-testid="tweet"][tabindex="-1"] [data-testid="reply"] [data-testid="app-text-transition-container"]',
+          )?.textContent || '0';
+
         views =
           document.querySelector('[data-testid="tweet"][tabindex="-1"] [data-testid="app-text-transition-container"]')
             ?.textContent || '0';
@@ -633,9 +689,11 @@ export async function EXgetAiResponseForTabEX() /* : Promise<{ category: string;
           )?.textContent || '0';
 
         datetime = document.querySelector('[data-testid="tweet"][tabindex="-1"] time')?.getAttribute('datetime');
+        console.log({ datetime });
 
         // TODO: Check in tests if date is "1970-01-01T00:00:00.000Z", this is kinda smoke test.
         datetime = new Date(datetime ?? 0).toISOString();
+        console.log({ datetime });
 
         datetimeStr = document.querySelector('[data-testid="tweet"][tabindex="-1"] time')?.textContent || '';
         content =
@@ -644,8 +702,9 @@ export async function EXgetAiResponseForTabEX() /* : Promise<{ category: string;
             ?.textContent?.trim() || '';
 
         const obj = {
-          likes,
-          views,
+          likes: parseAbbrTwitterNumber(likes),
+          views: parseAbbrTwitterNumber(views),
+          comments: parseAbbrTwitterNumber(comments),
           handle,
           profileName,
           datetime,
@@ -653,9 +712,9 @@ export async function EXgetAiResponseForTabEX() /* : Promise<{ category: string;
           isPremium,
           content,
           avatar,
-          comments,
+          photos,
         } satisfies Xpost;
-        // console.log(obj);
+        console.log(obj);
 
         return obj;
       }

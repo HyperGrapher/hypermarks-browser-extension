@@ -51,11 +51,18 @@ export const GenericTab = ({ item }: { item: SingleTab }) => {
         {/* <TimeAgo datetime={item.datetime} className="text-slate-500" /> */}
       </div>
 
-      <div className="z-20 flex w-full items-center gap-2 pl-2">
-        <div className="w-full max-w-sm pr-2">
-          <p className="wrap-text-anywhere line-clamp-5 text-xs/3 leading-3 text-slate-500">{item?.description}</p>
+      {item.tempCaps ? (
+        <div className="w-full">
+          <img className="size-16 w-full object-cover object-top rounded-xl" src={item.tempCaps} alt="" />
         </div>
-      </div>
+      ) : (
+        <div className="z-20 flex w-full items-center gap-2 pl-2">
+          <div className="w-full max-w-sm pr-2">
+            <p className="wrap-text-anywhere line-clamp-5 text-xs/3 leading-3 text-slate-500">{item?.description}</p>
+          </div>
+        </div>
+      )}
+
       <section className="flex w-full flex-wrap gap-0.5 pt-1">
         {item.tags.map(pill => (
           <Badge
@@ -122,10 +129,8 @@ export const XPostItem = ({ item }: { item: SingleTab }) => {
           </div>
 
           {item.xpost?.hasScreenshot && (
-            <div className="">
-              <a href={item.xpost?.screenshot} target="_blank" rel="noopener noreferrer">
-                <img className="size-16 object-contain" src={item.xpost?.screenshot} alt="" />
-              </a>
+            <div className="w-full rounded-mdx xoverflow-clip">
+              <img className="size-16 w-full object-cover object-top rounded-lg " src={item.xpost?.screenshot} alt="" />
             </div>
           )}
 

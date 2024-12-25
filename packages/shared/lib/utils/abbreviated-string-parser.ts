@@ -5,7 +5,6 @@ type MultiplierMap = {
 export const parseAbbrTwitterNumber = (value: string): number => {
   // Define multipliers for different suffixes
   const multipliers: MultiplierMap = {
-    k: 1000,
     K: 1000,
     M: 1000000,
     B: 1000000000,
@@ -17,7 +16,7 @@ export const parseAbbrTwitterNumber = (value: string): number => {
   }
 
   // Extract the number and suffix parts
-  const match = value.match(/^(\d+(\.\d+)?)([kKMB])$/);
+  const match = value.match(/^(\d+(\.\d+)?)([KMB])$/);
 
   if (!match) {
     throw new Error('Invalid number format');
@@ -31,7 +30,7 @@ export const parseAbbrTwitterNumber = (value: string): number => {
 };
 
 function testCases() {
-  const testCases = ['999', '1k', '3.3M', '38K', '280K', '3.4K', '1.7B', '256', '380M', '7'];
+  const testCases = ['999', '1K', '3.3M', '38K', '280K', '3.4K', '1.7B', '256', '380M', '7'];
   testCases.forEach(test => {
     try {
       console.log(`${test} => ${parseAbbrTwitterNumber(test)}`);

@@ -15,6 +15,7 @@ import '@src/Popup.css';
 import { useEffect, useState, useTransition } from 'react';
 import { TagsForm } from './components/TagsForm';
 import { useAtom } from 'jotai';
+import { MetaHeader } from './components/MetaHeader';
 
 /*
  #* fikir su:
@@ -87,7 +88,7 @@ const Popup = () => {
   }
 
   async function saveTab() {
-    if (sitemeta?.origin.includes('//x.com')) {
+    if (sitemeta?.origin.includes('//x.com') || sitemeta?.origin.includes('bilyoner.com')) {
       try {
         const data = await captureTweetScreenshotAndSaveTab(tags, selectedCategory || 'Uncategorized');
         console.log('saveTab', data.title);
@@ -170,7 +171,7 @@ const Popup = () => {
           aiSuccess,
       })}>
       <header className={`relative z-10`}>
-        <p>{sitemeta?.title}</p>
+        <MetaHeader meta={sitemeta} />
 
         <div className="space-y-2">
           <DropdownSelect
@@ -266,10 +267,6 @@ const Popup = () => {
               {message}
             </button>
 
-            {/* <Button variant="outline" className=" hover:scale-[1.02] w-full transition-all" onClick={deleteAllTabData}>
-              Clear saved pages...
-            </Button> */}
-
             <Button variant="outline" className=" w-full transition-all hover:scale-[1.02]" onClick={getAiResponse}>
               Get Ai Response
             </Button>
@@ -279,6 +276,13 @@ const Popup = () => {
               className="w-full shadow transition-all hover:scale-[1.02]"
               onClick={openSidePanel}>
               Display SuperTabs
+            </Button>
+
+            <Button
+              variant="destructive"
+              className=" hover:scale-[1.02] w-full transition-all"
+              onClick={deleteAllTabData}>
+              Clear saved pages...
             </Button>
           </div>
         )}
