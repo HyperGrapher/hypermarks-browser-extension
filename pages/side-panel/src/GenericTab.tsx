@@ -122,7 +122,7 @@ export const XPostItem = ({ item }: { item: SingleTab }) => {
           </div>
 
           {/* <p className="wrap-text-anywhere line-clamp-5 text-xs/3 leading-3 text-slate-500">{item?.description}</p> */}
-          <pre className="text-[9px]">{JSON.stringify(item.xpost, null, 2)}</pre>
+          {/* <pre className="text-[9px]">{JSON.stringify(item.xpost, null, 2)}</pre> */}
         </div>
       </div>
       <section className="flex w-full flex-wrap gap-0.5 pt-1">

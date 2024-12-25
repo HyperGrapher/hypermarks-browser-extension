@@ -90,24 +90,24 @@ const Popup = () => {
   async function saveTab() {
     await captureTweetScreenshot();
     console.log('saveTab');
-    // saveCurrentTab(tags, selectedCategory || 'Uncategorized')
-    //   .then(val => {
-    //     if (val) {
-    //       setMessage('Tab saved!');
-    //       setSelectedCategory('');
-    //       setTags([]);
-    //       setAiSuccess(true); // todo iki adet var. biri bu, digeri getAiResponse'da
-    //       // setTimeout(() => window.close(), 750);
-    //     }
-    //   })
-    //   .catch(err => {
-    //     console.log(err);
-    //     setMessage('Error occured');
-    //   });
+    saveCurrentTab(tags, selectedCategory || 'Uncategorized')
+      .then(val => {
+        if (val) {
+          setMessage('Tab saved!');
+          setSelectedCategory('');
+          setTags([]);
+          setAiSuccess(true); // todo iki adet var. biri bu, digeri getAiResponse'da
+          // setTimeout(() => window.close(), 750);
+        }
+      })
+      .catch(err => {
+        console.log(err);
+        setMessage('Error occured');
+      });
   }
 
   function sendMessage() {
-    chrome.runtime.sendMessage({ action: 'open-side-panel' });
+    // chrome.runtime.sendMessage({ action: 'open-side-panel' });
   }
 
   function onCreateNewCategory(categoryName: string) {

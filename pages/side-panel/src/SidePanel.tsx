@@ -56,9 +56,38 @@ export default withErrorBoundary(withSuspense(SidePanel, <div> Loading ... </div
 function TabList({ groupedTabs }: { groupedTabs: { [category: string]: SingleTab[] } }) {
   const [view, setView] = useState<'categories' | 'chronological' | 'tags'>('categories');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [cap, setCap] = useState<string>('');
   const [searchTags, setSearchTags] = useAtom(searchTagsAtom);
 
-  chrome.storage.local.get('tweet_screenshot').then(data => console.log(data.tweet_screenshot));
+  // TODO: Zoom factor
+  // chrome.storage.local.get('tweet_screenshot', (val) => {
+  //   setCap(val.tweet_screenshot)
+  // })
+
+  // }).then(data => setCap(data.tweet_screenshot));
+
+  // useEffect(() => {
+  //   // Initial load
+  //   chrome.storage.local.get('tweet_screenshot', (result) => {
+  //     if (result.tweet_screenshot) {
+  //       setCap(result.tweet_screenshot);
+  //     }
+  //   });
+
+  //   // Listen for changes
+  //   const handleStorageChange = (changes:any, namespace:any) => {
+  //     if (namespace === 'local' && changes.tweet_screenshot) {
+  //       setCap(changes.tweet_screenshot.newValue);
+  //     }
+  //   };
+
+  //   chrome.storage.onChanged.addListener(handleStorageChange);
+
+  //   // Cleanup listener
+  //   return () => {
+  //     chrome.storage.onChanged.removeListener(handleStorageChange);
+  //   };
+  // }, []);
 
   useEffect(() => {
     console.log(searchTags);
@@ -99,6 +128,8 @@ function TabList({ groupedTabs }: { groupedTabs: { [category: string]: SingleTab
   return (
     <div>
       {/* View Switcher */}
+
+      {cap ? <img src={cap} alt="" /> : 'no caps'}
 
       <div className="flex gap-4">
         <Button onClick={() => setView('categories')} variant="link">

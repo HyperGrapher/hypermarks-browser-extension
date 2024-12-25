@@ -53,6 +53,7 @@ export interface Xpost {
   likes: string;
   comments: string;
   photos?: string[];
+  screencap?: string;
 }
 
 export type ItemType =

@@ -675,6 +675,7 @@ export async function saveCurrentTab(tags: string[] | null, category: string): P
   };
 
   // const category = categorizeTab(tab.url);
+  console.log({ category });
 
   await tabsGroupedStorage.save(category ?? 'Uncategorized', tab);
 
