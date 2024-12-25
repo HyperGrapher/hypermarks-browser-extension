@@ -4,7 +4,7 @@ import { openTab, useWindowSize } from '@extension/shared';
 import { Badge } from '@extension/ui';
 import TimeAgo from 'timeago-react';
 import { MoreVertical } from 'lucide-react';
-import { useAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import { DropdownMenuButton } from './DropdownMenuButton';
 
 // this js-abbreviation-number lib is only good for num to str
@@ -14,7 +14,7 @@ import { DropdownMenuButton } from './DropdownMenuButton';
 // https://www.youtube.com/playlist?list=PLRnI_2_ZWhtCxHQ_3zDfW0-RgiWo8ftyj
 
 export const GenericTab = ({ item }: { item: SingleTab }) => {
-  const [searchTags, setSearchTags] = useAtom(searchTagsAtom);
+  const setSearchTags = useSetAtom(searchTagsAtom);
 
   return (
     <div
@@ -79,7 +79,7 @@ export const GenericTab = ({ item }: { item: SingleTab }) => {
 };
 
 export const XPostItem = ({ item }: { item: SingleTab }) => {
-  const [searchTags, setSearchTags] = useAtom(searchTagsAtom);
+  const setSearchTags = useSetAtom(searchTagsAtom);
 
   return (
     <div
@@ -130,7 +130,7 @@ export const XPostItem = ({ item }: { item: SingleTab }) => {
 
           {item.xpost?.hasScreenshot && (
             <div className="w-full rounded-mdx xoverflow-clip">
-              <img className="size-16 w-full object-cover object-top rounded-lg " src={item.xpost?.screenshot} alt="" />
+              <img className="size-12 w-full object-cover object-top rounded-lg " src={item.xpost?.screenshot} alt="" />
             </div>
           )}
 

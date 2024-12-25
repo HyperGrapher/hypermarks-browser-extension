@@ -9,11 +9,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@extension/ui';
-import { useAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import { drawerAtom } from './utils';
 
 export function DropdownMenuButton({ children, item }: { children: React.ReactNode; item: SingleTab }) {
-  const [, setDrawer] = useAtom(drawerAtom);
+  const setDrawer = useSetAtom(drawerAtom);
 
   function onOpenTab(action: OpenAction) {
     openTabByAction(item.url, action);

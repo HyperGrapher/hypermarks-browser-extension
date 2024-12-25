@@ -6,7 +6,7 @@ import { X } from 'lucide-react';
 import { MoreVertical } from 'lucide-react';
 import React from 'react';
 import { cn, searchTagsAtom } from './utils';
-import { useAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import { DropdownMenuButton } from './DropdownMenuButton';
 
 // TODO:  if no icon/thumbnail, show default ones
@@ -19,7 +19,7 @@ function remove_linebreaks(str: string | undefined) {
 
 export const YoutubeVideo = ({ item }: { item: SingleTab }) => {
   const [showDetail, setShowDetail] = React.useState(false);
-  const [searchTags, setSearchTags] = useAtom(searchTagsAtom);
+  const setSearchTags = useSetAtom(searchTagsAtom);
   const { width = 360, height } = useWindowSize();
 
   const maxCharForDesc =
@@ -98,7 +98,7 @@ export const YoutubeVideo = ({ item }: { item: SingleTab }) => {
 };
 
 export const YoutubeChannel = ({ item }: { item: SingleTab }) => {
-  const [searchTags, setSearchTags] = useAtom(searchTagsAtom);
+  const setSearchTags = useSetAtom(searchTagsAtom);
 
   return (
     <div
@@ -159,7 +159,7 @@ export const YoutubeChannel = ({ item }: { item: SingleTab }) => {
 };
 
 export const YoutubePlaylist = ({ item }: { item: SingleTab }) => {
-  const [searchTags, setSearchTags] = useAtom(searchTagsAtom);
+  const setSearchTags = useSetAtom(searchTagsAtom);
 
   // border-green-300/20 bg-green-600/10
   return (
