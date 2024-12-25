@@ -3,10 +3,10 @@ console.log('>>>>>>>> 999 Content script loaded <<<<<<<<');
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   if (request.action === 'getElementBounds') {
     console.log('getElementBounds');
-    const className = request.className as string;
+    const selectorForScreenshot = request.selectorForScreenshot as string;
     // TODO: Add a check for the betslip--active class. If sidebar closed click and open it
     // not working currently
-    if (className.includes('.betslip.')) {
+    if (selectorForScreenshot.includes('.betslip.')) {
       const isOpen = document.querySelector('.betslip--active');
       if (!isOpen) {
         console.log('betslip not open');
@@ -16,7 +16,7 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
       }
     }
 
-    const element = document.querySelector(className);
+    const element = document.querySelector(selectorForScreenshot);
     console.log(element ? 'Yes element found' : 'nope element not found');
 
     if (element) {

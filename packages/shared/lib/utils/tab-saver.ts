@@ -15,29 +15,32 @@ const notificationOptions = {
 export async function captureTweetScreenshotAndSaveTab(tags: string[] | null, category: string): Promise<SingleTab> {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
-  let className = 'article[data-testid="tweet"][tabindex="-1"]';
+  let selectorForScreenshot = 'article[data-testid="tweet"][tabindex="-1"]';
   if (tab.url?.includes('bilyoner.com')) {
-    className = '.betslip.betslip--active';
+    selectorForScreenshot = '.betslip.betslip--active';
   }
   if (tab.url?.includes('//x.com') && tab.url?.includes('/status/')) {
-    className = 'article[data-testid="tweet"][tabindex="-1"]';
+    selectorForScreenshot = 'article[data-testid="tweet"][tabindex="-1"]';
   }
 
   // Wrap chrome.runtime.sendMessage in a Promise
   const screenshotSaved = new Promise<{ success: boolean; croppedScreenshot?: string; error?: string }>(
     (resolve, reject) => {
-      chrome.runtime.sendMessage({ action: 'captureTweetScreenshot', tabId: tab.id, className }, response => {
-        if (chrome.runtime.lastError) {
-          reject(new Error(chrome.runtime.lastError.message));
-          return;
-        }
+      chrome.runtime.sendMessage(
+        { action: 'captureTweetScreenshot', tabId: tab.id, selectorForScreenshot },
+        response => {
+          if (chrome.runtime.lastError) {
+            reject(new Error(chrome.runtime.lastError.message));
+            return;
+          }
 
-        if (response?.success) {
-          resolve(response); // Resolve with the screenshot data
-        } else {
-          reject(new Error(response?.error || 'Unknown error while capturing screenshot.'));
-        }
-      });
+          if (response?.success) {
+            resolve(response); // Resolve with the screenshot data
+          } else {
+            reject(new Error(response?.error || 'Unknown error while capturing screenshot.'));
+          }
+        },
+      );
     },
   );
 
