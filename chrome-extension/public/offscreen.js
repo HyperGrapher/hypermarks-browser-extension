@@ -1,7 +1,5 @@
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message.action === 'processImage') {
-    console.log('processImage');
-
     const { screenshot, bounds } = message;
 
     try {
@@ -20,8 +18,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             reader.onloadend = () => {
               sendResponse({ success: true, screenshot: reader.result });
             };
-            console.log('processImage Done');
-
             reader.readAsDataURL(blob);
           })
           .catch(error => {

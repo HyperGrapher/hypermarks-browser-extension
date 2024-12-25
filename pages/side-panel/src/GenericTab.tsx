@@ -121,6 +121,14 @@ export const XPostItem = ({ item }: { item: SingleTab }) => {
               : null}
           </div>
 
+          {item.xpost?.hasScreenshot && (
+            <div className="">
+              <a href={item.xpost?.screenshot} target="_blank" rel="noopener noreferrer">
+                <img className="size-16 object-contain" src={item.xpost?.screenshot} alt="" />
+              </a>
+            </div>
+          )}
+
           {/* <p className="wrap-text-anywhere line-clamp-5 text-xs/3 leading-3 text-slate-500">{item?.description}</p> */}
           {/* <pre className="text-[9px]">{JSON.stringify(item.xpost, null, 2)}</pre> */}
         </div>

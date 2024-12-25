@@ -41,46 +41,34 @@ console.log("Edit 'chrome-extension/src/background/index.ts' and save to reload.
 //   }
 // });
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  console.log('Received message:', request.action);
-
+chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   if (request.action === 'captureTweetScreenshot') {
-    console.log('captureTweetScreenshot');
-
     const tabId = request.tabId;
 
     chrome.tabs.sendMessage(tabId, { action: 'getElementBounds' }, async response => {
-      console.log('getElementBounds', response);
       const offscreenUrl = chrome.runtime.getURL('offscreen.html');
       if (response?.success) {
         try {
-          // Create offscreen document first
+          // Create offscreen document
           if (!(await chrome.offscreen.hasDocument())) {
-            console.log('creating offscreen');
-
             await chrome.offscreen.createDocument({
-              url: offscreenUrl, //"offscreen.html",
+              url: offscreenUrl,
               reasons: [chrome.offscreen.Reason.DOM_PARSER],
               justification: 'Crop captured screenshot to specific bounds',
             });
-            console.log('created offscreen');
           }
 
           const bounds = response.bounds;
-          console.log(bounds);
-
           const tab = await chrome.tabs.get(tabId);
           const screenshot = await chrome.tabs.captureVisibleTab(tab.windowId, { format: 'png' });
-          console.log({ screenshot });
 
-          const documents = await chrome.offscreen.hasDocument();
-          console.log('Offscreen document exists:', documents); // THIS RETURN TRUE
+          const documentExist = await chrome.offscreen.hasDocument();
 
-          // const offscreenTab = await chrome.tabs.query({ url: chrome.runtime.getURL('offscreen.html') });
-
-          // THIS IF CHECK FAILS
-          // if (offscreenTab[0]) {
-          // console.log('YES OFFSCR TAB');
+          if (!documentExist) {
+            console.log('offscreen document exists');
+            sendResponse({ success: false, error: 'Offscreen document does not exist' });
+            return;
+          }
 
           chrome.runtime.sendMessage(
             {
@@ -90,11 +78,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             },
             processResponse => {
               if (processResponse?.success) {
-                const key = `tweet_screenshot`;
-                chrome.storage.local.remove(key);
-                chrome.storage.local.set({ [key]: processResponse.screenshot });
-                sendResponse({ success: true, key });
+                sendResponse({ success: true, croppedScreenshot: processResponse.screenshot });
               } else {
+                console.error('Failed to process image:', processResponse?.error);
                 sendResponse({ success: false, error: processResponse?.error });
               }
             },

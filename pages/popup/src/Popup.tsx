@@ -95,7 +95,7 @@ const Popup = () => {
         setSelectedCategory('');
         setTags([]);
         setAiSuccess(true); // todo iki adet var. biri bu, digeri getAiResponse'da
-        setTimeout(() => window.close(), 10);
+        // setTimeout(() => window.close(), 750);
       } catch (error) {
         setMessage('Error occured');
       }

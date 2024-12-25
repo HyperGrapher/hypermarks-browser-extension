@@ -15,35 +15,41 @@ export async function captureTweetScreenshotAndSaveTab(tags: string[] | null, ca
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
   // Wrap chrome.runtime.sendMessage in a Promise
-  const screenshotSaved = new Promise<{ success: boolean; key?: string; error?: string }>((resolve, reject) => {
-    chrome.runtime.sendMessage({ action: 'captureTweetScreenshot', tabId: tab.id }, response => {
-      if (chrome.runtime.lastError) {
-        reject(new Error(chrome.runtime.lastError.message));
-        return;
-      }
+  const screenshotSaved = new Promise<{ success: boolean; croppedScreenshot?: string; error?: string }>(
+    (resolve, reject) => {
+      chrome.runtime.sendMessage({ action: 'captureTweetScreenshot', tabId: tab.id }, response => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+          return;
+        }
 
-      if (response?.success) {
-        resolve(response); // Resolve with the screenshot data
-      } else {
-        reject(new Error(response?.error || 'Unknown error while capturing screenshot.'));
-      }
-    });
-  });
+        if (response?.success) {
+          resolve(response); // Resolve with the screenshot data
+        } else {
+          reject(new Error(response?.error || 'Unknown error while capturing screenshot.'));
+        }
+      });
+    },
+  );
 
   try {
     const screenshotResponse = await screenshotSaved;
-    console.log('Screenshot saved:', screenshotResponse.key);
+    console.log('Screenshot saved');
+    console.log(screenshotResponse.croppedScreenshot);
 
-    // Call saveCurrentTab and await its result
-    const savedData = await saveCurrentTab(tags, category);
-    return savedData; // Return the saved data to the caller
+    // return data to popup
+    return await saveCurrentTab(tags, category, screenshotResponse.croppedScreenshot);
   } catch (error) {
     console.error('Error capturing tweet screenshot:', error);
     throw error; // Re-throw the error to propagate it
   }
 }
 
-export async function saveCurrentTab(tags: string[] | null, category: string): Promise<SingleTab> {
+export async function saveCurrentTab(
+  tags: string[] | null,
+  category: string,
+  croppedScreenshot?: string,
+): Promise<SingleTab> {
   const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!activeTab?.id) throw new Error('No active tab found');
 
@@ -338,6 +344,9 @@ export async function saveCurrentTab(tags: string[] | null, category: string): P
 
   const titleCleaned = data.title.endsWith('- YouTube') ? data.title.slice(0, -10) : data.title;
 
+  // TODO: This is temporary. Screenshot will be saved to indexedDB
+  const xpost = data.xpost ? { ...data.xpost, screenshot: croppedScreenshot, hasScreenshot: true } : undefined;
+
   const tab: SingleTab = {
     title: titleCleaned,
     description: data.description,
@@ -348,7 +357,7 @@ export async function saveCurrentTab(tags: string[] | null, category: string): P
     tags: tags ?? [],
     itemType: data.item_type,
     note: undefined,
-    xpost: data.xpost ?? undefined,
+    xpost: xpost,
     youtubeChannel: data.youtube_channel ?? undefined,
     youtubeShort: data.youtube_short ?? undefined,
     youtubePlaylist: data.youtube_list ?? undefined,
