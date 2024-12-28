@@ -16,7 +16,8 @@ import { useEffect, useState, useTransition } from 'react';
 import { TagsForm } from './components/TagsForm';
 import { useAtom } from 'jotai';
 import { MetaHeader } from './components/MetaHeader';
-
+import { db } from '@extension/storage';
+import { useLiveQuery } from 'dexie-react-hooks';
 /*
  #* fikir su:
  #* alt categori olustur . belli basli siteler, ozellikle dedicated data/ui'i olan
@@ -41,6 +42,8 @@ import { MetaHeader } from './components/MetaHeader';
  */
 
 const Popup = () => {
+  // const {}
+
   const [message, setMessage] = useState('Save current tab');
   const [tags, setTags] = useAtom(tagsAtom); // Jotai
   const [categoryError, setCategoryError] = useState<string | null>(null);

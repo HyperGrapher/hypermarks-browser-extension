@@ -45,7 +45,7 @@ const SidePanel = () => {
           {/* <pre>{JSON.stringify(tabsWithCategories, null, 1)}</pre> */}
         </div>
         <div className="px-2 py-4">
-          {Object.getOwnPropertyNames(tabsWithCategories).length !== 0 ? (
+          {Object.getOwnPropertyNames(tabsWithCategories).length === 0 ? (
             <EmptyView />
           ) : (
             <TabList groupedTabs={tabsWithCategories} />
