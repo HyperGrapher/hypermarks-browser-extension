@@ -125,7 +125,7 @@ function TabList({ groupedTabs }: { groupedTabs: { [category: string]: SingleTab
   }
 
   return (
-    <div>
+    <div className="">
       {/* View Switcher */}
       <div className="flex gap-4">
         <Button onClick={() => setView('categories')} variant="link">

@@ -6,6 +6,8 @@ import TimeAgo from 'timeago-react';
 import { MoreVertical } from 'lucide-react';
 import { useSetAtom } from 'jotai';
 import { DropdownMenuButton } from './DropdownMenuButton';
+import { useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 
 // this js-abbreviation-number lib is only good for num to str
 // import { unabbreviateNumber } from 'js-abbreviation-number';
@@ -53,7 +55,7 @@ export const GenericTab = ({ item }: { item: SingleTab }) => {
 
       {item.tempCaps ? (
         <div className="w-full">
-          <img className="size-16 w-full object-cover object-top rounded-xl" src={item.tempCaps} alt="" />
+          <img className="size-12 w-full object-cover object-top rounded-xl" src={item.tempCaps} alt="" />
         </div>
       ) : (
         <div className="z-20 flex w-full items-center gap-2 pl-2">
@@ -116,26 +118,19 @@ export const XPostItem = ({ item }: { item: SingleTab }) => {
         {/* <TimeAgo datetime={item.datetime} className="text-slate-500" /> */}
       </div>
 
-      <div className="z-20 flex w-full items-center gap-2 pl-2">
+      <div className={'z-20 flex w-full items-center gap-2 pl-2'}>
         <div className="w-full max-w-sm pr-2">
-          <div className="flex gap-2">
+          <div className={`flex gap-2  ${item.xpost?.hasScreenshot ? 'mb-1' : ''}`}>
             {item.xpost?.photos && item.xpost?.photos?.length > 0
               ? item.xpost.photos.map(pic => (
-                  <a key={pic} href={pic} target="_blank" rel="noopener noreferrer">
-                    <img className="size-16 object-cover" src={pic} alt="" />
+                  <a key={pic} href={pic} target="_blank" rel="noopener noreferrer" className="">
+                    <img className="size-16 object-cover border-gray-300/20 rounded-lg" src={pic} alt="" />
                   </a>
                 ))
               : null}
           </div>
 
-          {item.xpost?.hasScreenshot && (
-            <div className="w-full rounded-mdx xoverflow-clip">
-              <img className="size-12 w-full object-cover object-top rounded-lg " src={item.xpost?.screenshot} alt="" />
-            </div>
-          )}
-
-          {/* <p className="wrap-text-anywhere line-clamp-5 text-xs/3 leading-3 text-slate-500">{item?.description}</p> */}
-          {/* <pre className="text-[9px]">{JSON.stringify(item.xpost, null, 2)}</pre> */}
+          {item.xpost?.hasScreenshot && <ImageWithPreview src={item.xpost?.screenshot ?? ''} />}
         </div>
       </div>
       <section className="flex w-full flex-wrap gap-0.5 pt-1">
@@ -150,5 +145,74 @@ export const XPostItem = ({ item }: { item: SingleTab }) => {
         ))}
       </section>
     </div>
+  );
+};
+
+const ImageWithPreview = ({ src }: { src: string }) => {
+  const [showPreview, setShowPreview] = useState(false);
+  const hoverTimeout = useRef<number | null>(null);
+  const [previewPosition, setPreviewPosition] = useState<{ top: number; left: number } | null>(null);
+
+  const handleMouseEnter = (event: React.MouseEvent) => {
+    const { top, left, height } = event.currentTarget.getBoundingClientRect();
+    const screenHeight = window.innerHeight;
+
+    // Check if the image is near the bottom of the screen
+    const isNearBottom = screenHeight - top - height < 150; // 150px as a buffer
+
+    // Set position, and determine if the preview should go upwards or downwards
+    setPreviewPosition({
+      top: isNearBottom ? top - 150 : top + height, // If near the bottom, show the preview upwards
+      left,
+    });
+
+    hoverTimeout.current = window.setTimeout(() => setShowPreview(true), 1000); // 1 second delay
+  };
+
+  const handleMouseLeave = () => {
+    if (hoverTimeout.current !== null) {
+      clearTimeout(hoverTimeout.current);
+      hoverTimeout.current = null;
+    }
+    setShowPreview(false);
+    setPreviewPosition(null);
+  };
+
+  return (
+    <>
+      <div className="w-full relative" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+        {/* Main Image */}
+        <img className="size-12 w-full object-cover object-top rounded-lg border border-gray-300/20" src={src} alt="" />
+        {/* Image overlay - HIDDEN */}
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-800/80 via-transparent to-transparent rounded-lg pointer-events-none hidden"></div>
+      </div>
+
+      {/* Render Preview via Portal */}
+      {showPreview &&
+        previewPosition &&
+        createPortal(
+          <div
+            className="fixed z-50 flex items-center justify-center bg-black/80 border border-gray-200 rounded-lg overflow-hidden"
+            style={{
+              top: previewPosition.top,
+              left: previewPosition.left - 14,
+              maxWidth: 'calc(100vw - 20px)',
+              maxHeight: 'calc(100vh - 20px)',
+              width: 'auto',
+              height: 'auto',
+            }}>
+            <img
+              className="rounded-lg object-contain"
+              src={src}
+              alt=""
+              style={{
+                maxWidth: '100%',
+                maxHeight: '100%',
+              }}
+            />
+          </div>,
+          document.body, // Render outside the relative parent
+        )}
+    </>
   );
 };
