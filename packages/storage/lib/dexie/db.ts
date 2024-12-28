@@ -2,7 +2,7 @@ import Dexie, { Table } from 'dexie';
 import type { CategorizedTab, SingleTab, YouTube } from '../../../shared';
 import { populate } from './populate';
 
-type DexieTab = Omit<
+export type DexieTab = Omit<
   SingleTab,
   'youtubeChannel' | 'youtubeVideo' | 'youtubeShort' | 'youtubePlaylist' | 'tempCaps' | 'xpost' | 'datetime'
 > & {

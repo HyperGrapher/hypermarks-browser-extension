@@ -6,6 +6,8 @@ import { useEffect, useState } from 'react';
 import { Button, cn, Input, Label } from '@extension/ui';
 import { YoutubePlaylist, YoutubeVideo, YoutubeChannel } from './YoutubeTab';
 import { GenericTab, XPostItem } from './GenericTab';
+import { GenericTab as DexieGeneric } from './items/GenericTab';
+import { DetailDrawer as DexieDetailDrawer } from './components/DetailDrawer';
 import { useAtom } from 'jotai';
 import { searchTagsAtom, drawerAtom } from './utils';
 import {
@@ -17,6 +19,8 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from '@extension/ui';
+import { db } from '@extension/storage';
+import { useLiveQuery } from 'dexie-react-hooks';
 
 function getTabsByCategory(groupedTabs: { [category: string]: SingleTab[] }): CategorizedTab[] {
   return Object.entries(groupedTabs).flatMap(([category, items]) => items.map(item => ({ category, item })));
@@ -36,6 +40,31 @@ function getTabsByTags(groupedTabs: { [category: string]: SingleTab[] }, tags: s
 // https://groups.google.com/a/chromium.org/g/chromium-extensions/c/cJmdMLmpbjg
 
 const SidePanel = () => {
+  const tabs = useLiveQuery(async () => {
+    //
+    // Query the DB using our promise based API.
+    // The end result will magically become
+    // observable.
+    //
+    return await db.tabs.toArray();
+  });
+
+  if (!tabs) return <div> Loading ... </div>;
+
+  return (
+    <div className={``}>
+      <header className={`App-header`}>
+        <div className="hidden h-12 w-full bg-zinc-800">
+          {/* <pre>{JSON.stringify(tabsWithCategories, null, 1)}</pre> */}
+        </div>
+      </header>
+      <div className="px-2 py-4">{tabs?.map(tab => <DexieGeneric key={tab.id} item={tab} />)}</div>
+      <DexieDetailDrawer />
+    </div>
+  );
+};
+
+const SidePanelex = () => {
   const tabsWithCategories = useStorage(tabsGroupedStorage);
 
   return (

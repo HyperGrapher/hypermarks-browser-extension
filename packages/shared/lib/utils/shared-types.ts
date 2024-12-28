@@ -1,3 +1,5 @@
+import { DexieTab } from '@extension/storage/lib/dexie/db';
+
 export interface TagItem {
   name: string;
   value?: number | string;
@@ -119,6 +121,13 @@ export interface ItemAndCategoty {
   item: SingleTab;
   category: string;
 }
+
+export type DexieItemAndCategory =
+  | {
+      id?: number;
+      category: string;
+    }
+  | undefined;
 
 export type SiteMeta = {
   title: string;
