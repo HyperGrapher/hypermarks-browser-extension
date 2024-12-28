@@ -36,15 +36,20 @@ function getTabsByTags(groupedTabs: { [category: string]: SingleTab[] }, tags: s
 // https://groups.google.com/a/chromium.org/g/chromium-extensions/c/cJmdMLmpbjg
 
 const SidePanel = () => {
-  const tabsCats = useStorage(tabsGroupedStorage);
+  const tabsWithCategories = useStorage(tabsGroupedStorage);
 
   return (
-    <div className={`xbg-black/80 xmin-h-screen`}>
+    <div className={``}>
       <header className={`App-header`}>
-        <div className="hidden h-12 w-full bg-zinc-800">{/* <pre>{JSON.stringify(tabsCats, null, 1)}</pre> */}</div>
+        <div className="hidden h-12 w-full bg-zinc-800">
+          {/* <pre>{JSON.stringify(tabsWithCategories, null, 1)}</pre> */}
+        </div>
         <div className="px-2 py-4">
-          {/* <h3 className="text-lg font-semibold text-zinc-400">Saved Tabs</h3> */}
-          <TabList groupedTabs={tabsCats} />
+          {Object.getOwnPropertyNames(tabsWithCategories).length !== 0 ? (
+            <EmptyView />
+          ) : (
+            <TabList groupedTabs={tabsWithCategories} />
+          )}
         </div>
       </header>
     </div>
@@ -53,40 +58,26 @@ const SidePanel = () => {
 
 export default withErrorBoundary(withSuspense(SidePanel, <div> Loading ... </div>), <div> Error Occur </div>);
 
+function EmptyView() {
+  return (
+    <div className="mt-4">
+      <h1 className="text-3xl font-bold text-center">No Tabs Saved Yet!</h1>
+      <p className="text-center text-slate-400">Click on the extension icon to save tabs</p>
+
+      <div className="mt-6">
+        {/* TODO: google.com uzerinde extension acikken caps alinacak */}
+        <img src={chrome.runtime.getURL('side-panel/logo_vertical_dark.svg')} alt="" />
+      </div>
+    </div>
+  );
+}
+
 function TabList({ groupedTabs }: { groupedTabs: { [category: string]: SingleTab[] } }) {
   const [view, setView] = useState<'categories' | 'chronological' | 'tags'>('categories');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [searchTags, setSearchTags] = useAtom(searchTagsAtom);
 
   // TODO: Zoom factor
-  // chrome.storage.local.get('tweet_screenshot', (val) => {
-  //   setCap(val.tweet_screenshot)
-  // })
-
-  // }).then(data => setCap(data.tweet_screenshot));
-
-  // useEffect(() => {
-  //   // Initial load
-  //   chrome.storage.local.get('tweet_screenshot', (result) => {
-  //     if (result.tweet_screenshot) {
-  //       setCap(result.tweet_screenshot);
-  //     }
-  //   });
-
-  //   // Listen for changes
-  //   const handleStorageChange = (changes:any, namespace:any) => {
-  //     if (namespace === 'local' && changes.tweet_screenshot) {
-  //       setCap(changes.tweet_screenshot.newValue);
-  //     }
-  //   };
-
-  //   chrome.storage.onChanged.addListener(handleStorageChange);
-
-  //   // Cleanup listener
-  //   return () => {
-  //     chrome.storage.onChanged.removeListener(handleStorageChange);
-  //   };
-  // }, []);
 
   useEffect(() => {
     console.log(searchTags);
@@ -154,7 +145,7 @@ function TabList({ groupedTabs }: { groupedTabs: { [category: string]: SingleTab
 
       {/* Render Tabs */}
       {Object.keys(tabsToDisplay).length === 0 ? (
-        <h3 className="text-red-500">No Saved Tabs</h3>
+        <EmptyView />
       ) : (
         Object.entries(tabsToDisplay).map(([category, items]) => (
           <div key={category} className="xmt-4 space-y-1">
@@ -194,7 +185,6 @@ function TabList({ groupedTabs }: { groupedTabs: { [category: string]: SingleTab
 function DetailDrawer() {
   const [drawer, setDrawer] = useAtom(drawerAtom);
   const [item, setItem] = useState<{ item: SingleTab; category: string } | null>(null);
-  // const storage = useStorage(tabsGroupedStorage);
   tabsGroupedStorage.getByIdWithCategory(drawer.item?.datetime ?? '').then(val => setItem(val));
 
   return (
