@@ -3,7 +3,7 @@ import type { CategorizedTab, ItemAndCategoty, SingleTab } from '@extension/shar
 import { useStorage, withErrorBoundary, withSuspense } from '@extension/shared';
 import { tabsGroupedStorage } from '@extension/storage';
 import { useEffect, useState } from 'react';
-import { Button, cn, Input, Label } from '@extension/ui';
+import { Button, cn, Input, Label, Tabs, TabsContent, TabsList, TabsTrigger, DropdownSelect } from '@extension/ui';
 import { YoutubePlaylist, YoutubeVideo, YoutubeChannel } from './YoutubeTab';
 import { GenericTab, XPostItem } from './GenericTab';
 import { GenericTab as DexieGeneric } from './items/GenericTab';
@@ -40,25 +40,59 @@ function getTabsByTags(groupedTabs: { [category: string]: SingleTab[] }, tags: s
 // https://groups.google.com/a/chromium.org/g/chromium-extensions/c/cJmdMLmpbjg
 
 const SidePanel = () => {
-  const tabs = useLiveQuery(async () => {
-    //
-    // Query the DB using our promise based API.
-    // The end result will magically become
-    // observable.
-    //
-    return await db.tabs.toArray();
-  });
+  const [activeTab, setActiveTab] = useState<'categories' | 'all' | 'search'>('all');
+  const [selectedCategory, setSelectedCategory] = useState<{ id?: number; category: string }>(); // default comes from userPrefs
+  const categories = useLiveQuery(async () => await db.categories.toArray(), []);
 
-  if (!tabs) return <div> Loading ... </div>;
+  const tabs = useLiveQuery(async () => {
+    if (activeTab === 'categories') {
+      return await db.tabs.where({ categoryId: selectedCategory?.id || categories?.[0].id }).toArray(); // Replace with desired logic for categories
+    }
+    return await db.tabs.reverse().toArray(); // Fetch all tabs
+  }, [activeTab, selectedCategory]); // Re-run query when activeTab changes
+
+  // const tabs = useLiveQuery(async () => {
+  //   // here change query according to which TabsTrigger is clicked
+  //   return true ? await db.tabs.toArray() : await db.tabs.where({ categoryId: 1 }).toArray();
+  // });
+
+  if (!tabs) return <div className="bg-red-500 h-16 w-full"> Loading ... </div>;
 
   return (
     <div className={``}>
-      <header className={`App-header`}>
-        <div className="hidden h-12 w-full bg-zinc-800">
-          {/* <pre>{JSON.stringify(tabsWithCategories, null, 1)}</pre> */}
-        </div>
-      </header>
-      <div className="px-2 py-4">{tabs?.map(tab => <DexieGeneric key={tab.id} item={tab} />)}</div>
+      <header className={`h-8 w-full px-2 py-1 hidden`}>Settings</header>
+      <Tabs defaultValue="all" className="w-full px-2 pl-2 mt-3" onChange={console.log}>
+        <TabsList className="grid w-full grid-cols-3 bg-slate-800">
+          <TabsTrigger onClick={() => setActiveTab('categories')} value="categories">
+            Categories
+          </TabsTrigger>
+          <TabsTrigger onClick={() => setActiveTab('all')} value="all">
+            All
+          </TabsTrigger>
+          <TabsTrigger onClick={() => setActiveTab('search')} value="search">
+            Search
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="categories" className="px-0.5">
+          <DropdownSelect
+            role="sidepanel"
+            items={categories?.map(x => x.category) ?? []}
+            value={selectedCategory?.category}
+            onItemSelect={val =>
+              setSelectedCategory({ category: val, id: categories?.find(x => x.category === val)?.id })
+            }
+            name="categories"
+            placeholder="Select category"
+            variant="default"
+            valid={true}
+          />
+        </TabsContent>
+        <TabsContent value="all"></TabsContent>
+        <TabsContent value="search">
+          <EmptyView />
+        </TabsContent>
+      </Tabs>
+      <div className="px-2 pr-1 py-2 space-y-1">{tabs?.map(tab => <DexieGeneric key={tab.id} item={tab} />)}</div>
       <DexieDetailDrawer />
     </div>
   );

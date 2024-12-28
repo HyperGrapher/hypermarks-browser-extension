@@ -37,6 +37,25 @@ export class TabsDB extends Dexie {
       this.categories.delete(categoryId);
     });
   }
+
+  deleteItem(id: number | undefined, categoryId: number) {
+    console.log({ id, categoryId });
+    if (!id) return;
+
+    return this.transaction('rw', this.tabs, this.categories, () => {
+      this.tabs.where({ id }).delete();
+      this.categories
+        .where({ id: categoryId })
+        .count()
+        .then(c => {
+          console.log({ count: c });
+
+          if (c === 1) {
+            this.categories.where({ id: categoryId }).delete();
+          }
+        });
+    });
+  }
 }
 
 export const db = new TabsDB();

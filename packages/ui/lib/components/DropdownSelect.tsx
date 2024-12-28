@@ -9,6 +9,7 @@ interface ItemSelectProps extends Omit<SelectProps, 'onValueChange'> {
   setShowCreateCategory?: () => void;
   name: string;
   placeholder?: string;
+  role?: string;
   variant?: 'default' | 'small';
   valid?: boolean;
   items: string[];
@@ -25,6 +26,7 @@ const DropdownSelect = React.forwardRef<HTMLButtonElement, ItemSelectProps>(
       placeholder = 'Select item',
       variant = 'default',
       valid = true,
+      role = 'popup',
       ...props
     },
     ref,
@@ -62,11 +64,13 @@ const DropdownSelect = React.forwardRef<HTMLButtonElement, ItemSelectProps>(
         </SelectTrigger>
 
         <SelectContent id="category-content" className="xrelative max-h-[250px] overflow-y-auto" position="popper">
-          <div className="w-full px-2 py-1 text-sm">
-            <Button onClick={setShowCreateCategory} size={'sm'} className="w-full" variant={'ghost'}>
-              Create a new category
-            </Button>
-          </div>
+          {role === 'popup' && (
+            <div className="w-full px-2 py-1 text-sm">
+              <Button onClick={setShowCreateCategory} size={'sm'} className="w-full" variant={'ghost'}>
+                Create a new category
+              </Button>
+            </div>
+          )}
 
           <SelectGroup>
             {items.map(item => (

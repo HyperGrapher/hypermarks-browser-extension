@@ -7,6 +7,7 @@ import {
   captureTweetScreenshotAndSaveTab,
   getActiveTabMeta,
   SiteMeta,
+  saveDexieTab,
 } from '@extension/shared';
 import { Button, cn, DropdownSelect, Input } from '@extension/ui';
 import '@src/Popup.css';
@@ -88,6 +89,22 @@ const Popup = () => {
   }
 
   async function saveTab() {
+    console.log('save tab is called');
+
+    try {
+      const { success } = await saveDexieTab(tags, selectedCategory || 'Uncategorized', sitemeta!);
+      console.log('saveTab', success);
+      setMessage('Tab saved!');
+      setSelectedCategory('');
+      setTags([]);
+      setAiSuccess(true); // todo iki adet var. biri bu, digeri getAiResponse'da
+      // setTimeout(() => window.close(), 750);
+    } catch (error) {
+      setMessage('Error occured');
+    }
+  }
+
+  async function saveTabEX() {
     if (sitemeta?.origin.includes('//x.com') || sitemeta?.origin.includes('bilyoner.com')) {
       try {
         const data = await captureTweetScreenshotAndSaveTab(tags, selectedCategory || 'Uncategorized');

@@ -1,7 +1,10 @@
 import { tabsGroupedStorage } from '@extension/storage';
 import { getActiveTabIcon } from './chrome-utils';
-import type { YouTube as YT, ItemType, SingleTab, Xpost } from './shared-types';
+import type { YouTube as YT, ItemType, SingleTab, Xpost, SiteMeta } from './shared-types';
 import { parseAbbrTwitterNumber } from './abbreviated-string-parser';
+import { DexieTab } from '@extension/storage/lib/dexie/db';
+import { getGenericTab } from './scrapers/get-generic';
+import { db } from '@extension/storage';
 
 const notificationOptions = {
   type: 'basic',
@@ -11,6 +14,54 @@ const notificationOptions = {
 } as const;
 
 // https://github.com/GoogleChrome/chrome-extensions-samples/blob/main/functional-samples/cookbook.offscreen-dom/offscreen.js
+
+export async function saveDexieTab(
+  tags: string[] | null,
+  category: string,
+  siteMeta: SiteMeta,
+): Promise<{ id: number; success: boolean }> {
+  // const specialSites = ['x.com', 'github'];
+  // specialSites.includes(tab.url ?? '');
+
+  const partialSiteData = await getGenericTab();
+
+  // Combine partialSiteData with additional site data
+  const siteData: DexieTab = {
+    ...partialSiteData,
+    categoryId: 0, // added on transaction
+    title: partialSiteData.title ?? siteMeta?.title ?? '',
+    description: partialSiteData.description ?? '',
+    url: siteMeta?.url ?? '',
+    origin: siteMeta?.origin ?? '',
+    icon: siteMeta?.icon ?? '',
+    tags: tags ?? [],
+    note: undefined,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    itemType: 'other',
+  };
+
+  const tabId = await db.transaction('rw', db.categories, db.tabs, async () => {
+    // Check if the category exists
+    let categoryId = await db.categories
+      .where('category')
+      .equals(category)
+      .first()
+      .then(existingCategory => existingCategory?.id);
+
+    // Create the category if it doesn't exist
+    if (!categoryId) {
+      categoryId = await db.categories.add({ category });
+    }
+    // Update the siteData with the resolved categoryId
+    siteData.categoryId = categoryId;
+
+    // Save the tab data
+    return await db.tabs.add(siteData);
+  });
+
+  return { id: tabId, success: true };
+}
 
 export async function captureTweetScreenshotAndSaveTab(tags: string[] | null, category: string): Promise<SingleTab> {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });

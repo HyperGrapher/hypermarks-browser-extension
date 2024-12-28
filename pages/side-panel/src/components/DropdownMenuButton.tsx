@@ -11,6 +11,7 @@ import {
 import { useAtom, useSetAtom } from 'jotai';
 import { dexieDrawerAtom } from '../utils';
 import { DexieTab } from '@extension/storage/lib/dexie/db';
+import { db } from '@extension/storage';
 
 export function DropdownMenuButton({ children, item }: { children: React.ReactNode; item: DexieTab }) {
   const setDrawer = useSetAtom(dexieDrawerAtom);
@@ -62,7 +63,9 @@ export function DropdownMenuButton({ children, item }: { children: React.ReactNo
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => null} className="bg-red-600/15 rounded-md text-sm">
+        <DropdownMenuItem
+          onClick={async () => await db.deleteItem(item.id, item.categoryId)}
+          className="bg-red-600/15 rounded-md text-sm">
           <Delete />
           <span>Delete item</span>
         </DropdownMenuItem>
