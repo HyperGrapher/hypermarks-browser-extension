@@ -66,6 +66,7 @@ export async function deleteAllTabData(): Promise<void> {
   try {
     await chrome.storage.local.remove('pageInfoList');
     await chrome.storage.local.remove('tabs-storage-key');
+    await chrome.storage.local.remove('auto-prefs-storage');
     await chrome.storage.local.remove('grouped-tabs-storage');
     await chrome.storage.local.clear();
     console.log('Page list cleared successfully');

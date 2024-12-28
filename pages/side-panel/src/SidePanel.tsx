@@ -1,7 +1,6 @@
 import '@src/SidePanel.css';
 import type { CategorizedTab, ItemAndCategoty, SingleTab } from '@extension/shared';
 import { useStorage, withErrorBoundary, withSuspense } from '@extension/shared';
-import { tabsGroupedStorage } from '@extension/storage';
 import { useEffect, useState } from 'react';
 import { Button, cn, Input, Label, Tabs, TabsContent, TabsList, TabsTrigger, DropdownSelect } from '@extension/ui';
 import { YoutubePlaylist, YoutubeVideo, YoutubeChannel } from './YoutubeTab';
@@ -19,7 +18,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from '@extension/ui';
-import { db } from '@extension/storage';
+import { db, autoPrefsStorage, tabsGroupedStorage } from '@extension/storage';
 import { useLiveQuery } from 'dexie-react-hooks';
 
 function getTabsByCategory(groupedTabs: { [category: string]: SingleTab[] }): CategorizedTab[] {
@@ -38,38 +37,68 @@ function getTabsByTags(groupedTabs: { [category: string]: SingleTab[] }, tags: s
 
 // TODO: This sidepanel needs some width space to show all the content it has
 // https://groups.google.com/a/chromium.org/g/chromium-extensions/c/cJmdMLmpbjg
-
 const SidePanel = () => {
-  const [activeTab, setActiveTab] = useState<'categories' | 'all' | 'search'>('all');
-  const [selectedCategory, setSelectedCategory] = useState<{ id?: number; category: string }>(); // default comes from userPrefs
-  const categories = useLiveQuery(async () => await db.categories.toArray(), []);
+  const autoPrefs = useStorage(autoPrefsStorage);
+  const [activeTab, setActiveTab] = useState<'categories' | 'all' | 'search'>(autoPrefs.lastPanel ?? 'all');
+  const [selectedCategory, setSelectedCategory] = useState<{ id: number; category: string }>(autoPrefs.lastCategory); // default comes from userPrefs
+  const categories = useLiveQuery(async () => await db.categories?.toArray(), []);
+
+  useEffect(() => {
+    autoPrefsStorage.saveLastCategory(selectedCategory);
+    console.log('y', selectedCategory);
+  }, [selectedCategory]);
+
+  useEffect(() => {
+    if (categories) {
+      const noItemLeftInCategory = categories?.filter(x => x.category === selectedCategory.category).length === 0;
+      console.log({ wewe: noItemLeftInCategory, len: categories?.length });
+
+      if (categories?.length === 1 || noItemLeftInCategory) {
+        // After deletion of an item, if there is only one category or no item left in the selected category
+        // assign the first category in the DB
+        if (categories.length > 0)
+          setSelectedCategory({ id: categories?.[0].id ?? 0, category: categories?.[0].category ?? '' });
+      }
+    }
+  }, [categories]);
 
   const tabs = useLiveQuery(async () => {
-    if (activeTab === 'categories') {
-      return await db.tabs.where({ categoryId: selectedCategory?.id || categories?.[0].id }).toArray(); // Replace with desired logic for categories
+    if (activeTab === 'categories' && categories && categories?.length > 0) {
+      return await db.tabs.where({ categoryId: selectedCategory?.id || categories?.[0].id || 1 }).toArray(); // Replace with desired logic for categories
     }
     return await db.tabs.reverse().toArray(); // Fetch all tabs
-  }, [activeTab, selectedCategory]); // Re-run query when activeTab changes
-
-  // const tabs = useLiveQuery(async () => {
-  //   // here change query according to which TabsTrigger is clicked
-  //   return true ? await db.tabs.toArray() : await db.tabs.where({ categoryId: 1 }).toArray();
-  // });
+  }, [activeTab, selectedCategory, categories]); // Re-run query when activeTab changes
 
   if (!tabs) return <div className="bg-red-500 h-16 w-full"> Loading ... </div>;
+  if (tabs.length === 0) return <EmptyView />;
 
   return (
     <div className={``}>
       <header className={`h-8 w-full px-2 py-1 hidden`}>Settings</header>
-      <Tabs defaultValue="all" className="w-full px-2 pl-2 mt-3" onChange={console.log}>
+      <Tabs defaultValue={activeTab ?? 'all'} className="w-full px-2 pl-2 mt-3">
         <TabsList className="grid w-full grid-cols-3 bg-slate-800">
-          <TabsTrigger onClick={() => setActiveTab('categories')} value="categories">
+          <TabsTrigger
+            onClick={() => {
+              setActiveTab('categories');
+              autoPrefsStorage.saveLastPanel('categories');
+            }}
+            value="categories">
             Categories
           </TabsTrigger>
-          <TabsTrigger onClick={() => setActiveTab('all')} value="all">
+          <TabsTrigger
+            onClick={() => {
+              setActiveTab('all');
+              autoPrefsStorage.saveLastPanel('all');
+            }}
+            value="all">
             All
           </TabsTrigger>
-          <TabsTrigger onClick={() => setActiveTab('search')} value="search">
+          <TabsTrigger
+            onClick={() => {
+              setActiveTab('search');
+              autoPrefsStorage.saveLastPanel('search');
+            }}
+            value="search">
             Search
           </TabsTrigger>
         </TabsList>
@@ -79,7 +108,7 @@ const SidePanel = () => {
             items={categories?.map(x => x.category) ?? []}
             value={selectedCategory?.category}
             onItemSelect={val =>
-              setSelectedCategory({ category: val, id: categories?.find(x => x.category === val)?.id })
+              setSelectedCategory({ category: val, id: categories?.find(x => x.category === val)?.id ?? 0 })
             }
             name="categories"
             placeholder="Select category"

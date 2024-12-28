@@ -44,13 +44,13 @@ export class TabsDB extends Dexie {
 
     return this.transaction('rw', this.tabs, this.categories, () => {
       this.tabs.where({ id }).delete();
-      this.categories
-        .where({ id: categoryId })
+      this.tabs
+        .where({ categoryId })
         .count()
         .then(c => {
           console.log({ count: c });
 
-          if (c === 1) {
+          if (c === 0) {
             this.categories.where({ id: categoryId }).delete();
           }
         });
