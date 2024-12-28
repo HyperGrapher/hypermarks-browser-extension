@@ -18,7 +18,7 @@ export async function populate() {
   const tabid = await db.tabs.bulkAdd([
     {
       categoryId,
-      title: 'Test',
+      title: 'Test title',
       url: 'https://test.com',
       icon: 'test',
       description: 'Test description',

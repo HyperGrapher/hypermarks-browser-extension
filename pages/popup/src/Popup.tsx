@@ -1,7 +1,6 @@
 import {
   deleteAllTabData,
   saveCurrentTab,
-  useStorage,
   withErrorBoundary,
   withSuspense,
   tagsAtom,
@@ -9,10 +8,9 @@ import {
   getActiveTabMeta,
   SiteMeta,
 } from '@extension/shared';
-import { tabsGroupedStorage } from '@extension/storage';
 import { Button, cn, DropdownSelect, Input } from '@extension/ui';
 import '@src/Popup.css';
-import { useEffect, useState, useTransition } from 'react';
+import { useEffect, useState } from 'react';
 import { TagsForm } from './components/TagsForm';
 import { useAtom } from 'jotai';
 import { MetaHeader } from './components/MetaHeader';
@@ -52,10 +50,9 @@ const Popup = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [aiREsponse, setAiResponse] = useState<any>({});
   const [sitemeta, setSitemeta] = useState<SiteMeta>();
-  const groupedTabs = useStorage(tabsGroupedStorage);
-  const [categories, setCategories] = useState<string[]>(
-    Object.entries(groupedTabs).flatMap(([category, _items]) => category) ?? [],
-  );
+  const [categories, setCategories] = useState<string[]>([]);
+  // Get DB categories and set categories as string array.
+  useLiveQuery(async () => setCategories((await db.categories.toArray()).map(c => c.category)), []);
 
   useEffect(() => {
     getActiveTabMeta().then(meta => {

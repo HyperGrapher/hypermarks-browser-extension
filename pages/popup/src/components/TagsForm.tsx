@@ -1,24 +1,20 @@
-import { TagItem, useStorage } from '@extension/shared';
-import { tabsGroupedStorage } from '@extension/storage';
 import { Form, FormControl, FormField, FormItem } from '@extension/ui';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { SelectTags } from './SelectTags';
+import { db } from '@extension/storage';
+import { useLiveQuery } from 'dexie-react-hooks';
 
-function extractTagsWithCount(data: Record<string, any[]>): { name: string; value: number }[] {
+function extractTagsWithCount(data: string[] | undefined): { name: string; value: number }[] {
   const tagMap: Record<string, number> = {};
-  // Iterate over each category in the object
-  for (const category in data) {
-    data[category].forEach(item => {
-      // Iterate over tags in the current item
-      item.tags.forEach((tag: string) => {
-        // Increment count for the tag
-        tagMap[tag] = (tagMap[tag] || 0) + 1;
-      });
-    });
-  }
+
+  if (!data) return [];
+
+  data.forEach((tag: string) => {
+    // Increment count for the tag
+    tagMap[tag] = (tagMap[tag] || 0) + 1;
+  });
   // Convert the tagMap to an array of objects with "tag" and "count"
   return Object.entries(tagMap)
     .map(([name, value]) => ({ name, value }))
@@ -32,7 +28,7 @@ const FormSchema = z.object({
 type FormSchemaType = z.infer<typeof FormSchema>;
 
 export const TagsForm = () => {
-  const tabs = useStorage(tabsGroupedStorage);
+  const tabs = useLiveQuery(async () => (await db.tabs.toArray()).map(c => c.tags).flat(), []);
 
   const form = useForm<FormSchemaType>({
     resolver: zodResolver(FormSchema),
