@@ -19,6 +19,7 @@ export const GenericTab = ({ item }: { item: DexieTab }) => {
   return (
     <div
       className={cn(
+        'animate-fadeIn ',
         'px-1 pb-1 rounded shadow-lg border border-gray-300/20',
         'bg-slate-700/20 w-full relative max-h-36 flex flex-col card selection:bg-sky-600/80 selection:text-sky-300',
       )}>

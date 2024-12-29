@@ -39,9 +39,16 @@ function getTabsByTags(groupedTabs: { [category: string]: SingleTab[] }, tags: s
 // https://groups.google.com/a/chromium.org/g/chromium-extensions/c/cJmdMLmpbjg
 const SidePanel = () => {
   const autoPrefs = useStorage(autoPrefsStorage);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'categories' | 'all' | 'search'>(autoPrefs.lastPanel ?? 'all');
   const [selectedCategory, setSelectedCategory] = useState<{ id: number; category: string }>(autoPrefs.lastCategory); // default comes from userPrefs
   const categories = useLiveQuery(async () => await db.categories?.toArray(), []);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+  }, []);
 
   useEffect(() => {
     autoPrefsStorage.saveLastCategory(selectedCategory);
@@ -63,14 +70,13 @@ const SidePanel = () => {
   }, [categories]);
 
   const tabs = useLiveQuery(async () => {
-    if (activeTab === 'categories' && categories && categories?.length > 0) {
-      return await db.tabs.where({ categoryId: selectedCategory?.id || categories?.[0].id || 1 }).toArray(); // Replace with desired logic for categories
-    }
-    return await db.tabs.reverse().toArray(); // Fetch all tabs
-  }, [activeTab, selectedCategory, categories]); // Re-run query when activeTab changes
+    const query = await db.tabs.where({ categoryId: selectedCategory?.id || categories?.[0].id || 1 }).toArray();
+    await new Promise(resolve => setTimeout(resolve, 200));
+    return query;
+  }, [selectedCategory, categories]);
 
-  if (!tabs) return <div className="bg-red-500 h-16 w-full"> Loading ... </div>;
-  if (tabs.length === 0) return <EmptyView />;
+  if (!tabs || loading) return <div className="bg-black/40 h-screen w-full "> Loading ... </div>;
+  if (tabs && tabs.length === 0) return <EmptyView />;
 
   return (
     <div className={``}>
@@ -102,7 +108,7 @@ const SidePanel = () => {
             Search
           </TabsTrigger>
         </TabsList>
-        <TabsContent value="categories" className="px-0.5">
+        <TabsContent value="categories" className="">
           <DropdownSelect
             role="sidepanel"
             items={categories?.map(x => x.category) ?? []}
@@ -115,17 +121,33 @@ const SidePanel = () => {
             variant="default"
             valid={true}
           />
+          {activeTab === 'categories' && (
+            <div className="mt-2 space-y-1">{tabs?.map(tab => <DexieGeneric key={tab.id} item={tab} />)}</div>
+          )}
         </TabsContent>
-        <TabsContent value="all"></TabsContent>
+        <TabsContent value="all">{activeTab === 'all' && <AllSavedTabs />}</TabsContent>
         <TabsContent value="search">
           <EmptyView />
         </TabsContent>
       </Tabs>
-      <div className="px-2 pr-1 py-2 space-y-1">{tabs?.map(tab => <DexieGeneric key={tab.id} item={tab} />)}</div>
       <DexieDetailDrawer />
     </div>
   );
 };
+
+function AllSavedTabs() {
+  const tabs = useLiveQuery(async () => {
+    const query = await db.tabs.reverse().toArray();
+    await new Promise(resolve => setTimeout(resolve, 50));
+    return query;
+  }, []);
+
+  return (
+    <div className="">
+      <div className="space-y-1">{tabs?.map(tab => <DexieGeneric key={tab.id} item={tab} />)}</div>
+    </div>
+  );
+}
 
 const SidePanelex = () => {
   const tabsWithCategories = useStorage(tabsGroupedStorage);
