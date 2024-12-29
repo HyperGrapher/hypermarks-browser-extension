@@ -1,10 +1,11 @@
 import { tabsGroupedStorage } from '@extension/storage';
 import { getActiveTabIcon } from './chrome-utils';
-import type { YouTube as YT, ItemType, SingleTab, Xpost, SiteMeta } from './shared-types';
+import type { YouTube as YT, ItemType, SingleTab, SiteMeta, Xpost } from './shared-types';
 import { parseAbbrTwitterNumber } from './abbreviated-string-parser';
-import { DexieTab } from '@extension/storage/lib/dexie/db';
+import { DexieTab, XpostDexie } from '@extension/storage/lib/dexie/db';
 import { getGenericTab } from './scrapers/get-generic';
 import { db } from '@extension/storage';
+import { twitterController } from './scrapers/get-twitter';
 
 const notificationOptions = {
   type: 'basic',
@@ -24,6 +25,8 @@ function combineSiteData<T extends Partial<DexieTab>>(
   },
   partialSiteData: T,
 ): Omit<SingleTab, keyof T> & T {
+  console.log('combineSiteData');
+
   const siteData = {
     categoryId: 0, // Will be updated in the transaction
     url: popupData.sitemeta?.url ?? '',
@@ -32,10 +35,12 @@ function combineSiteData<T extends Partial<DexieTab>>(
     tags: popupData.tags ?? [],
     note: popupData.note ?? '', // Default fallback for required properties
     title: popupData.sitemeta?.title ?? 'Untitled', // Fallback for required title
-    createdAt: partialSiteData.createdAt ?? new Date(),
-    updatedAt: partialSiteData.updatedAt ?? new Date(),
+    createdAt: partialSiteData?.createdAt ?? new Date(),
+    updatedAt: partialSiteData?.updatedAt ?? new Date(),
     ...partialSiteData,
   };
+
+  console.log(siteData);
 
   // Type assertion ensures that required properties are fulfilled.
   return siteData as Omit<SingleTab, keyof T> & T;
@@ -47,13 +52,25 @@ export async function saveDexieTab(popupData: {
   sitemeta: SiteMeta | undefined;
   note: string;
 }): Promise<{ id: number; success: boolean }> {
-  // const specialSites = ['x.com', 'github'];
-  // specialSites.includes(tab.url ?? '');
-  const scrapedSiteData = await getGenericTab();
-  // Combine partialSiteData with additional site data
-  const siteData = combineSiteData(popupData, scrapedSiteData) as DexieTab;
+  let scrapedSiteData: Partial<DexieTab>;
+  let xpost: XpostDexie;
 
-  const tabId = await db.transaction('rw', db.categories, db.tabs, async () => {
+  if (popupData.sitemeta?.origin.includes('x.com')) {
+    const [tab, xdata] = await twitterController();
+    scrapedSiteData = tab;
+    xpost = xdata as XpostDexie;
+    scrapedSiteData.description = xpost.content;
+    console.log('scrape assign', scrapedSiteData);
+    console.log('xpost assign', xpost);
+  } else {
+    const generic = await getGenericTab();
+    scrapedSiteData = generic;
+  }
+
+  // Combine partialSiteData with additional site data
+  const combinedSiteData = combineSiteData(popupData, scrapedSiteData) as DexieTab;
+
+  const tabId = await db.transaction('rw', db.categories, db.tabs, db.xPosts, async () => {
     // Check if the category exists
     let categoryId = await db.categories
       .where('category')
@@ -66,10 +83,15 @@ export async function saveDexieTab(popupData: {
       categoryId = await db.categories.add({ category: popupData.category });
     }
     // Update the siteData with the resolved categoryId
-    siteData.categoryId = categoryId;
+    combinedSiteData.categoryId = categoryId;
 
     // Save the tab data
-    return await db.tabs.add(siteData);
+    const tabSaved = await db.tabs.add(combinedSiteData);
+    xpost.tabId = tabSaved;
+    const xPostSaved = await db.xPosts.add(xpost);
+    await db.tabs.update(tabSaved, { xpostId: xPostSaved });
+
+    return tabSaved;
   });
 
   return { id: tabId, success: true };

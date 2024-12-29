@@ -88,11 +88,7 @@ const Popup = () => {
     //     setMessage('Error occured');
     //   });
   }
-  // https://x.com/kubadesign/status/1872956701756014797
-  // https://x.com/kubadesign/status/1872956701756014797
-  // https://x.com/stevelauda_/status/1873011086456439159
-  // https://x.com/studiobakers/status/1872216983716135234
-  // https://x.com/kubadesign/status/1870171540350001431
+
   async function saveTab() {
     console.log('save tab is called');
 

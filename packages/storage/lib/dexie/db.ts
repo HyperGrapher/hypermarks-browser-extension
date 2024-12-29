@@ -2,6 +2,23 @@ import Dexie, { Table } from 'dexie';
 import type { CategorizedTab, SingleTab, YouTube } from '../../../shared';
 import { populate } from './populate';
 
+export interface XpostDexie {
+  profileName: string;
+  handle: string;
+  avatar: string;
+  isPremium: boolean;
+  datetime: Date;
+  datetimeStr: string;
+  content: string;
+  views: number;
+  likes: number;
+  comments: number;
+  photos?: string[];
+  screenshotId?: number;
+  tabId?: number;
+  id?: number;
+}
+
 export type DexieTab = Omit<
   SingleTab,
   'youtubeChannel' | 'youtubeVideo' | 'youtubeShort' | 'youtubePlaylist' | 'tempCaps' | 'xpost' | 'datetime'
@@ -20,13 +37,16 @@ export type DexieTab = Omit<
 export class TabsDB extends Dexie {
   categories!: Table<{ id?: number; category: string }, number>;
   tabs!: Table<DexieTab, number>;
-  ytChannels!: Table<YouTube.Channel & { id?: string; tabId: number }, number>;
+  ytChannels!: Table<YouTube.Channel, number>;
+  xPosts!: Table<XpostDexie, number>;
   constructor() {
     super('TabsDB');
     this.version(1).stores({
       categories: '++id,category',
       tabs: '++id,categoryId,datetime,title,url,icon,description,tags,origin,note,itemType,youtubeChannelId,youtubeVideoId,youtubeShortId,youtubePlaylistId,xpostId,createdAt,updatedAt',
       ytChannels: '++id,channelName,avatar,banner,description,subcriberCount,videoCount,isSubscribed,tabId',
+      xPosts:
+        '++id,tabId,profileName,handle,avatar,isPremium,datetime,datetimeStr,content,views,likes,comments,photos,screenshotId',
     });
   }
 

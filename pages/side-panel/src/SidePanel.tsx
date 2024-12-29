@@ -21,6 +21,7 @@ import {
 import { db, autoPrefsStorage, tabsGroupedStorage } from '@extension/storage';
 import { useLiveQuery } from 'dexie-react-hooks';
 import LoadingScreen from './components/LoadingScreen';
+import { TweetCard } from './items/TweetCard';
 
 function getTabsByCategory(groupedTabs: { [category: string]: SingleTab[] }): CategorizedTab[] {
   return Object.entries(groupedTabs).flatMap(([category, items]) => items.map(item => ({ category, item })));
@@ -119,7 +120,12 @@ const SidePanel = () => {
             />
             {activeTab === 'categories' && (
               <div className="mt-2 space-y-1 animate-fadeIn">
-                {tabs?.map(tab => <DexieGeneric key={tab.id} item={tab} />)}
+                {tabs?.map(tab => {
+                  if (tab.itemType === 'x-post') {
+                    return <TweetCard key={tab.id} item={tab} />;
+                  }
+                  return <DexieGeneric key={tab.id} item={tab} />;
+                })}
               </div>
             )}
           </TabsContent>
@@ -149,7 +155,14 @@ function AllSavedTabs() {
 
   return (
     <div className="">
-      <div className="space-y-1">{tabs?.map(tab => <DexieGeneric key={tab.id} item={tab} />)}</div>
+      <div className="space-y-1">
+        {tabs?.map(tab => {
+          if (tab.itemType === 'x-post') {
+            return <TweetCard key={tab.id} item={tab} />;
+          }
+          return <DexieGeneric key={tab.id} item={tab} />;
+        })}
+      </div>
     </div>
   );
 }
