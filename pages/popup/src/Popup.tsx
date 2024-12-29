@@ -49,6 +49,7 @@ const Popup = () => {
   const [showCreateCategory, setShowCreateCategory] = useState(false);
   const [aiSuccess, setAiSuccess] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [note, setNote] = useState<string>('');
   const [aiREsponse, setAiResponse] = useState<any>({});
   const [sitemeta, setSitemeta] = useState<SiteMeta>();
   const [categories, setCategories] = useState<string[]>([]);
@@ -87,12 +88,23 @@ const Popup = () => {
     //     setMessage('Error occured');
     //   });
   }
-
+  // https://x.com/kubadesign/status/1872956701756014797
+  // https://x.com/kubadesign/status/1872956701756014797
+  // https://x.com/stevelauda_/status/1873011086456439159
+  // https://x.com/studiobakers/status/1872216983716135234
+  // https://x.com/kubadesign/status/1870171540350001431
   async function saveTab() {
     console.log('save tab is called');
 
+    const data = {
+      tags,
+      category: selectedCategory || 'Uncategorized',
+      sitemeta,
+      note,
+    };
+
     try {
-      const { success } = await saveDexieTab(tags, selectedCategory || 'Uncategorized', sitemeta!);
+      const { success } = await saveDexieTab(data);
       console.log('saveTab', success);
       setMessage('Tab saved!');
       setSelectedCategory('');

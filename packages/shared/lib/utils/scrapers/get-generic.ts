@@ -5,7 +5,6 @@ export async function getGenericTab(): Promise<Partial<DexieTab>> {
   const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!activeTab?.id) throw new Error('No active tab found');
 
-  const favicon = await getActiveTabIcon();
   const pageInfo = await chrome.scripting.executeScript({
     target: { tabId: activeTab.id },
     func: () => {
