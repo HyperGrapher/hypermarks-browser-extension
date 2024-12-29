@@ -40,18 +40,10 @@ function getTabsByTags(groupedTabs: { [category: string]: SingleTab[] }, tags: s
 // https://groups.google.com/a/chromium.org/g/chromium-extensions/c/cJmdMLmpbjg
 const SidePanel = () => {
   const autoPrefs = useStorage(autoPrefsStorage);
-  const [loading, setLoading] = useState(true);
   const [isLoaded, setIsLoaded] = useState(false);
-
   const [activeTab, setActiveTab] = useState<'categories' | 'all' | 'search'>(autoPrefs.lastPanel ?? 'all');
   const [selectedCategory, setSelectedCategory] = useState<{ id: number; category: string }>(autoPrefs.lastCategory); // default comes from userPrefs
   const categories = useLiveQuery(async () => await db.categories?.toArray(), []);
-
-  useEffect(() => {
-    setTimeout(() => {
-      setLoading(false);
-    }, 2000);
-  }, []);
 
   useEffect(() => {
     autoPrefsStorage.saveLastCategory(selectedCategory);
