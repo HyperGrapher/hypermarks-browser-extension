@@ -20,6 +20,7 @@ import {
 } from '@extension/ui';
 import { db, autoPrefsStorage, tabsGroupedStorage } from '@extension/storage';
 import { useLiveQuery } from 'dexie-react-hooks';
+import LoadingScreen from './components/LoadingScreen';
 
 function getTabsByCategory(groupedTabs: { [category: string]: SingleTab[] }): CategorizedTab[] {
   return Object.entries(groupedTabs).flatMap(([category, items]) => items.map(item => ({ category, item })));
@@ -40,6 +41,8 @@ function getTabsByTags(groupedTabs: { [category: string]: SingleTab[] }, tags: s
 const SidePanel = () => {
   const autoPrefs = useStorage(autoPrefsStorage);
   const [loading, setLoading] = useState(true);
+  const [isLoaded, setIsLoaded] = useState(false);
+
   const [activeTab, setActiveTab] = useState<'categories' | 'all' | 'search'>(autoPrefs.lastPanel ?? 'all');
   const [selectedCategory, setSelectedCategory] = useState<{ id: number; category: string }>(autoPrefs.lastCategory); // default comes from userPrefs
   const categories = useLiveQuery(async () => await db.categories?.toArray(), []);
@@ -75,61 +78,71 @@ const SidePanel = () => {
     return query;
   }, [selectedCategory, categories]);
 
-  if (!tabs || loading) return <div className="bg-black/40 h-screen w-full "> Loading ... </div>;
+  if (!tabs) return <div className="bg-slate-900/90 h-screen w-full" />;
   if (tabs && tabs.length === 0) return <EmptyView />;
 
   return (
     <div className={``}>
       <header className={`h-8 w-full px-2 py-1 hidden`}>Settings</header>
-      <Tabs defaultValue={activeTab ?? 'all'} className="w-full px-2 pl-2 mt-3">
-        <TabsList className="grid w-full grid-cols-3 bg-slate-800">
-          <TabsTrigger
-            onClick={() => {
-              setActiveTab('categories');
-              autoPrefsStorage.saveLastPanel('categories');
-            }}
-            value="categories">
-            Categories
-          </TabsTrigger>
-          <TabsTrigger
-            onClick={() => {
-              setActiveTab('all');
-              autoPrefsStorage.saveLastPanel('all');
-            }}
-            value="all">
-            All
-          </TabsTrigger>
-          <TabsTrigger
-            onClick={() => {
-              setActiveTab('search');
-              autoPrefsStorage.saveLastPanel('search');
-            }}
-            value="search">
-            Search
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="categories" className="">
-          <DropdownSelect
-            role="sidepanel"
-            items={categories?.map(x => x.category) ?? []}
-            value={selectedCategory?.category}
-            onItemSelect={val =>
-              setSelectedCategory({ category: val, id: categories?.find(x => x.category === val)?.id ?? 0 })
-            }
-            name="categories"
-            placeholder="Select category"
-            variant="default"
-            valid={true}
-          />
-          {activeTab === 'categories' && (
-            <div className="mt-2 space-y-1">{tabs?.map(tab => <DexieGeneric key={tab.id} item={tab} />)}</div>
-          )}
-        </TabsContent>
-        <TabsContent value="all">{activeTab === 'all' && <AllSavedTabs />}</TabsContent>
-        <TabsContent value="search">
-          <EmptyView />
-        </TabsContent>
-      </Tabs>
+      {isLoaded && (
+        <Tabs defaultValue={activeTab ?? 'all'} className="w-full px-2 pl-2 mt-3">
+          <TabsList className="grid w-full grid-cols-3 bg-slate-800">
+            <TabsTrigger
+              onClick={() => {
+                setActiveTab('categories');
+                autoPrefsStorage.saveLastPanel('categories');
+              }}
+              value="categories">
+              Categories
+            </TabsTrigger>
+            <TabsTrigger
+              onClick={() => {
+                setActiveTab('all');
+                autoPrefsStorage.saveLastPanel('all');
+              }}
+              value="all">
+              All
+            </TabsTrigger>
+            <TabsTrigger
+              onClick={() => {
+                setActiveTab('search');
+                autoPrefsStorage.saveLastPanel('search');
+              }}
+              value="search">
+              Search
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="categories" className="">
+            <DropdownSelect
+              role="sidepanel"
+              items={categories?.map(x => x.category) ?? []}
+              value={selectedCategory?.category}
+              onItemSelect={val =>
+                setSelectedCategory({ category: val, id: categories?.find(x => x.category === val)?.id ?? 0 })
+              }
+              name="categories"
+              placeholder="Select category"
+              variant="default"
+              valid={true}
+            />
+            {activeTab === 'categories' && (
+              <div className="mt-2 space-y-1 animate-fadeIn">
+                {tabs?.map(tab => <DexieGeneric key={tab.id} item={tab} />)}
+              </div>
+            )}
+          </TabsContent>
+          <TabsContent value="all">{activeTab === 'all' && <AllSavedTabs />}</TabsContent>
+          <TabsContent value="search">
+            {activeTab === 'search' && (
+              <div className="mt-2 space-y-1  animate-fadeIn">
+                {' '}
+                <EmptyView />
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
+      )}
+      {!isLoaded && <LoadingScreen onLoaded={() => setIsLoaded(true)} />}
       <DexieDetailDrawer />
     </div>
   );
