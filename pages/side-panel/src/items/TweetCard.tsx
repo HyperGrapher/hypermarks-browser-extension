@@ -75,7 +75,7 @@ export const TweetCard = ({ item }: { item: DexieTab }) => {
 
       <div className={'z-20 flex w-full items-center gap-2 pl-2'}>
         <div className="w-full max-w-sm pr-2">
-          <div className={`flex gap-2 mb-1 h-16  ${xpost?.photos ? 'mb-1' : ''}`}>
+          <div className={cn('flex gap-2', xpost && xpost.photos && xpost?.photos?.length > 0 ? 'mb-1 h-16' : 'h-0')}>
             {xpost?.photos && xpost?.photos?.length > 0
               ? xpost.photos.map(pic => {
                   const fullSizeUrl = removeQueryParams(pic, ['name']); // Remove the 'name' query param

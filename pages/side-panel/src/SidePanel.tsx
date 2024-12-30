@@ -135,6 +135,7 @@ const SidePanel = () => {
               variant="default"
               valid={true}
             />
+            <div className="py-4">options</div>
             {activeTab === 'categories' && (
               <div className="mt-2 space-y-1 animate-fadeIn">
                 {tabs?.map(tab => {
@@ -146,12 +147,19 @@ const SidePanel = () => {
               </div>
             )}
           </TabsContent>
-          <TabsContent value="all">{activeTab === 'all' && <AllSavedTabs />}</TabsContent>
+          <TabsContent value="all">
+            <div className="py-4">options</div>
+
+            {activeTab === 'all' && <AllSavedTabs />}
+          </TabsContent>
           <TabsContent value="search">
             {activeTab === 'search' && (
               <div className="mt-2 space-y-1  animate-fadeIn">
-                {' '}
-                <EmptyView />
+                <div className="mt-8">
+                  {/* <h1 className="text-3xl font-bold text-center">No Tabs Saved Yet!</h1> */}
+                  <h1 className="text-3xl font-bold text-center py-4">Search not available</h1>
+                  <p className="text-center text-slate-400">Click on the extension icon to save tabs</p>
+                </div>
               </div>
             )}
           </TabsContent>
@@ -215,7 +223,7 @@ function EmptyView() {
 
       <div className="mt-6">
         {/* TODO: google.com uzerinde extension acikken caps alinacak */}
-        <img src={chrome.runtime.getURL('side-panel/logo_vertical_dark.svg')} alt="" />
+        {/* <img src={chrome.runtime.getURL('side-panel/nop.svg')} alt="" /> */}
       </div>
     </div>
   );

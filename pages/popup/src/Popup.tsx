@@ -90,8 +90,6 @@ const Popup = () => {
   }
 
   async function saveTab() {
-    console.log('save tab is called');
-
     const data = {
       tags,
       category: selectedCategory || 'Uncategorized',
@@ -106,7 +104,7 @@ const Popup = () => {
       setSelectedCategory('');
       setTags([]);
       setAiSuccess(true); // todo iki adet var. biri bu, digeri getAiResponse'da
-      // setTimeout(() => window.close(), 750);
+      setTimeout(() => window.close(), 750);
     } catch (error) {
       setMessage('Error occured');
     }
@@ -292,15 +290,15 @@ const Popup = () => {
               {message}
             </button>
 
-            <Button variant="outline" className=" w-full transition-all hover:scale-[1.02]" onClick={getAiResponse}>
+            {/* <Button variant="outline" className=" w-full transition-all hover:scale-[1.02]" onClick={getAiResponse}>
               Get Ai Response
-            </Button>
+            </Button> */}
 
-            <Button
+            {/* <Button
               variant="secondary"
               className="w-full shadow transition-all hover:scale-[1.02]"
               onClick={openSidePanel}>
-              Display SuperTabs
+              open sidepanel
             </Button>
 
             <Button
@@ -308,13 +306,13 @@ const Popup = () => {
               className=" hover:scale-[1.02] w-full transition-all"
               onClick={deleteAllTabData}>
               Clear saved pages...
-            </Button>
+            </Button>` */}
           </div>
         )}
         {/* <pre>{JSON.stringify(aiREsponse, null, 2)}</pre> */}
       </header>
 
-      <div className="absolute inset-x-0 bottom-0 z-0 w-full opacity-10">
+      <div className="absolute inset-x-0 bottom-0 z-0 w-full opacity-10 w-full">
         <svg
           width="100%"
           height="100%"
