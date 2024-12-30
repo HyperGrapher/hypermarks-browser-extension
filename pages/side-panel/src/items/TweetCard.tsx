@@ -11,6 +11,8 @@ import { useLiveQuery } from 'dexie-react-hooks';
 // this js-abbreviation-number lib is only good for num to str
 // import { unabbreviateNumber } from 'js-abbreviation-number';
 
+// TEST: deleted post image: https://pbs.twimg.com/media/GgCrU99WQAAwQJt?format=png
+
 // TODO:  if no icon/thumbnail, show default ones
 // https://www.youtube.com/playlist?list=PLRnI_2_ZWhtCxHQ_3zDfW0-RgiWo8ftyj
 

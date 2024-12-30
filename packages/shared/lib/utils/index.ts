@@ -38,3 +38,26 @@ export const removeQueryParams = (url: string, paramsToRemove?: string[]): strin
 
   return urlObj.toString();
 };
+
+/**
+ * This func made for Soundcloud song artwork
+ * Needs to be tested for other usage.
+ *
+ * @param element
+ * @returns URL of image
+ */
+
+// Function to extract the URL from a background-image style
+function getBackgroundImageUrl(element: HTMLElement): string | null {
+  // Get computed style of the element
+  const style = window.getComputedStyle(element);
+
+  // Get the background-image value
+  const backgroundImage = style.backgroundImage;
+
+  // Extract the URL using a regular expression
+  const urlMatch = backgroundImage.match(/url\(["']?(.*?)["']?\)/);
+
+  // Return the extracted URL or null if no match
+  return urlMatch ? urlMatch[1] : null;
+}
