@@ -6,9 +6,15 @@ import { atom } from 'jotai';
 
 export const tagsAtom = atom<string[]>([]);
 
-export const remove_www = (hostname: string | undefined) => {
-  if (!hostname) return '';
-  return hostname.startsWith('www') ? hostname.slice(4) : hostname;
+/**
+ * Removes www from given URL
+ *
+ * @param url - The URL string to modify.
+ * @returns The modified URL string.
+ */
+export const remove_www = (url: string | undefined) => {
+  if (!url) return '';
+  return url.startsWith('www') ? url.slice(4) : url;
 };
 
 /**
