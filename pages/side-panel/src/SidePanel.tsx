@@ -46,6 +46,23 @@ const SidePanel = () => {
   const [selectedCategory, setSelectedCategory] = useState<{ id: number; category: string }>(autoPrefs.lastCategory); // default comes from userPrefs
   const categories = useLiveQuery(async () => await db.categories?.toArray(), []);
 
+  // Disable right clicking on sidepanel except allowed elements
+  useEffect(() => {
+    const handleContextMenu = (event: MouseEvent) => {
+      // Allow right-click on elements with given class
+      if ((event.target as HTMLElement)?.classList.contains('clickable')) {
+        return;
+      }
+      event.preventDefault();
+    };
+
+    document.addEventListener('contextmenu', handleContextMenu);
+
+    return () => {
+      document.removeEventListener('contextmenu', handleContextMenu);
+    };
+  }, []);
+
   useEffect(() => {
     autoPrefsStorage.saveLastCategory(selectedCategory);
     console.log('y', selectedCategory);

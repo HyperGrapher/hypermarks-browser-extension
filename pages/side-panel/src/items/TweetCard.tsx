@@ -1,5 +1,5 @@
 import { cn, searchTagsAtom } from '../utils';
-import { openTab } from '@extension/shared';
+import { openTab, removeQueryParams } from '@extension/shared';
 import { Badge } from '@extension/ui';
 // import TimeAgo from 'timeago-react';
 import { MoreVertical } from 'lucide-react';
@@ -14,10 +14,22 @@ import { useLiveQuery } from 'dexie-react-hooks';
 // TODO:  if no icon/thumbnail, show default ones
 // https://www.youtube.com/playlist?list=PLRnI_2_ZWhtCxHQ_3zDfW0-RgiWo8ftyj
 
+// Selectd xpost with images
 // https://x.com/kubadesign/status/1872956701756014797
 // https://x.com/stevelauda_/status/1873011086456439159
 // https://x.com/studiobakers/status/1872216983716135234
 // https://x.com/kubadesign/status/1870171540350001431
+// https://x.com/studiobakers/status/1786199039513616721
+// https://x.com/studiobakers/status/1785957481166078021
+//
+
+// Quoted tweet with 8 images in total
+// https://x.com/gizakdag/status/1865780951420121405
+// https://x.com/gizakdag/status/1866499813384376642
+// https://x.com/gizakdag/status/1873085056866189788
+
+// Long text xpost
+// https://x.com/SireneOznur/status/1873482351868555641
 
 export const TweetCard = ({ item }: { item: DexieTab }) => {
   const setSearchTags = useSetAtom(searchTagsAtom);
@@ -61,13 +73,21 @@ export const TweetCard = ({ item }: { item: DexieTab }) => {
 
       <div className={'z-20 flex w-full items-center gap-2 pl-2'}>
         <div className="w-full max-w-sm pr-2">
-          <div className={`flex gap-2  ${xpost?.photos ? 'mb-1' : ''}`}>
+          <div className={`flex gap-2 mb-1 h-16  ${xpost?.photos ? 'mb-1' : ''}`}>
             {xpost?.photos && xpost?.photos?.length > 0
-              ? xpost.photos.map(pic => (
-                  <a key={pic} href={pic} target="_blank" rel="noopener noreferrer" className="">
-                    <img className="size-16 object-cover border-gray-300/20 rounded-lg" src={pic} alt="" />
-                  </a>
-                ))
+              ? xpost.photos.map(pic => {
+                  const fullSizeUrl = removeQueryParams(pic, ['name']); // Remove the 'name' query param
+
+                  return (
+                    <a key={fullSizeUrl} href={fullSizeUrl} target="_blank" rel="noopener noreferrer" className="">
+                      <img
+                        className="clickable size-16 object-cover border-gray-300/20 rounded-lg animate-fadeIn fade-in-40"
+                        src={pic}
+                        alt=""
+                      />
+                    </a>
+                  );
+                })
               : null}
           </div>
 

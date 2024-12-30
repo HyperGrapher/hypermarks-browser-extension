@@ -60,7 +60,9 @@ async function getXPost(tabId: number) {
         const match = value.match(/^(\d+(\.\d+)?)([KMB])$/);
 
         if (!match) {
-          throw new Error('Invalid number format');
+          // FIXME: ThROWS HERE   ;
+          return 0;
+          // throw new Error('Invalid number format');
         }
 
         const [, numberPart, , suffix] = match;
