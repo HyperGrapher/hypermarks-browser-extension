@@ -123,6 +123,8 @@ const SidePanel = () => {
             </TabsTrigger>
           </TabsList>
           <TabsContent value="categories" className="">
+            <div className="py-4">options</div>
+
             <DropdownSelect
               role="sidepanel"
               items={categories?.map(x => x.category) ?? []}
@@ -135,7 +137,6 @@ const SidePanel = () => {
               variant="default"
               valid={true}
             />
-            <div className="py-4">options</div>
             {activeTab === 'categories' && (
               <div className="mt-2 space-y-1 animate-fadeIn">
                 {tabs?.map(tab => {
@@ -179,7 +180,7 @@ function AllSavedTabs() {
   }, []);
 
   return (
-    <div className="">
+    <div className="mt-2 space-y-1 animate-fadeIn">
       <div className="space-y-1">
         {tabs?.map(tab => {
           if (tab.itemType === 'x-post') {

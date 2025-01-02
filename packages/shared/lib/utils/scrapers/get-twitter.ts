@@ -82,9 +82,17 @@ async function getXPost(tabId: number) {
           '[data-testid="tweet"][tabindex="-1"] [data-testid="tweetPhoto"] img',
         );
 
+        let videoElems = document.querySelectorAll<HTMLVideoElement>(
+          '[data-testid="tweet"][tabindex="-1"] [data-testid="videoComponent"] video',
+        );
+
+        let videos: string[] = [];
         let photos: string[] = [];
         for (let i = 0; i < photoElems.length; i++) {
           photos.push(photoElems[i].src);
+        }
+        for (let i = 0; i < videoElems.length; i++) {
+          videos.push(videoElems[i].poster);
         }
 
         avatar =
@@ -144,6 +152,7 @@ async function getXPost(tabId: number) {
           datetimeStr,
           isPremium,
           photos,
+          videos,
         });
 
         const obj = {
@@ -158,6 +167,7 @@ async function getXPost(tabId: number) {
           content,
           avatar,
           photos,
+          videos,
         } satisfies XpostDexie;
         console.log(obj);
 
