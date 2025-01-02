@@ -10,9 +10,8 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from '@extension/ui';
-import { db } from '@extension/storage';
+import { db, DexieTab } from '@extension/storage';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { DexieTab } from '@extension/storage/lib/dexie/db';
 import { DexieItemAndCategory, tagsAtom } from '@extension/shared';
 import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
@@ -33,10 +32,13 @@ export function DetailDrawer() {
     <Drawer open={drawer.open} onOpenChange={val => setDrawer({ item: drawer.item, open: val, edit: false })}>
       <DrawerContent className="bg-grad">
         <DrawerHeader className="text-left">
-          <DrawerTitle>{tab.title}</DrawerTitle>
-          <DrawerDescription>{tab.description}</DrawerDescription>
+          <div className="flexx justify-between -translate-y-4 text-xs hidden">
+            <div className="bg-slate-800 text-slate-300 rounded-md px-2 py-0.5">{cat?.category.slice(0, 120)}</div>
+            <div className="bg-slate-800 text-slate-300 rounded-md px-2 py-0.5">{tab?.origin.slice(0, 120)}</div>
+          </div>
+          <DrawerTitle className="wrap-text-anywhere line-clamp-2">{tab.title} </DrawerTitle>
         </DrawerHeader>
-        {drawer.edit ? <EditForm data={tab} category={cat} /> : <ItemDisplay data={tab} category={cat} />}
+        {drawer.edit ? <EditForm data={tab} category={cat} /> : <XpostDisplay data={tab} category={cat} />}
         <DrawerFooter className="pt-2">
           <DrawerClose asChild>
             <Button variant="outline">Cancel</Button>
@@ -47,11 +49,13 @@ export function DetailDrawer() {
   );
 }
 
-function ItemDisplay({ data, category }: { data: DexieTab | undefined; category: DexieItemAndCategory | undefined }) {
+function XpostDisplay({ data, category }: { data: DexieTab | undefined; category: DexieItemAndCategory | undefined }) {
   return (
-    <div className="">
-      <pre className="text-xs">{JSON.stringify({ data, category }, null, 4)}</pre>
-    </div>
+    <section className="px-0.5">
+      <div className="bg-black/70 rounded-xl p-2">
+        <h3>{data?.description}</h3>
+      </div>
+    </section>
   );
 }
 

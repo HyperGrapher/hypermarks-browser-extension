@@ -1,5 +1,3 @@
-import { DexieTab } from '@extension/storage/lib/dexie/db';
-
 export interface TagItem {
   name: string;
   value?: number | string;

@@ -1,6 +1,7 @@
 export * from './shared-types';
 export * from './chrome-utils';
 export * from './tab-saver';
+export * from './main-controller';
 
 import { atom } from 'jotai';
 

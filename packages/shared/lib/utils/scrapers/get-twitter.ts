@@ -1,15 +1,6 @@
-import { DexieTab, XpostDexie } from '@extension/storage/lib/dexie/db';
+import { DexieTab, XpostDexie, XProfile } from '@extension/storage';
 import { getActiveTabIcon } from '../chrome-utils';
-type XProfile = {
-  name: string;
-  handle: string;
-  avatar: string;
-  bio: string;
-  followers: number;
-  following: number;
-  tweets: number;
-  joined: string;
-};
+
 export async function twitterController(): Promise<[Partial<DexieTab>, XpostDexie | XProfile]> {
   const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!activeTab?.id) throw new Error('No active tab found');

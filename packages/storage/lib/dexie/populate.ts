@@ -15,19 +15,19 @@ export async function populate() {
   //   isSubscribed: true,
   // })
 
-  const tabid = await db.tabs.bulkAdd([
-    {
-      categoryId,
-      title: 'Test title',
-      url: 'https://test.com',
-      icon: 'test',
-      description: 'Test description',
-      tags: ['test'],
-      origin: 'test',
-      note: 'test',
-      itemType: 'other',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-  ]);
+  // const tabid = await db.tabs.bulkAdd([
+  //   {
+  //     categoryId,
+  //     title: 'Test title',
+  //     url: 'https://test.com',
+  //     icon: 'test',
+  //     description: 'Test description',
+  //     tags: ['test'],
+  //     origin: 'test',
+  //     note: 'test',
+  //     itemType: 'other',
+  //     createdAt: new Date(),
+  //     updatedAt: new Date(),
+  //   },
+  // ]);
 }

@@ -1,4 +1,4 @@
-import { DexieTab } from '@extension/storage/lib/dexie/db';
+import { DexieTab } from '@extension/storage';
 import { getActiveTabIcon } from '../chrome-utils';
 
 export async function getGenericTab(): Promise<Partial<DexieTab>> {

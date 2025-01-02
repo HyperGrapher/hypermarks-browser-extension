@@ -1,38 +1,6 @@
 import Dexie, { Table } from 'dexie';
-import type { CategorizedTab, SingleTab, YouTube } from '../../../shared';
-import { populate } from './populate';
-
-export interface XpostDexie {
-  profileName: string;
-  handle: string;
-  avatar: string;
-  isPremium: boolean;
-  datetime: Date;
-  datetimeStr: string;
-  content: string;
-  views: number;
-  likes: number;
-  comments: number;
-  photos?: string[];
-  screenshotId?: number;
-  tabId?: number;
-  id?: number;
-}
-
-export type DexieTab = Omit<
-  SingleTab,
-  'youtubeChannel' | 'youtubeVideo' | 'youtubeShort' | 'youtubePlaylist' | 'tempCaps' | 'xpost' | 'datetime'
-> & {
-  id?: number;
-  categoryId: number;
-  createdAt: Date;
-  updatedAt: Date;
-  youtubeChannelId?: number;
-  youtubeVideoId?: number;
-  youtubePlaylistId?: number;
-  youtubeShortId?: number;
-  xpostId?: number;
-};
+import type { YouTube } from '../../../shared';
+import { DexieTab, XpostDexie } from './dexie-types';
 
 export class TabsDB extends Dexie {
   categories!: Table<{ id?: number; category: string }, number>;
@@ -46,7 +14,7 @@ export class TabsDB extends Dexie {
       tabs: '++id,categoryId,datetime,title,url,icon,description,tags,origin,note,itemType,youtubeChannelId,youtubeVideoId,youtubeShortId,youtubePlaylistId,xpostId,createdAt,updatedAt',
       ytChannels: '++id,channelName,avatar,banner,description,subcriberCount,videoCount,isSubscribed,tabId',
       xPosts:
-        '++id,tabId,profileName,handle,avatar,isPremium,datetime,datetimeStr,content,views,likes,comments,photos,screenshotId',
+        '++id,tabId,profileName,handle,avatar,isPremium,datetime,datetimeStr,content,views,likes,comments,videos,photos,screenshotId',
     });
   }
 
@@ -80,11 +48,11 @@ export class TabsDB extends Dexie {
 
 export const db = new TabsDB();
 
-db.on('populate', populate);
+// db.on('populate', populate);
 
 export function resetDatabase() {
-  return db.transaction('rw', db.categories, db.tabs, async () => {
+  return db.transaction('rw', db.categories, db.tabs, db.xPosts, async () => {
     await Promise.all(db.tables.map(table => table.clear()));
-    await populate();
+    // await populate();
   });
 }

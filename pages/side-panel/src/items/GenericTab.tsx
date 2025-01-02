@@ -5,7 +5,7 @@ import { Badge } from '@extension/ui';
 import { MoreVertical } from 'lucide-react';
 import { useSetAtom } from 'jotai';
 import { DropdownMenuButton } from '../components/DropdownMenuButton';
-import { DexieTab } from '@extension/storage/lib/dexie/db';
+import { DexieTab } from '@extension/storage';
 
 // this js-abbreviation-number lib is only good for num to str
 // import { unabbreviateNumber } from 'js-abbreviation-number';

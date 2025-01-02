@@ -1,8 +1,7 @@
-import { tabsGroupedStorage } from '@extension/storage';
+import { DexieTab, tabsGroupedStorage, XpostDexie } from '@extension/storage';
 import { getActiveTabIcon } from './chrome-utils';
 import type { YouTube as YT, ItemType, SingleTab, SiteMeta, Xpost } from './shared-types';
 import { parseAbbrTwitterNumber } from './abbreviated-string-parser';
-import { DexieTab, XpostDexie } from '@extension/storage/lib/dexie/db';
 import { getGenericTab } from './scrapers/get-generic';
 import { db } from '@extension/storage';
 import { twitterController } from './scrapers/get-twitter';
@@ -15,87 +14,6 @@ const notificationOptions = {
 } as const;
 
 // https://github.com/GoogleChrome/chrome-extensions-samples/blob/main/functional-samples/cookbook.offscreen-dom/offscreen.js
-
-function combineSiteData<T extends Partial<DexieTab>>(
-  popupData: {
-    tags: string[] | null;
-    category: string;
-    sitemeta: SiteMeta | undefined;
-    note: string;
-  },
-  partialSiteData: T,
-): Omit<SingleTab, keyof T> & T {
-  console.log('combineSiteData');
-
-  const siteData = {
-    categoryId: 0, // Will be updated in the transaction
-    url: popupData.sitemeta?.url ?? '',
-    origin: popupData.sitemeta?.origin ?? '',
-    icon: popupData.sitemeta?.icon ?? '',
-    tags: popupData.tags ?? [],
-    note: popupData.note ?? '', // Default fallback for required properties
-    title: popupData.sitemeta?.title ?? 'Untitled', // Fallback for required title
-    createdAt: partialSiteData?.createdAt ?? new Date(),
-    updatedAt: partialSiteData?.updatedAt ?? new Date(),
-    ...partialSiteData,
-  };
-
-  console.log(siteData);
-
-  // Type assertion ensures that required properties are fulfilled.
-  return siteData as Omit<SingleTab, keyof T> & T;
-}
-
-export async function saveDexieTab(popupData: {
-  tags: string[];
-  category: string;
-  sitemeta: SiteMeta | undefined;
-  note: string;
-}): Promise<{ id: number; success: boolean }> {
-  let scrapedSiteData: Partial<DexieTab>;
-  let xpost: XpostDexie;
-
-  if (popupData.sitemeta?.origin.includes('x.com')) {
-    const [tab, xdata] = await twitterController();
-    scrapedSiteData = tab;
-    xpost = xdata as XpostDexie;
-    scrapedSiteData.description = xpost.content;
-    console.log('scrape assign', scrapedSiteData);
-    console.log('xpost assign', xpost);
-  } else {
-    const generic = await getGenericTab();
-    scrapedSiteData = generic;
-  }
-
-  // Combine partialSiteData with additional site data
-  const combinedSiteData = combineSiteData(popupData, scrapedSiteData) as DexieTab;
-
-  const tabId = await db.transaction('rw', db.categories, db.tabs, db.xPosts, async () => {
-    // Check if the category exists
-    let categoryId = await db.categories
-      .where('category')
-      .equals(popupData.category)
-      .first()
-      .then(existingCategory => existingCategory?.id);
-
-    // Create the category if it doesn't exist
-    if (!categoryId) {
-      categoryId = await db.categories.add({ category: popupData.category });
-    }
-    // Update the siteData with the resolved categoryId
-    combinedSiteData.categoryId = categoryId;
-
-    // Save the tab data
-    const tabSaved = await db.tabs.add(combinedSiteData);
-    xpost.tabId = tabSaved;
-    const xPostSaved = await db.xPosts.add(xpost);
-    await db.tabs.update(tabSaved, { xpostId: xPostSaved });
-
-    return tabSaved;
-  });
-
-  return { id: tabId, success: true };
-}
 
 export async function captureTweetScreenshotAndSaveTab(tags: string[] | null, category: string): Promise<SingleTab> {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
