@@ -24,22 +24,18 @@ body {
 }
 
 /* img.thumb { */
-  /* Adjust the top and bottom values as needed */
-  /* clip-path: inset(12px 0); */
-  /* position: relative; */
-  /* object-fit: cover; */
-  /* max-width: 124px; */
-  /* min-width: 153px; */
-  /* object-fit: contain; */
-  /* height: 360px; */
-  /* width: 480px; */
+/* Adjust the top and bottom values as needed */
+/* clip-path: inset(12px 0); */
+/* position: relative; */
+/* object-fit: cover; */
+/* max-width: 124px; */
+/* min-width: 153px; */
+/* object-fit: contain; */
+/* height: 360px; */
+/* width: 480px; */
 /* } */
-
 
 .bg-grad {
   background: linear-gradient(to bottom, hsl(218, 22%, 10%), hsl(220, 39%, 11%), hsl(210, 60%, 8%));
   /* background: linear-gradient(to bottom, #1e1e1e, #2b2b2b);s */
-
-
-
-}
+}     

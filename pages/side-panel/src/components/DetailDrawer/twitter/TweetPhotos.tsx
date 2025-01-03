@@ -5,14 +5,26 @@ const TweetPhotos = ({ photos }: { photos: string[] | undefined }) => {
   if (!photos || photos.length === 0) return;
 
   return (
-    <div className={cn('flex gap-2 mb-1 h-16', photos?.length > 0 ? '' : '')}>
-      {photos.map(pic => {
+    <div className="grid grid-cols-2 gap-2">
+      {photos.map((pic, idx) => {
         const fullSizeUrl = removeQueryParams(pic, ['name']); // Remove the 'name' query param
+        const isLastOdd = idx === photos.length - 1 && photos.length % 2 === 1;
 
         return (
-          <a key={fullSizeUrl} href={fullSizeUrl} target="_blank" rel="noopener noreferrer" className="">
+          <a
+            key={fullSizeUrl}
+            href={fullSizeUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`${isLastOdd ? 'col-span-2' : ''} block`}>
             <img
-              className="clickable size-16 object-cover border-gray-300/20 rounded-lg animate-fadeIn fade-in-40"
+              className={cn(
+                'clickable w-full rounded-lg border-gray-300/20 object-cover object-center transition-opacity hover:opacity-90  animate-fadeIn fade-in-80ch',
+                {
+                  'h-16 object-center': photos.length > 6,
+                  'h-32': photos.length <= 6,
+                },
+              )}
               src={pic}
               alt=""
             />

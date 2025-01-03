@@ -83,7 +83,7 @@ export const TweetCard = ({ item }: { item: DexieTab }) => {
                   return (
                     <a key={fullSizeUrl} href={fullSizeUrl} target="_blank" rel="noopener noreferrer" className="">
                       <img
-                        className="clickable size-16 object-cover border-gray-300/20 rounded-lg animate-fadeIn fade-in-40"
+                        className="clickable size-16 object-cover border-gray-300/20 rounded-lg transition-opacity hover:opacity-90 animate-fadeIn fade-in-40"
                         src={pic}
                         alt=""
                       />

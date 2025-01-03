@@ -6,7 +6,7 @@ import { Button, cn, Input, Label, Tabs, TabsContent, TabsList, TabsTrigger, Dro
 import { YoutubePlaylist, YoutubeVideo, YoutubeChannel } from './YoutubeTab';
 import { GenericTab, XPostItem } from './GenericTab';
 import { GenericTab as DexieGeneric } from './items/GenericTab';
-import { DetailDrawer as DexieDetailDrawer } from './components/DetailDrawer';
+import { DetailDrawer as DexieDetailDrawer } from './components/DetailDrawer/index';
 import { useAtom } from 'jotai';
 import { searchTagsAtom, drawerAtom } from './utils';
 import {
