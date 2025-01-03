@@ -37,7 +37,8 @@ export function DetailDrawer() {
             <div className="bg-slate-800 text-slate-300 rounded-md px-2 py-0.5">{category?.category.slice(0, 120)}</div>
             <div className="bg-slate-800 text-slate-300 rounded-md px-2 py-0.5">{item?.origin.slice(0, 120)}</div>
           </div>
-          {/* <DrawerTitle className="wrap-text-anywhere line-clamp-2">{tab.title} </DrawerTitle> */}
+          <DrawerTitle className="sr-only">{item.title} </DrawerTitle>
+          <DrawerDescription className="sr-only">{item.description} </DrawerDescription>
         </DrawerHeader>
         {drawer.edit ? <EditForm data={item} category={category} /> : <ContentSwitcher item={item} />}
         <DrawerFooter className="pt-2">

@@ -20,6 +20,7 @@ import XTextContent from './XTextContent';
 import TweetPhotos from './TweetPhotos';
 import TweetVideoThumbs from './TweetVideoThumbs';
 import TweetProfile from './TweetProfile';
+import TweetStats from './TweetStats';
 
 export function XPostDetail({ item }: { item: DexieTab }) {
   const xpost = useLiveQuery(async () => await db.xPosts.where({ tabId: item?.id ?? 1 }).first(), [item?.id]);
@@ -27,6 +28,7 @@ export function XPostDetail({ item }: { item: DexieTab }) {
   return (
     <section className="px-4">
       <DrawerHeader className="text-left px-0">
+        <DrawerTitle className="sr-only hidden">{item.description}</DrawerTitle>
         <TweetProfile
           avatar={xpost?.avatar ?? ''}
           handle={xpost?.handle ?? ''}
@@ -38,6 +40,7 @@ export function XPostDetail({ item }: { item: DexieTab }) {
 
       <TweetPhotos photos={xpost?.photos} />
       <TweetVideoThumbs videos={xpost?.videos} />
+      <TweetStats item={xpost} />
 
       <pre className="hidden">{JSON.stringify(xpost, null, 4)}</pre>
     </section>
