@@ -3,7 +3,7 @@ import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { atom } from 'jotai';
 import type { CategorizedTab, SingleTab } from '@extension/shared';
-import { DexieTab } from '@extension/storage/lib/dexie/db';
+import { DexieTab } from '@extension/storage';
 
 export const searchTagsAtom = atom<string[]>([]);
 
