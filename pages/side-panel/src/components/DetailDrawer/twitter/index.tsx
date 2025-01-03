@@ -30,6 +30,7 @@ export function XPostDetail({ item }: { item: DexieTab }) {
       <DrawerHeader className="text-left px-0">
         <DrawerTitle className="sr-only hidden">{item.description}</DrawerTitle>
         <TweetProfile
+          isPremium={xpost?.isPremium ?? false}
           avatar={xpost?.avatar ?? ''}
           handle={xpost?.handle ?? ''}
           profileName={xpost?.profileName ?? ''}

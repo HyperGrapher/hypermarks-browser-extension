@@ -10,7 +10,7 @@ import {
 } from '@extension/ui';
 import { useAtom, useSetAtom } from 'jotai';
 import { dexieDrawerAtom } from '../utils';
-import { DexieTab } from '@extension/storage/lib/dexie/db';
+import { DexieTab } from '@extension/storage';
 import { db } from '@extension/storage';
 
 export function DropdownMenuButton({ children, item }: { children: React.ReactNode; item: DexieTab }) {

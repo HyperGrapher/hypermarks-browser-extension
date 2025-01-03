@@ -65,13 +65,11 @@ const SidePanel = () => {
 
   useEffect(() => {
     autoPrefsStorage.saveLastCategory(selectedCategory);
-    console.log('y', selectedCategory);
   }, [selectedCategory]);
 
   useEffect(() => {
     if (categories) {
       const noItemLeftInCategory = categories?.filter(x => x.category === selectedCategory.category).length === 0;
-      console.log({ wewe: noItemLeftInCategory, len: categories?.length });
 
       if (categories?.length === 1 || noItemLeftInCategory) {
         // After deletion of an item, if there is only one category or no item left in the selected category

@@ -24,8 +24,6 @@ const TweetStats = ({ item }: { item: XpostDexie | undefined }) => {
     return num.toString();
   };
 
-  const datetime = new Date('2024-01-03T15:30:00');
-
   return (
     <div className="mt-2 text-sm text-gray-500">
       <div className="flex flex-wrap justify-between items-center gap-6 border-t border-gray-200/20 py-3 ">
@@ -44,9 +42,9 @@ const TweetStats = ({ item }: { item: XpostDexie | undefined }) => {
           <span>{formatNumber(item.likes)}</span>
         </div>
       </div>
-      <div className="flex items-center gap-2 ml-auto" title={datetime.toLocaleString()}>
+      <div className="flex items-center gap-2 ml-auto" title={item.datetime.toLocaleString()}>
         <Calendar className="h-4 w-4" />
-        <time dateTime={datetime.toISOString()}>{item.datetimeStr}</time>
+        <time dateTime={(item.datetime as Date).toISOString()}>{item.datetimeStr}</time>
       </div>
     </div>
   );

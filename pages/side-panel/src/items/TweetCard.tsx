@@ -36,7 +36,6 @@ export const TweetCard = ({ item }: { item: DexieTab }) => {
   const setSearchTags = useSetAtom(searchTagsAtom);
 
   const xpost = useLiveQuery(async () => await db.xPosts.where({ id: item.xpostId }).first(), []);
-  console.log(xpost);
 
   return (
     <div

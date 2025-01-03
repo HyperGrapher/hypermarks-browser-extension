@@ -1,7 +1,17 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@extension/ui';
 import { CheckCircle2Icon } from 'lucide-react';
 
-const TweetProfile = ({ avatar, handle, profileName }: { avatar: string; handle: string; profileName: string }) => {
+const TweetProfile = ({
+  avatar,
+  handle,
+  profileName,
+  isPremium,
+}: {
+  avatar: string;
+  handle: string;
+  profileName: string;
+  isPremium: boolean;
+}) => {
   return (
     <div className="flex gap-2">
       <Avatar>
@@ -14,9 +24,11 @@ const TweetProfile = ({ avatar, handle, profileName }: { avatar: string; handle:
           <a href={`https://x.com/${handle}`} target="_blank" rel="noopener noreferrer" className="font-bold">
             {profileName}
           </a>
-          <div className="text-blue-500">
-            <CheckCircle2Icon size={18} />
-          </div>
+          {isPremium && (
+            <div className="text-blue-500">
+              <CheckCircle2Icon size={18} />
+            </div>
+          )}
         </div>
 
         <a href={`https://x.com/${handle}`} target="_blank" rel="noopener noreferrer" className="text-gray-300">

@@ -5,15 +5,14 @@ export async function twitterController(): Promise<[Partial<DexieTab>, XpostDexi
   const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!activeTab?.id) throw new Error('No active tab found');
 
-  //   const titleCleaned = data.title.endsWith('- YouTube') ? data.title.slice(0, -10) : data.title;
-
   const tab: Partial<DexieTab> = {
     itemType: 'x-post',
   };
   console.log('before GetXPost in get-twitter.ts/twitterController');
 
   const xpost = await getXPost(activeTab.id);
-  console.log(xpost);
+
+  xpost.datetime = new Date(xpost.datetime);
 
   if (!xpost) throw new Error('Cannot get xpost data!');
   console.log('ok we get xpost in twitterController');
@@ -64,9 +63,6 @@ async function getXPost(tabId: number) {
       };
 
       function getXPostContent(): XpostDexie | null {
-        //   if (!isXPost) return null;
-        console.log('getXpostContent');
-
         let profileName = '';
         let handle = '';
         let avatar = '';
@@ -74,7 +70,7 @@ async function getXPost(tabId: number) {
         let views: string | number = '0';
         let likes: string | number = '0';
         let comments: string | number = '0';
-        let datetime;
+        let datetime = '';
         let datetimeStr = '';
         let isPremium = false;
 
@@ -129,10 +125,9 @@ async function getXPost(tabId: number) {
             '[data-testid="tweet"][tabindex="-1"] [data-testid="like"] [data-testid="app-text-transition-container"]',
           )?.textContent || '0';
 
-        datetime = document.querySelector('[data-testid="tweet"][tabindex="-1"] time')?.getAttribute('datetime');
-
-        // TODO: Check in tests if date is "1970-01-01T00:00:00.000Z", this is kinda smoke test.
-        datetime = new Date(datetime ?? 0);
+        datetime = document
+          .querySelector('[data-testid="tweet"][tabindex="-1"] time')
+          ?.getAttribute('datetime') as string;
 
         datetimeStr = document.querySelector('[data-testid="tweet"][tabindex="-1"] time')?.textContent || '';
         content =
@@ -168,7 +163,7 @@ async function getXPost(tabId: number) {
           avatar,
           photos,
           videos,
-        } satisfies XpostDexie;
+        } as XpostDexie & { datetime: string };
         console.log(obj);
 
         return obj;
