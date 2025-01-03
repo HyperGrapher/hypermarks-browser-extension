@@ -53,8 +53,8 @@ export async function saveDexieTab(popupData: {
   let scrapedSiteData: Partial<DexieTab>;
   let xpost: XpostDexie;
 
-  if (popupData.sitemeta?.origin.includes('x.com')) {
-    const [tab, xdata] = await twitterController();
+  if (popupData.sitemeta?.origin.includes('//x.com')) {
+    const [tab, xdata] = await twitterController(popupData.sitemeta.url);
     scrapedSiteData = tab;
     xpost = xdata as XpostDexie;
     scrapedSiteData.description = xpost.content;

@@ -54,14 +54,22 @@ export type DexieTab = {
 };
 
 export type XProfile = {
-  name: string;
+  username: string;
   handle: string;
   avatar: string;
+  header: string;
   bio: string;
+  isPremium: boolean;
+  isFollowing: boolean;
   followers: number;
   following: number;
-  tweets: number;
-  joined: string;
+  followedBy: string;
+  bday: string | undefined;
+  uniqueId: string;
+  website: string | undefined;
+  location: string | undefined;
+  joinedDateStr: string;
+  joinedDate: string;
 };
 
 export type DexieItemType =
