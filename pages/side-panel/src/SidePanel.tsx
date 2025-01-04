@@ -22,6 +22,7 @@ import { db, autoPrefsStorage, tabsGroupedStorage } from '@extension/storage';
 import { useLiveQuery } from 'dexie-react-hooks';
 import LoadingScreen from './components/LoadingScreen';
 import { TweetCard } from './items/TweetCard';
+import { XProfileCard } from './items/XProfileCard';
 
 function getTabsByCategory(groupedTabs: { [category: string]: SingleTab[] }): CategorizedTab[] {
   return Object.entries(groupedTabs).flatMap(([category, items]) => items.map(item => ({ category, item })));
@@ -141,6 +142,9 @@ const SidePanel = () => {
                   if (tab.itemType === 'x-post') {
                     return <TweetCard key={tab.id} item={tab} />;
                   }
+                  if (tab.itemType === 'x-profile') {
+                    return <XProfileCard key={tab.id} item={tab} />;
+                  }
                   return <DexieGeneric key={tab.id} item={tab} />;
                 })}
               </div>
@@ -183,6 +187,9 @@ function AllSavedTabs() {
         {tabs?.map(tab => {
           if (tab.itemType === 'x-post') {
             return <TweetCard key={tab.id} item={tab} />;
+          }
+          if (tab.itemType === 'x-profile') {
+            return <XProfileCard key={tab.id} item={tab} />;
           }
           return <DexieGeneric key={tab.id} item={tab} />;
         })}

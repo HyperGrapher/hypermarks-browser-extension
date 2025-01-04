@@ -15,6 +15,11 @@ import { useLiveQuery } from 'dexie-react-hooks';
 // TODO:  if no icon/thumbnail, show default ones
 // https://www.youtube.com/playlist?list=PLRnI_2_ZWhtCxHQ_3zDfW0-RgiWo8ftyj
 
+// 2 Video and 1 image in quoted tweet
+// https://x.com/levelsio/status/1875370327645254043
+// 1 vid 1 photo
+// https://x.com/BRICSinfo/status/1875222682385698950
+
 // Selectd xpost with images
 // https://x.com/kubadesign/status/1872956701756014797
 // https://x.com/stevelauda_/status/1873011086456439159

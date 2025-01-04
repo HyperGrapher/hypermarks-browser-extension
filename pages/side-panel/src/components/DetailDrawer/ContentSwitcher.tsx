@@ -1,6 +1,6 @@
 import { DexieItemType, DexieTab } from '@extension/storage';
 import React from 'react';
-import { XPostDetail } from './twitter';
+import { XPostDetail, XProfileDetail } from './twitter';
 
 // Type for all possible item types
 
@@ -26,6 +26,7 @@ type ComponentDictionary = {
 // Component implementations.
 const components: Partial<ComponentDictionary> = {
   'x-post': XPostDetail,
+  'x-profile': XProfileDetail,
   'github-repo': GithubRepoDetail,
   'soundcloud-track': SoundcloudTrackDetail,
   // Add other components as they're implemented...
