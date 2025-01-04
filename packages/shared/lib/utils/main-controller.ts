@@ -1,4 +1,4 @@
-import { DexieTab, XpostDexie } from '@extension/storage';
+import { DexieTab, XpostDexie, XProfile } from '@extension/storage';
 import { getActiveTabIcon } from './chrome-utils';
 import type { YouTube as YT, SiteMeta } from './shared-types';
 import { getGenericTab } from './scrapers/get-generic';
@@ -52,14 +52,19 @@ export async function saveDexieTab(popupData: {
 }): Promise<{ id: number; success: boolean }> {
   let scrapedSiteData: Partial<DexieTab>;
   let xpost: XpostDexie;
+  let xProfile: XProfile;
 
   if (popupData.sitemeta?.origin.includes('//x.com')) {
     const [tab, xdata] = await twitterController(popupData.sitemeta.url);
     scrapedSiteData = tab;
-    xpost = xdata as XpostDexie;
-    scrapedSiteData.description = xpost.content;
+    if (tab.itemType === 'x-post') {
+      xpost = xdata as XpostDexie;
+      scrapedSiteData.description = xpost.content;
+    } else if (tab.itemType === 'x-profile') {
+      xProfile = xdata as XProfile;
+    }
     console.log('scrape assign', scrapedSiteData);
-    console.log('xpost assign', xpost);
+    // console.log('xpost assign', xpost);
   } else {
     const generic = await getGenericTab();
     scrapedSiteData = generic;
@@ -68,7 +73,9 @@ export async function saveDexieTab(popupData: {
   // Combine partialSiteData with additional site data
   const combinedSiteData = combineSiteData(popupData, scrapedSiteData) as DexieTab;
 
-  const tabId = await db.transaction('rw', db.categories, db.tabs, db.xPosts, async () => {
+  // TODO: Assign required DexieTab attrs from XProfile
+  // TODO: check itemType and save
+  const tabId = await db.transaction('rw', db.categories, db.tabs, db.xPosts, db.xProfile, async () => {
     // Check if the category exists
     let categoryId = await db.categories
       .where('category')
@@ -85,9 +92,15 @@ export async function saveDexieTab(popupData: {
 
     // Save the tab data
     const tabSaved = await db.tabs.add(combinedSiteData);
-    xpost.tabId = tabSaved;
-    const xPostSaved = await db.xPosts.add(xpost);
-    await db.tabs.update(tabSaved, { xpostId: xPostSaved });
+    if (combinedSiteData.itemType === 'x-post') {
+      xpost.tabId = tabSaved;
+      const xPostSaved = await db.xPosts.add(xpost);
+      await db.tabs.update(tabSaved, { xpostId: xPostSaved });
+    } else if (combinedSiteData.itemType === 'x-profile') {
+      xProfile.tabId = tabSaved;
+      const xProfileSaved = await db.xProfile.add(xProfile);
+      await db.tabs.update(tabSaved, { xProfileId: xProfileSaved });
+    }
 
     return tabSaved;
   });

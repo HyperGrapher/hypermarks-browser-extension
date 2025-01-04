@@ -1,12 +1,13 @@
 import Dexie, { Table } from 'dexie';
 import type { YouTube } from '../../../shared';
-import { DexieTab, XpostDexie } from './dexie-types';
+import { DexieTab, XpostDexie, XProfile } from './dexie-types';
 
 export class TabsDB extends Dexie {
   categories!: Table<{ id?: number; category: string }, number>;
   tabs!: Table<DexieTab, number>;
   ytChannels!: Table<YouTube.Channel, number>;
   xPosts!: Table<XpostDexie, number>;
+  xProfile!: Table<XProfile, number>;
   constructor() {
     super('TabsDB');
     this.version(1).stores({
@@ -15,6 +16,8 @@ export class TabsDB extends Dexie {
       ytChannels: '++id,channelName,avatar,banner,description,subcriberCount,videoCount,isSubscribed,tabId',
       xPosts:
         '++id,tabId,profileName,handle,avatar,isPremium,datetime,datetimeStr,content,views,likes,comments,videos,photos,screenshotId',
+      xProfile:
+        '++id,username,handle,avatar,header,bio,isPremium,isFollowing,followers,following,followedBy,bday,uniqueId,website,location,joinedDateStr,joinedDate,tabId',
     });
   }
 

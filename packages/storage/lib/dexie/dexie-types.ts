@@ -1,4 +1,4 @@
-export interface Xpost {
+interface Xpost {
   profileName: string;
   handle: string;
   avatar: string;
@@ -51,9 +51,12 @@ export type DexieTab = {
   youtubePlaylistId?: number;
   youtubeShortId?: number;
   xpostId?: number;
+  xProfileId?: number;
 };
 
 export type XProfile = {
+  id?: number;
+  tabId?: number;
   username: string;
   handle: string;
   avatar: string;
@@ -69,7 +72,7 @@ export type XProfile = {
   website: string | undefined;
   location: string | undefined;
   joinedDateStr: string;
-  joinedDate: string;
+  joinedDate: Date;
 };
 
 export type DexieItemType =

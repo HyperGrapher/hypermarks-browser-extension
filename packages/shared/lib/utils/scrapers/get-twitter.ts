@@ -25,10 +25,12 @@ export async function twitterController(url: string): Promise<[Partial<DexieTab>
     console.log('before GetXProfile in get-twitter.ts/twitterController');
 
     const profile = await getXProfile(activeTab.id);
+    tab.title = profile.handle;
+    tab.description = profile.username;
 
     if (!profile) throw new Error('Cannot get xpost data!');
     console.log('ok we get xprofile in twitterController');
-    throw new Error('Cannot get xpost data!');
+    // throw new Error('Cannot get xpost data!');
 
     return [tab, profile];
   }
@@ -63,6 +65,7 @@ async function getXProfile(tabId: number) {
         const match = cleanValue.match(/^(\d+(\.\d+)?)([KMB])$/);
 
         if (!match) {
+          return 0;
           throw new Error('Invalid number format');
         }
 
@@ -167,10 +170,13 @@ async function getXProfile(tabId: number) {
       */
 
       console.log(d);
+      return d;
     },
   });
 
-  return {} as XProfile;
+  const data = scrapedData[0].result as XProfile;
+
+  return data;
 }
 
 // i get this error while scraping data from twitter. "Uncaught ReferenceError: __spreadValues$9 is not defined"
