@@ -1,3 +1,5 @@
+// @ts-ignore
+
 import { DexieTab, tabsGroupedStorage, XpostDexie } from '@extension/storage';
 import { getActiveTabIcon } from './chrome-utils';
 import type { YouTube as YT, ItemType, SingleTab, SiteMeta, Xpost } from './shared-types';
@@ -59,6 +61,15 @@ export async function captureTweetScreenshotAndSaveTab(tags: string[] | null, ca
   }
 }
 
+export async function saveCurrentTab(
+  tags: string[] | null,
+  category: string,
+  croppedScreenshot?: string,
+): Promise<SingleTab> {
+  return {} as SingleTab;
+}
+
+/* 
 export async function saveCurrentTab(
   tags: string[] | null,
   category: string,
@@ -422,8 +433,9 @@ export async function saveCurrentTab(
   await tabsGroupedStorage.save(category ?? 'Uncategorized', tab);
 
   return tab;
-}
+} */
 
+/* 
 export async function EXcaptureTweetScreenshotex() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   console.log({ sharedTabId: tab.id });
@@ -467,7 +479,7 @@ export async function EXcaptureTweetScreenshotex() {
   //     console.error('Failed to get element bounds');
   //   }
   // });
-}
+} */
 
 export async function EXcaptureTweetScreenshotAndSaveTabEX(tags: string[] | null, category: string) {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -484,7 +496,8 @@ export async function EXcaptureTweetScreenshotAndSaveTabEX(tags: string[] | null
   });
 }
 
-export async function EXgetAiResponseForTabEX() /* : Promise<{ category: string; tags: string[] }> */ {
+/* 
+export async function EXgetAiResponseForTabEX(){
   const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
   if (!activeTab?.id) throw new Error('No active tab found');
@@ -792,3 +805,4 @@ export async function EXgetAiResponseForTabEX() /* : Promise<{ category: string;
 
   return aiResult;
 }
+ */

@@ -1,10 +1,8 @@
 import {
   deleteAllTabData,
-  saveCurrentTab,
   withErrorBoundary,
   withSuspense,
   tagsAtom,
-  captureTweetScreenshotAndSaveTab,
   getActiveTabMeta,
   SiteMeta,
   saveDexieTab,
@@ -113,7 +111,7 @@ const Popup = () => {
   async function saveTabEX() {
     if (sitemeta?.origin.includes('//x.com') || sitemeta?.origin.includes('bilyoner.com')) {
       try {
-        const data = await captureTweetScreenshotAndSaveTab(tags, selectedCategory || 'Uncategorized');
+        const data = {} as any; // await captureTweetScreenshotAndSaveTab(tags, selectedCategory || 'Uncategorized');
         console.log('saveTab', data.title);
         setMessage('Tab saved!');
         setSelectedCategory('');
@@ -124,20 +122,20 @@ const Popup = () => {
         setMessage('Error occured');
       }
     } else {
-      saveCurrentTab(tags, selectedCategory || 'Uncategorized')
-        .then(val => {
-          if (val) {
-            setMessage('Tab saved!');
-            setSelectedCategory('');
-            setTags([]);
-            setAiSuccess(true); // todo iki adet var. biri bu, digeri getAiResponse'da
-            setTimeout(() => window.close(), 750);
-          }
-        })
-        .catch(err => {
-          console.log(err);
-          setMessage('Error occured');
-        });
+      // saveCurrentTab(tags, selectedCategory || 'Uncategorized')
+      //   .then(val => {
+      //     if (val) {
+      //       setMessage('Tab saved!');
+      //       setSelectedCategory('');
+      //       setTags([]);
+      //       setAiSuccess(true); // todo iki adet var. biri bu, digeri getAiResponse'da
+      //       setTimeout(() => window.close(), 750);
+      //     }
+      //   })
+      //   .catch(err => {
+      //     console.log(err);
+      //     setMessage('Error occured');
+      //   });
     }
   }
 

@@ -21,7 +21,7 @@ import { ContentSwitcher } from './ContentSwitcher';
 export function DetailDrawer() {
   const [drawer, setDrawer] = useAtom(dexieDrawerAtom);
 
-  const item = useLiveQuery(async () => await db.tabs.where({ id: drawer.item?.id ?? 1 }).first(), [drawer.item?.id]);
+  const item = useLiveQuery(async () => await db.marks.where({ id: drawer.item?.id ?? 1 }).first(), [drawer.item?.id]);
   const category = useLiveQuery(
     async () => await db.categories.where({ id: drawer.item?.categoryId ?? 1 }).first(),
     [drawer.item?.categoryId],
@@ -76,8 +76,8 @@ function EditForm({ data, category }: { data: DexieTab | undefined; category: De
   async function onEdit() {
     setLoading(true);
     if (!data || !data.id) return;
-    await db.tabs.update(data.id, { categoryId: selectedCategory?.id ?? data.categoryId, note, tags: selectedPills });
-    const itemsInCategory = await db.tabs.where({ categoryId: data.categoryId }).count();
+    await db.marks.update(data.id, { categoryId: selectedCategory?.id ?? data.categoryId, note, tags: selectedPills });
+    const itemsInCategory = await db.marks.where({ categoryId: data.categoryId }).count();
     if (itemsInCategory === 0) {
       // No items left in category, delete category.
       await db.categories.delete(data.categoryId);

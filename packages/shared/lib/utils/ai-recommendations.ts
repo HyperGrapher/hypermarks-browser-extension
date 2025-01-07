@@ -206,8 +206,8 @@ export async function getAiResponseForTab() /* : Promise<{ category: string; tag
             ?.textContent?.trim() || '';
 
         const obj = {
-          likes,
-          views,
+          likes: 0,
+          views: 0,
           handle,
           profileName,
           datetime,
@@ -215,7 +215,7 @@ export async function getAiResponseForTab() /* : Promise<{ category: string; tag
           isPremium,
           content,
           avatar,
-          comments,
+          comments: 0,
         } satisfies Xpost;
         // console.log(obj);
 

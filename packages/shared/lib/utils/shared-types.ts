@@ -7,6 +7,7 @@ export type ValueOf<T> = T[keyof T];
 
 export namespace YouTube {
   export interface Video {
+    tabId: number;
     title: string;
     channelName: string;
     avatar: string;
@@ -15,12 +16,14 @@ export namespace YouTube {
   }
 
   export interface Short {
+    tabId: number;
     channelName: string;
     avatar: string;
     thumbnail: string;
   }
 
   export interface Playlist {
+    tabId: number;
     title: string;
     channelName: string;
     avatar: string;
@@ -31,6 +34,7 @@ export namespace YouTube {
   }
 
   export interface Channel {
+    tabId: number;
     channelName: string;
     avatar: string;
     banner: string;

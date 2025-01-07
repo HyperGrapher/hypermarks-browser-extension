@@ -25,7 +25,7 @@ import { Calendar, Link as LinkIcon, MapPin, Cake, BadgeCheck, Users } from 'luc
 import ItemNote from '../ItemNote';
 
 export function XPostDetail({ item }: { item: DexieTab }) {
-  const xpost = useLiveQuery(async () => await db.xPosts.where({ tabId: item?.id ?? 1 }).first(), [item?.id]);
+  const xpost = useLiveQuery(async () => await db.x_posts.where({ markId: item?.id ?? 1 }).first(), [item?.id]);
 
   return (
     <section className="px-4">
@@ -52,7 +52,7 @@ export function XPostDetail({ item }: { item: DexieTab }) {
 }
 
 export function XProfileDetail({ item }: { item: DexieTab }) {
-  const profile = useLiveQuery(async () => await db.xProfile.where({ tabId: item?.id ?? 1 }).first(), [item?.id]);
+  const profile = useLiveQuery(async () => await db.x_profiles.where({ markId: item?.id ?? 1 }).first(), [item?.id]);
 
   return (
     <div className="w-full rounded-lg xbg-black text-white">

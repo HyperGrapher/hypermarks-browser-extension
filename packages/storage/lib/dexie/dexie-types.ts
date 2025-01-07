@@ -15,6 +15,7 @@
 // }
 
 export interface XpostDexie {
+  markId: number;
   profileName: string;
   handle: string;
   avatar: string;
@@ -28,8 +29,6 @@ export interface XpostDexie {
   photos?: string[];
   videos?: string[];
   screenshotId?: number;
-  tabId?: number;
-  id?: number;
 }
 
 export type DexieTab = {
@@ -45,23 +44,15 @@ export type DexieTab = {
   itemType: DexieItemType;
   createdAt: Date;
   updatedAt: Date;
-  youtubeChannelId?: number;
-  youtubeVideoId?: number;
-  youtubePlaylistId?: number;
-  youtubeShortId?: number;
-  xpostId?: number;
-  xProfileId?: number;
 };
 
 export type XPostScreenshot = {
-  id: number;
-  tabId: number;
+  markId: number;
   data: string;
 };
 
 export type XProfile = {
-  id?: number;
-  tabId?: number;
+  markId: number;
   username: string;
   handle: string;
   avatar: string;

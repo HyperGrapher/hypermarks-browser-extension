@@ -75,7 +75,7 @@ export async function saveDexieTab(popupData: {
 
   // TODO: Assign required DexieTab attrs from XProfile
   // TODO: check itemType and save
-  const tabId = await db.transaction('rw', db.categories, db.tabs, db.xPosts, db.xProfile, async () => {
+  const markId = await db.transaction('rw', db.categories, db.marks, db.x_posts, db.x_profiles, async () => {
     // Check if the category exists
     let categoryId = await db.categories
       .where('category')
@@ -91,19 +91,17 @@ export async function saveDexieTab(popupData: {
     combinedSiteData.categoryId = categoryId;
 
     // Save the tab data
-    const tabSaved = await db.tabs.add(combinedSiteData);
+    const tabSaved = await db.marks.add(combinedSiteData);
     if (combinedSiteData.itemType === 'x-post') {
-      xpost.tabId = tabSaved;
-      const xPostSaved = await db.xPosts.add(xpost);
-      await db.tabs.update(tabSaved, { xpostId: xPostSaved });
+      xpost.markId = tabSaved;
+      await db.x_posts.add(xpost);
     } else if (combinedSiteData.itemType === 'x-profile') {
-      xProfile.tabId = tabSaved;
-      const xProfileSaved = await db.xProfile.add(xProfile);
-      await db.tabs.update(tabSaved, { xProfileId: xProfileSaved });
+      xProfile.markId = tabSaved;
+      await db.x_profiles.add(xProfile);
     }
 
     return tabSaved;
   });
 
-  return { id: tabId, success: true };
+  return { id: markId, success: true };
 }

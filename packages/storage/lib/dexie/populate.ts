@@ -15,7 +15,7 @@ export async function populate() {
   //   isSubscribed: true,
   // })
 
-  // const tabid = await db.tabs.bulkAdd([
+  // const tabid = await db.marks.bulkAdd([
   //   {
   //     categoryId,
   //     title: 'Test title',

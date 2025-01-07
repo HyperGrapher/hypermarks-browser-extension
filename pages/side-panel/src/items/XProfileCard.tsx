@@ -19,7 +19,7 @@ import { Calendar, Link as LinkIcon, MapPin, Cake, BadgeCheck, Users } from 'luc
 // https://x.com/AIandDesign
 
 export const XProfileCard = ({ item }: { item: DexieTab }) => {
-  const p = useLiveQuery(async () => await db.xProfile.where({ id: item.xProfileId }).first(), []);
+  const p = useLiveQuery(async () => await db.x_profiles.where({ markId: item.id }).first(), []);
 
   return (
     <ItemCard item={item}>

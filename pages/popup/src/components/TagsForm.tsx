@@ -28,7 +28,7 @@ const FormSchema = z.object({
 type FormSchemaType = z.infer<typeof FormSchema>;
 
 export const TagsForm = () => {
-  const tabs = useLiveQuery(async () => (await db.tabs.toArray()).map(c => c.tags).flat(), []);
+  const tabs = useLiveQuery(async () => (await db.marks.toArray()).map(c => c.tags).flat(), []);
 
   const form = useForm<FormSchemaType>({
     resolver: zodResolver(FormSchema),

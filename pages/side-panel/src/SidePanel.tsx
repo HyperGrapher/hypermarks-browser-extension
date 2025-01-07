@@ -83,7 +83,7 @@ const SidePanel = () => {
   }, [categories]);
 
   const tabs = useLiveQuery(async () => {
-    const query = await db.tabs.where({ categoryId: selectedCategory?.id || categories?.[0].id || 1 }).toArray();
+    const query = await db.marks.where({ categoryId: selectedCategory?.id || categories?.[0].id || 1 }).toArray();
     await new Promise(resolve => setTimeout(resolve, 200));
     return query;
   }, [selectedCategory, categories]);
@@ -178,7 +178,7 @@ const SidePanel = () => {
 
 function AllSavedTabs() {
   const tabs = useLiveQuery(async () => {
-    const query = await db.tabs.reverse().toArray();
+    const query = await db.marks.reverse().toArray();
     await new Promise(resolve => setTimeout(resolve, 50));
     return query;
   }, []);
