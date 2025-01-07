@@ -12,6 +12,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { Calendar, Link as LinkIcon, MapPin, Cake, BadgeCheck, Users } from 'lucide-react';
 
 // Company verified profile with pfp to another account
+// FIXME: gets affiliated profile's icon as header img
 // https://x.com/BRICSinfo
 
 // FIXME: Err: follower/following numbers are 0 / misplaced with followedBy
