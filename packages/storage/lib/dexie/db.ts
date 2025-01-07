@@ -2,6 +2,8 @@ import Dexie, { Table } from 'dexie';
 import type { YouTube } from '../../../shared';
 import { DexieTab, XpostDexie, XProfile } from './dexie-types';
 
+// WARN: When adding Date object to any table use one of this names: 'createdAt', 'updatedAt', 'datetime'
+// WARN: OR update ExportImport component to include the field name in "dateFields" variable.
 export class TabsDB extends Dexie {
   categories!: Table<{ id?: number; category: string }, number>;
   tabs!: Table<DexieTab, number>;
@@ -12,7 +14,7 @@ export class TabsDB extends Dexie {
     super('TabsDB');
     this.version(1).stores({
       categories: '++id,category',
-      tabs: '++id,categoryId,datetime,title,url,icon,description,tags,origin,note,itemType,youtubeChannelId,youtubeVideoId,youtubeShortId,youtubePlaylistId,xpostId,createdAt,updatedAt',
+      tabs: '++id,categoryId,title,url,icon,description,tags,origin,note,itemType,youtubeChannelId,youtubeVideoId,youtubeShortId,youtubePlaylistId,xpostId,createdAt,updatedAt',
       ytChannels: '++id,channelName,avatar,banner,description,subcriberCount,videoCount,isSubscribed,tabId',
       xPosts:
         '++id,tabId,profileName,handle,avatar,isPremium,datetime,datetimeStr,content,views,likes,comments,videos,photos,screenshotId',

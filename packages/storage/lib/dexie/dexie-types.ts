@@ -1,18 +1,18 @@
-interface Xpost {
-  profileName: string;
-  handle: string;
-  avatar: string;
-  isPremium: boolean;
-  datetime: string;
-  datetimeStr: string;
-  content: string;
-  views: number;
-  likes: number;
-  comments: number;
-  photos?: string[];
-  screenshot?: string;
-  hasScreenshot?: boolean;
-}
+// interface Xpost {
+//   profileName: string;
+//   handle: string;
+//   avatar: string;
+//   isPremium: boolean;
+//   datetime: string;
+//   datetimeStr: string;
+//   content: string;
+//   views: number;
+//   likes: number;
+//   comments: number;
+//   photos?: string[];
+//   screenshot?: string;
+//   hasScreenshot?: boolean;
+// }
 
 export interface XpostDexie {
   profileName: string;
@@ -42,7 +42,6 @@ export type DexieTab = {
   icon: string;
   note: string | undefined;
   tags: string[];
-  datetime: string; // ISO string representing the saved time
   itemType: DexieItemType;
   createdAt: Date;
   updatedAt: Date;
@@ -52,6 +51,12 @@ export type DexieTab = {
   youtubeShortId?: number;
   xpostId?: number;
   xProfileId?: number;
+};
+
+export type XPostScreenshot = {
+  id: number;
+  tabId: number;
+  data: string;
 };
 
 export type XProfile = {

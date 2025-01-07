@@ -12,9 +12,9 @@ import {
 } from '@extension/ui';
 import { db, DexieTab } from '@extension/storage';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { DexieItemAndCategory, removeQueryParams, tagsAtom } from '@extension/shared';
+import { DexieItemAndCategory, tagsAtom } from '@extension/shared';
 import { useEffect, useState } from 'react';
-import { Loader2, CheckCircle2Icon } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { TagsForm } from '../tags/TagsForm';
 import { ContentSwitcher } from './ContentSwitcher';
 

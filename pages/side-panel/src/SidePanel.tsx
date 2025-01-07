@@ -23,6 +23,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import LoadingScreen from './components/LoadingScreen';
 import { TweetCard } from './items/TweetCard';
 import { XProfileCard } from './items/XProfileCard';
+import ExportImport from './components/export-import/ExportImport';
 
 function getTabsByCategory(groupedTabs: { [category: string]: SingleTab[] }): CategorizedTab[] {
   return Object.entries(groupedTabs).flatMap(([category, items]) => items.map(item => ({ category, item })));
@@ -163,6 +164,7 @@ const SidePanel = () => {
                   <h1 className="text-3xl font-bold text-center py-4">Search not available</h1>
                   <p className="text-center text-slate-400">Click on the extension icon to save tabs</p>
                 </div>
+                <ExportImport />
               </div>
             )}
           </TabsContent>
@@ -230,6 +232,7 @@ function EmptyView() {
       <div className="mt-6">
         {/* TODO: google.com uzerinde extension acikken caps alinacak */}
         {/* <img src={chrome.runtime.getURL('side-panel/nop.svg')} alt="" /> */}
+        <ExportImport />
       </div>
     </div>
   );
