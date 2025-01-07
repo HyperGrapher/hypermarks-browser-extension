@@ -46,7 +46,7 @@ export const TweetCard = ({ item }: { item: DexieTab }) => {
     <div
       className={cn(
         'px-1 pb-1 rounded shadow-lg border border-gray-300/20',
-        'bg-stone-700/20 w-full relative xxmax-h-36 flex flex-col card selection:bg-sky-600/80 selection:text-sky-300',
+        'bg-stone-700/20  relative flex flex-col selection:bg-sky-600/80 selection:text-sky-300',
       )}>
       <DropdownMenuButton item={item}>
         <button
@@ -58,13 +58,20 @@ export const TweetCard = ({ item }: { item: DexieTab }) => {
         </button>
       </DropdownMenuButton>
 
-      <div className="xyt-item items-centerx flex gap-2 px-3 pb-1 pt-2">
-        <img
-          src={item.icon ?? ''}
-          alt="icon"
-          className="size-4 translate-y-px"
-          onError={e => (e.currentTarget.src = chrome.runtime.getURL('side-panel/icon-fallback.png'))}
-        />
+      <div className="flex gap-2 px-3 pb-1 pt-2">
+        {item.icon ? (
+          <img
+            src={item.icon}
+            alt=""
+            className="size-4 min-w-4 translate-y-px"
+            onError={e => (e.currentTarget.src = chrome.runtime.getURL('side-panel/icon-fallback.png'))}
+          />
+        ) : (
+          // Solves the title shifting right on tabon load.
+          <div className="size-4 w-4 min-w-4 bg-red-800 translate-y-px">
+            <span className="opacity-0">x</span>
+          </div>
+        )}
 
         <div className="">
           <button
