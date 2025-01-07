@@ -246,6 +246,8 @@ const Popup = () => {
                   placeholder="Type to add a note... (optional)"
                   autoCorrect="off"
                   spellCheck="false"
+                  value={note}
+                  onChange={e => setNote(e.target.value)}
                 />
               </div>
 

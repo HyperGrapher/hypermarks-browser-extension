@@ -22,6 +22,7 @@ import TweetVideoThumbs from './TweetVideoThumbs';
 import TweetProfile from './TweetProfile';
 import TweetStats from './TweetStats';
 import { Calendar, Link as LinkIcon, MapPin, Cake, BadgeCheck, Users } from 'lucide-react';
+import ItemNote from '../ItemNote';
 
 export function XPostDetail({ item }: { item: DexieTab }) {
   const xpost = useLiveQuery(async () => await db.xPosts.where({ tabId: item?.id ?? 1 }).first(), [item?.id]);
@@ -43,6 +44,7 @@ export function XPostDetail({ item }: { item: DexieTab }) {
       <TweetPhotos photos={xpost?.photos} />
       <TweetVideoThumbs videos={xpost?.videos} />
       <TweetStats item={xpost} />
+      <ItemNote className="mb-4" note={item?.note} />
 
       <pre className="hidden">{JSON.stringify(xpost, null, 4)}</pre>
     </section>
