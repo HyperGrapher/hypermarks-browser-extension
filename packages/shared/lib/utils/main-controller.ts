@@ -1,9 +1,54 @@
-import { DexieTab, XpostDexie, XProfile } from '@extension/storage';
+import { DexieTab, screenshotPrefStorage, XpostDexie, XProfile } from '@extension/storage';
 import { getActiveTabIcon } from './chrome-utils';
 import type { YouTube as YT, SiteMeta } from './shared-types';
 import { getGenericTab } from './scrapers/get-generic';
 import { db } from '@extension/storage';
 import { twitterController } from './scrapers/get-twitter';
+
+export async function captureScreenshot(): Promise<string> {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+  let selectorForScreenshot = 'article[data-testid="tweet"][tabindex="-1"]';
+  if (tab.url?.includes('bilyoner.com')) {
+    selectorForScreenshot = '.betslip.betslip--active';
+    // } else if (tab.url?.includes('//x.com') && tab.url?.includes('/status/')) {
+    // URL matches "https://x.com/.../status/..."
+  } else if (/^https?:\/\/x\.com\/.*\/status\//.test(tab.url ?? '')) {
+    selectorForScreenshot = 'article[data-testid="tweet"][tabindex="-1"]';
+  } else return '';
+
+  // Wrap chrome.runtime.sendMessage in a Promise
+  const screenshotSaved = new Promise<{ success: boolean; croppedScreenshot?: string; error?: string }>(
+    (resolve, reject) => {
+      chrome.runtime.sendMessage(
+        { action: 'captureTweetScreenshot', tabId: tab.id, selectorForScreenshot },
+        response => {
+          if (chrome.runtime.lastError) {
+            reject(new Error(chrome.runtime.lastError.message));
+            return;
+          }
+
+          if (response?.success) {
+            resolve(response); // Resolve with the screenshot data
+          } else {
+            reject(new Error(response?.error || 'Unknown error while capturing screenshot.'));
+          }
+        },
+      );
+    },
+  );
+
+  try {
+    const screenshotResponse = await screenshotSaved;
+    console.log('Screenshot cropped');
+
+    // return data to popup
+    return screenshotResponse.croppedScreenshot ?? '';
+  } catch (error) {
+    console.error('Error capturing tweet screenshot:', error);
+    throw error; // Re-throw the error to propagate it
+  }
+}
 
 const notificationOptions = {
   type: 'basic',
@@ -53,8 +98,11 @@ export async function saveDexieTab(popupData: {
   let scrapedSiteData: Partial<DexieTab>;
   let xpost: XpostDexie;
   let xProfile: XProfile;
+  let screenshot: string;
 
   if (popupData.sitemeta?.origin.includes('//x.com')) {
+    const screenshotPref = await screenshotPrefStorage.get();
+    if (screenshotPref.pref) screenshot = await captureScreenshot();
     const [tab, xdata] = await twitterController(popupData.sitemeta.url);
     scrapedSiteData = tab;
     if (tab.itemType === 'x-post') {
@@ -101,6 +149,9 @@ export async function saveDexieTab(popupData: {
       if (combinedSiteData.itemType === 'x-post') {
         xpost.mark_id = tabSaved;
         await db.x_posts.add(xpost);
+        if (screenshot) {
+          await db.x_screenshots.add({ mark_id: tabSaved, data: screenshot });
+        }
       } else if (combinedSiteData.itemType === 'x-profile') {
         xProfile.mark_id = tabSaved;
         await db.x_profiles.add(xProfile);

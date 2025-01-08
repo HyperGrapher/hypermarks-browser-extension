@@ -7,6 +7,7 @@ import { useSetAtom } from 'jotai';
 import { DropdownMenuButton } from '../components/DropdownMenuButton';
 import { db, autoPrefsStorage, tabsGroupedStorage, DexieTab } from '@extension/storage';
 import { useLiveQuery } from 'dexie-react-hooks';
+import ImageWithPreview from '@src/components/ImageWithPreview';
 // this js-abbreviation-number lib is only good for num to str
 // import { unabbreviateNumber } from 'js-abbreviation-number';
 
@@ -41,6 +42,7 @@ export const TweetCard = ({ item }: { item: DexieTab }) => {
   const setSearchTags = useSetAtom(searchTagsAtom);
 
   const xpost = useLiveQuery(async () => await db.x_posts.where({ mark_id: item.id }).first(), []);
+  const screenshot = useLiveQuery(async () => await db.x_screenshots.where({ mark_id: item.id }).first(), []);
 
   return (
     <div
@@ -104,7 +106,7 @@ export const TweetCard = ({ item }: { item: DexieTab }) => {
               : null}
           </div>
 
-          {/* {xpost?.screenshotId && <ImageWithPreview src={xpost?.screenshot ?? ''} />} */}
+          {screenshot?.mark_id && <ImageWithPreview src={screenshot?.data ?? ''} />}
         </div>
       </div>
       <section className="flex w-full flex-wrap gap-0.5 pt-1">

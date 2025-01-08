@@ -15,6 +15,7 @@ import { useAtom } from 'jotai';
 import { MetaHeader } from './components/MetaHeader';
 import { db } from '@extension/storage';
 import { useLiveQuery } from 'dexie-react-hooks';
+import ScreenshotCheckbox from './components/ScreenshotCheckbox';
 /*
  #* fikir su:
  #* alt categori olustur . belli basli siteler, ozellikle dedicated data/ui'i olan
@@ -256,6 +257,7 @@ const Popup = () => {
 
         {!showCreateCategory && (
           <div className="space-y-2">
+            <ScreenshotCheckbox url={sitemeta?.url ?? ''} />
             <Button
               onClick={async () => await saveTab()}
               variant="default"
