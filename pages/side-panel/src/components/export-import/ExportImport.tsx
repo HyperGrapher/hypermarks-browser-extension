@@ -57,7 +57,8 @@ const ExportImport: React.FC = () => {
             // Convert string dates back to Date objects
             dateFields.forEach(field => {
               if (record[field]) {
-                record[field] = new Date(record[field]);
+                const date = new Date(record[field]);
+                record[field] = isNaN(date.getTime()) ? new Date(0) : date;
               }
             });
             return record;

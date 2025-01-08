@@ -21,18 +21,17 @@ export class TabsDB extends Dexie {
   x_profiles!: Table<XProfile, number>;
   x_screenshots!: Table<XPostScreenshot, number>;
   constructor() {
-    super('TabsDB');
+    super('HyperMarksDB');
     this.version(1).stores({
       categories: '++id,category',
-      marks:
-        '++id,categoryId,title,url,icon,description,tags,origin,note,itemType,youtubeChannelId,youtubeVideoId,youtubeShortId,youtubePlaylistId,xpostId,createdAt,updatedAt',
-      yt_channels: 'markId,channelName,avatar,banner,description,subcriberCount,videoCount,isSubscribed',
-      yt_videos: 'markId,title,channelName,avatar,description,thumbnail',
+      marks: '++id,categoryId,title,url,icon,description,tags,origin,note,itemType,createdAt,updatedAt',
+      yt_channels: 'mark_id,channelName,avatar,banner,description,subcriberCount,videoCount,isSubscribed',
+      yt_videos: 'mark_id,title,channelName,avatar,description,thumbnail',
       x_posts:
-        'markId,profileName,handle,avatar,isPremium,datetime,datetimeStr,content,views,likes,comments,videos,photos,screenshotId',
+        'mark_id,profileName,handle,avatar,isPremium,datetime,datetimeStr,content,views,likes,comments,videos,photos',
       x_profiles:
-        'markId,username,handle,avatar,header,bio,isPremium,isFollowing,followers,following,followedBy,bday,uniqueId,website,location,joinedDateStr,joinedDate',
-      x_screenshots: 'markId,data',
+        'mark_id,username,handle,avatar,header,bio,isPremium,isFollowing,followers,following,followedBy,bday,uniqueId,website,location,joinedDateStr,joinedDate',
+      x_screenshots: 'mark_id,data',
     });
   }
 
@@ -45,7 +44,6 @@ export class TabsDB extends Dexie {
   }
 
   deleteItem(id: number | undefined, categoryId: number) {
-    console.log({ id, categoryId });
     if (!id) return;
 
     return this.transaction(
@@ -62,32 +60,30 @@ export class TabsDB extends Dexie {
       async () => {
         this.marks.where({ id }).delete();
 
-        const xpostCount = await this.x_posts.where({ markId: id }).count();
-        const xProfileCount = await this.x_profiles.where({ markId: id }).count();
-        const xScreenshotCount = await this.x_screenshots.where({ markId: id }).count();
-        const ytChannelCount = await this.yt_channels.where({ markId: id }).count();
-        const ytVideoCount = await this.yt_videos.where({ markId: id }).count();
-
-        // console.log({xpostCount, xProfileCount, xScreenshotCount, ytChannelCount, ytVideoCount});
+        const xpostCount = await this.x_posts.where({ mark_id: id }).count();
+        const xProfileCount = await this.x_profiles.where({ mark_id: id }).count();
+        const xScreenshotCount = await this.x_screenshots.where({ mark_id: id }).count();
+        const ytChannelCount = await this.yt_channels.where({ mark_id: id }).count();
+        const ytVideoCount = await this.yt_videos.where({ mark_id: id }).count();
 
         if (xpostCount > 0) {
-          this.x_posts.where({ markId: id }).delete();
+          this.x_posts.where({ mark_id: id }).delete();
         }
 
         if (xProfileCount > 0) {
-          this.x_profiles.where({ markId: id }).delete();
+          this.x_profiles.where({ mark_id: id }).delete();
         }
 
         if (xScreenshotCount > 0) {
-          this.x_screenshots.where({ markId: id }).delete();
+          this.x_screenshots.where({ mark_id: id }).delete();
         }
 
         if (ytChannelCount > 0) {
-          this.yt_channels.where({ markId: id }).delete();
+          this.yt_channels.where({ mark_id: id }).delete();
         }
 
         if (ytVideoCount > 0) {
-          this.yt_videos.where({ markId: id }).delete();
+          this.yt_videos.where({ mark_id: id }).delete();
         }
 
         this.marks

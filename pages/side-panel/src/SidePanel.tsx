@@ -96,7 +96,7 @@ const SidePanel = () => {
       <header className={`h-8 w-full px-2 py-1 hidden`}>Settings</header>
       {isLoaded && (
         <Tabs defaultValue={activeTab ?? 'all'} className="w-full px-2 pl-2 mt-3">
-          <TabsList className="grid w-full grid-cols-3 bg-slate-800">
+          <TabsList className="grid grid-cols-3 bg-slate-800 z-50">
             <TabsTrigger
               onClick={() => {
                 setActiveTab('categories');

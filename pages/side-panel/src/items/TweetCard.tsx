@@ -40,7 +40,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 export const TweetCard = ({ item }: { item: DexieTab }) => {
   const setSearchTags = useSetAtom(searchTagsAtom);
 
-  const xpost = useLiveQuery(async () => await db.x_posts.where({ markId: item.id }).first(), []);
+  const xpost = useLiveQuery(async () => await db.x_posts.where({ mark_id: item.id }).first(), []);
 
   return (
     <div

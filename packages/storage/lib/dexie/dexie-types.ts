@@ -15,7 +15,7 @@
 // }
 
 export interface XpostDexie {
-  markId: number;
+  mark_id: number;
   profileName: string;
   handle: string;
   avatar: string;
@@ -28,7 +28,6 @@ export interface XpostDexie {
   comments: number;
   photos?: string[];
   videos?: string[];
-  screenshotId?: number;
 }
 
 export type DexieTab = {
@@ -47,12 +46,12 @@ export type DexieTab = {
 };
 
 export type XPostScreenshot = {
-  markId: number;
+  mark_id: number;
   data: string;
 };
 
 export type XProfile = {
-  markId: number;
+  mark_id: number;
   username: string;
   handle: string;
   avatar: string;
