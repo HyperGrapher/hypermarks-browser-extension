@@ -1,8 +1,14 @@
 import { db } from '@extension/storage';
 import { Button, cn } from '@extension/ui';
-import React from 'react';
+import React, { useState } from 'react';
+import { CheckCircle2Icon } from 'lucide-react';
+import { useLiveQuery } from 'dexie-react-hooks';
 
 const ExportImport: React.FC = () => {
+  const [isLoaded, setIsLoaded] = useState(true);
+  const [type, setType] = useState<string | undefined>(undefined);
+  const count = useLiveQuery(async () => await db.marks?.count(), []);
+
   // Export data to JSON file
   const handleExport = async () => {
     try {
@@ -29,8 +35,13 @@ const ExportImport: React.FC = () => {
       document.body.removeChild(anchor);
       URL.revokeObjectURL(url);
 
-      alert('Data exported successfully!');
+      setIsLoaded(true);
+      setType('export');
+
+      // alert('Data exported successfully!');
     } catch (error) {
+      setIsLoaded(false);
+      setType('export');
       console.error('Error exporting data:', error);
       alert('Failed to export data. Please try again.');
     }
@@ -43,7 +54,7 @@ const ExportImport: React.FC = () => {
       const importData = JSON.parse(fileContent);
 
       // WARN: Whenever add a new table/field with Date object, add it to the array.
-      const dateFields = ['createdAt', 'updatedAt', 'datetime'];
+      const dateFields = ['createdAt', 'updatedAt', 'datetime', 'joinedDate'];
 
       // Clear existing data
       for (const tableName of db.tables.map(table => table.name)) {
@@ -68,9 +79,14 @@ const ExportImport: React.FC = () => {
         }
       }
 
+      // setIsLoaded(true)
+      // setType('import');
+
       alert('Data imported successfully!');
     } catch (error) {
       console.error('Error importing data:', error);
+      setIsLoaded(false);
+      setType('import');
       alert('Failed to import data. Please check the file format.');
     }
   };
@@ -113,8 +129,27 @@ const ExportImport: React.FC = () => {
         accept="application/json"
         onChange={handleFileChange}
       />
+      <div className="">{type && <Success type={type} success={isLoaded} />}</div>
     </div>
   );
 };
 
 export default ExportImport;
+
+const Success = ({ success, type = 'export' }: { success: boolean; type: string | undefined }) => {
+  return success ? (
+    <div className="mt-6 px-2 w-full">
+      <div className="px-2 py-4 rounded-lg w-full text-center bg-green-800/20 border border-green-500/30 ">
+        <h3 className="font-bold text-base text-green-200/80">Database {type} is successfull</h3>
+        {type === 'import' && <p className="px-2">Data will load in a few seconds</p>}
+        <CheckCircle2Icon size={36} className="text-center mx-auto mt-2 text-green-400" />
+      </div>
+    </div>
+  ) : (
+    <div className="mt-6 px-2 w-full">
+      <div className="px-2 py-4 rounded-lg w-full text-center bg-red-800/20 border border-red-500/30 ">
+        <h3 className="font-bold text-base text-red-200/80">Database {type} is failed!</h3>
+      </div>
+    </div>
+  );
+};

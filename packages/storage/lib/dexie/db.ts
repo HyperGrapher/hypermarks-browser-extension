@@ -22,16 +22,15 @@ export class TabsDB extends Dexie {
   x_screenshots!: Table<XPostScreenshot, number>;
   constructor() {
     super('HyperMarksDB');
+    // INFO: Only existing index fields can be searched
     this.version(1).stores({
       categories: '++id,category',
-      marks: '++id,categoryId,title,url,icon,description,tags,origin,note,itemType,createdAt,updatedAt',
-      yt_channels: 'mark_id,channelName,avatar,banner,description,subcriberCount,videoCount,isSubscribed',
-      yt_videos: 'mark_id,title,channelName,avatar,description,thumbnail',
-      x_posts:
-        'mark_id,profileName,handle,avatar,isPremium,datetime,datetimeStr,content,views,likes,comments,videos,photos',
-      x_profiles:
-        'mark_id,username,handle,avatar,header,bio,isPremium,isFollowing,followers,following,followedBy,bday,uniqueId,website,location,joinedDateStr,joinedDate',
-      x_screenshots: 'mark_id,data',
+      marks: '++id,categoryId,title,*tags,origin,createdAt,[origin+tags]',
+      yt_channels: 'mark_id,channelName',
+      yt_videos: 'mark_id,channelName',
+      x_posts: 'mark_id,handle,datetime',
+      x_profiles: 'mark_id,username,handle,isFollowing',
+      x_screenshots: 'mark_id',
     });
   }
 
@@ -90,8 +89,6 @@ export class TabsDB extends Dexie {
           .where({ categoryId })
           .count()
           .then(c => {
-            console.log({ count: c });
-
             if (c === 0) {
               this.categories.where({ id: categoryId }).delete();
             }
