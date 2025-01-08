@@ -1,18 +1,45 @@
-// interface Xpost {
-//   profileName: string;
-//   handle: string;
-//   avatar: string;
-//   isPremium: boolean;
-//   datetime: string;
-//   datetimeStr: string;
-//   content: string;
-//   views: number;
-//   likes: number;
-//   comments: number;
-//   photos?: string[];
-//   screenshot?: string;
-//   hasScreenshot?: boolean;
-// }
+export namespace YouTube {
+  export interface Video {
+    mark_id?: number;
+    thumbnail: string;
+    avatar: string;
+    title: string;
+    description: string;
+    channelName: string;
+    views?: string;
+    datetime?: Date;
+    datetimeStr?: string;
+  }
+
+  export interface Short {
+    mark_id: number;
+    channelName: string;
+    avatar: string;
+    thumbnail: string;
+  }
+
+  export interface Playlist {
+    mark_id: number;
+    title: string;
+    channelName: string;
+    avatar: string;
+    thumbnail: string;
+    description: string;
+    viewCount: string;
+    videoCount: string;
+  }
+
+  export interface Channel {
+    mark_id: number;
+    channelName: string;
+    avatar: string;
+    banner: string;
+    description: string;
+    subcriberCount: string;
+    videoCount: string;
+    isSubscribed: boolean;
+  }
+}
 
 export interface XpostDexie {
   mark_id: number;

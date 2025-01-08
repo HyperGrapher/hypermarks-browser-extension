@@ -1,14 +1,5 @@
 import Dexie, { Table } from 'dexie';
-import type { YouTube } from '../../../shared';
-import { DexieTab, XpostDexie, XPostScreenshot, XProfile } from './dexie-types';
-
-export interface Video {
-  title: string;
-  channelName: string;
-  avatar: string;
-  description: string;
-  thumbnail: string;
-}
+import { DexieTab, XpostDexie, XPostScreenshot, XProfile, YouTube } from './dexie-types';
 
 // WARN: When adding Date object to any table use one of this names: 'createdAt', 'updatedAt', 'datetime'
 // WARN: OR update ExportImport component to include the field name in "dateFields" variable.

@@ -24,6 +24,7 @@ import LoadingScreen from './components/LoadingScreen';
 import { TweetCard } from './items/TweetCard';
 import { XProfileCard } from './items/XProfileCard';
 import ExportImport from './components/export-import/ExportImport';
+import YoutubeVideoCard from './items/YoutubeVideoCard';
 
 function getTabsByCategory(groupedTabs: { [category: string]: SingleTab[] }): CategorizedTab[] {
   return Object.entries(groupedTabs).flatMap(([category, items]) => items.map(item => ({ category, item })));
@@ -146,6 +147,9 @@ const SidePanel = () => {
                   if (tab.itemType === 'x-profile') {
                     return <XProfileCard key={tab.id} item={tab} />;
                   }
+                  if (tab.itemType === 'yt-video') {
+                    return <YoutubeVideoCard key={tab.id} item={tab} />;
+                  }
                   return <DexieGeneric key={tab.id} item={tab} />;
                 })}
               </div>
@@ -192,6 +196,9 @@ function AllSavedTabs() {
           }
           if (tab.itemType === 'x-profile') {
             return <XProfileCard key={tab.id} item={tab} />;
+          }
+          if (tab.itemType === 'yt-video') {
+            return <YoutubeVideoCard key={tab.id} item={tab} />;
           }
           return <DexieGeneric key={tab.id} item={tab} />;
         })}

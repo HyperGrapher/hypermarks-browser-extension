@@ -1,9 +1,10 @@
-import { DexieTab, screenshotPrefStorage, XpostDexie, XProfile } from '@extension/storage';
+import { DexieTab, screenshotPrefStorage, XpostDexie, XProfile, YouTube } from '@extension/storage';
 import { getActiveTabIcon } from './chrome-utils';
-import type { YouTube as YT, SiteMeta } from './shared-types';
+import type { SiteMeta } from './shared-types';
 import { getGenericTab } from './scrapers/get-generic';
 import { db } from '@extension/storage';
 import { twitterController } from './scrapers/get-twitter';
+import { youtubeController } from './scrapers/youtube-controller';
 
 export async function captureScreenshot(): Promise<string> {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -98,6 +99,7 @@ export async function saveDexieTab(popupData: {
   let scrapedSiteData: Partial<DexieTab>;
   let xpost: XpostDexie;
   let xProfile: XProfile;
+  let ytVideo: YouTube.Video;
   let screenshot: string;
 
   if (popupData.sitemeta?.origin.includes('//x.com')) {
@@ -113,6 +115,14 @@ export async function saveDexieTab(popupData: {
     }
     console.log('scrape assign', scrapedSiteData);
     // console.log('xpost assign', xpost);
+  } else if (popupData.sitemeta?.origin.includes('youtube.com')) {
+    scrapedSiteData = {};
+    const [tab, ytData] = await youtubeController(popupData.sitemeta.url);
+
+    if (tab.itemType === 'yt-video') {
+      ytVideo = ytData as YouTube.Video;
+      scrapedSiteData = tab;
+    }
   } else {
     const generic = await getGenericTab();
     scrapedSiteData = generic;
@@ -125,7 +135,7 @@ export async function saveDexieTab(popupData: {
   // TODO: check itemType and save
   const mark_id = await db.transaction(
     'rw',
-    [db.categories, db.marks, db.x_posts, db.x_profiles, db.x_screenshots],
+    [db.categories, db.marks, db.x_posts, db.x_profiles, db.x_screenshots, db.yt_videos, db.yt_channels],
     async () => {
       console.log('STARTING TRANS');
 
@@ -155,6 +165,9 @@ export async function saveDexieTab(popupData: {
       } else if (combinedSiteData.itemType === 'x-profile') {
         xProfile.mark_id = tabSaved;
         await db.x_profiles.add(xProfile);
+      } else if (combinedSiteData.itemType === 'yt-video') {
+        ytVideo.mark_id = tabSaved;
+        await db.yt_videos.add(ytVideo);
       }
 
       return tabSaved;
