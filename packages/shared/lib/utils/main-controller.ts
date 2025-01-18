@@ -100,6 +100,7 @@ export async function saveDexieTab(popupData: {
   let xpost: XpostDexie;
   let xProfile: XProfile;
   let ytVideo: YouTube.Video;
+  let ytPlaylist: YouTube.Playlist;
   let screenshot: string;
 
   if (popupData.sitemeta?.origin.includes('//x.com')) {
@@ -123,6 +124,11 @@ export async function saveDexieTab(popupData: {
       ytVideo = ytData as YouTube.Video;
       scrapedSiteData = tab;
     }
+
+    if (tab.itemType === 'yt-playlist') {
+      ytPlaylist = ytData as YouTube.Playlist;
+      scrapedSiteData = tab;
+    }
   } else {
     const generic = await getGenericTab();
     scrapedSiteData = generic;
@@ -135,7 +141,16 @@ export async function saveDexieTab(popupData: {
   // TODO: check itemType and save
   const mark_id = await db.transaction(
     'rw',
-    [db.categories, db.marks, db.x_posts, db.x_profiles, db.x_screenshots, db.yt_videos, db.yt_channels],
+    [
+      db.categories,
+      db.marks,
+      db.x_posts,
+      db.x_profiles,
+      db.x_screenshots,
+      db.yt_videos,
+      db.yt_playlists,
+      db.yt_channels,
+    ],
     async () => {
       console.log('STARTING TRANS');
 
@@ -168,6 +183,9 @@ export async function saveDexieTab(popupData: {
       } else if (combinedSiteData.itemType === 'yt-video') {
         ytVideo.mark_id = tabSaved;
         await db.yt_videos.add(ytVideo);
+      } else if (combinedSiteData.itemType === 'yt-playlist') {
+        ytPlaylist.mark_id = tabSaved;
+        await db.yt_playlists.add(ytPlaylist);
       }
 
       return tabSaved;
