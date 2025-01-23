@@ -59,8 +59,8 @@ const SidePanel = () => {
       }
       event.preventDefault();
     };
-
-    document.addEventListener('contextmenu', handleContextMenu);
+    // TODO: Uncomment
+    // document.addEventListener('contextmenu', handleContextMenu);
 
     return () => {
       document.removeEventListener('contextmenu', handleContextMenu);
@@ -85,12 +85,12 @@ const SidePanel = () => {
   }, [categories]);
 
   const tabs = useLiveQuery(async () => {
-    const query = await db.marks.where({ categoryId: selectedCategory?.id || categories?.[0].id || 1 }).toArray();
+    const query = await db.marks.where({ categoryId: selectedCategory?.id || categories?.[0]?.id || 1 }).toArray();
     await new Promise(resolve => setTimeout(resolve, 200));
     return query;
   }, [selectedCategory, categories]);
 
-  if (!tabs) return <div className="bg-slate-900/90 h-screen w-full" />;
+  if (!tabs) return <div className="h-screen w-full" />;
   if (tabs && tabs.length === 0) return <EmptyView />;
 
   return (
@@ -220,9 +220,7 @@ const SidePanelex = () => {
   return (
     <div className={``}>
       <header className={`App-header`}>
-        <div className="hidden h-12 w-full bg-zinc-800">
-          {/* <pre>{JSON.stringify(tabsWithCategories, null, 1)}</pre> */}
-        </div>
+        <div className="hidden h-12 w-full bg-zinc-800"></div>
         <div className="px-2 py-4">
           {Object.getOwnPropertyNames(tabsWithCategories).length === 0 ? (
             <EmptyView />
