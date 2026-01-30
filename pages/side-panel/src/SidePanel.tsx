@@ -125,7 +125,7 @@ const SidePanel = () => {
             </TabsTrigger>
           </TabsList>
           <TabsContent value="categories" className="">
-            <div className="py-4">options</div>
+            {/* <div className="py-4">options</div> */}
 
             <DropdownSelect
               role="sidepanel"
@@ -160,7 +160,7 @@ const SidePanel = () => {
             )}
           </TabsContent>
           <TabsContent value="all">
-            <div className="py-4">options</div>
+            {/* <div className="py-4">options</div> */}
 
             {activeTab === 'all' && <AllSavedTabs />}
           </TabsContent>

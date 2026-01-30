@@ -2,8 +2,60 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>New Tab</title>
-  </head>
+ <title>Susi & Burak</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+        font-family: 'Playfair Display', serif;
+      }
+      .font-script {
+        font-family: 'Great Vibes', cursive;
+      }
+      /* Custom animation for floating hearts */
+      @keyframes floatUp {
+        0% {
+          transform: translateY(100vh) scale(0.5) rotate(0deg);
+          opacity: 0;
+        }
+        10% {
+          opacity: 0.8;
+        }
+        90% {
+          opacity: 0.8;
+        }
+        100% {
+          transform: translateY(-20vh) scale(1.2) rotate(360deg);
+          opacity: 0;
+        }
+      }
+      .animate-float {
+        animation: floatUp linear infinite;
+      }
+      /* Gradient Text Animation */
+      @keyframes shine {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+      .animate-shine {
+        background-size: 200% auto;
+        animation: shine 5s linear infinite;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4",
+    "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/"
+  }
+}
+</script>  </head>
 
   <body class="dark">
     <div id="app-container"></div>
