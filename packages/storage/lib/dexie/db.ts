@@ -33,12 +33,27 @@ export class TabsDB extends Dexie {
     });
   }
 
-  // TODO: THis needs to be fixed
+  /**
+   * Deletes a category with everything in it: its items, the YouTube/X data of those items and its sub categories.
+   * All or nothing. Returns how many items were deleted.
+   */
   deleteCategoryAndItems(categoryId: number) {
-    return this.transaction('rw', this.marks, this.categories, this.subCategories, () => {
-      this.marks.where({ categoryId }).delete();
-      this.subCategories.where({ categoryId }).delete();
-      this.categories.delete(categoryId);
+    const dataTables = [
+      this.yt_channels,
+      this.yt_playlists,
+      this.yt_videos,
+      this.x_posts,
+      this.x_profiles,
+      this.x_screenshots,
+    ];
+
+    return this.transaction('rw', [this.marks, this.categories, this.subCategories, ...dataTables], async () => {
+      const markIds = await this.marks.where({ categoryId }).primaryKeys();
+      for (const table of dataTables) await table.bulkDelete(markIds);
+      await this.marks.bulkDelete(markIds);
+      await this.subCategories.where({ categoryId }).delete();
+      await this.categories.delete(categoryId);
+      return markIds.length;
     });
   }
 

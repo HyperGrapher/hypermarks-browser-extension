@@ -9,7 +9,9 @@ import { GenericTab as DexieGeneric } from './items/GenericTab';
 import { DetailDrawer as DexieDetailDrawer } from './components/DetailDrawer/index';
 import { DuplicateDialog } from './components/DuplicateDialog';
 import { useAtom } from 'jotai';
-import { searchTagsAtom, drawerAtom } from './utils';
+import { searchTagsAtom, drawerAtom, sortMarks } from './utils';
+import { SortSelect } from './components/SortSelect';
+import { DeleteCategoryButton } from './components/DeleteCategoryButton';
 import {
   Drawer,
   DrawerClose,
@@ -108,6 +110,9 @@ const SidePanel = () => {
     return query;
   }, [effectiveCategoryId, categories, activeSubCategoryId]);
 
+  // Defaults keep the order the tabs had before sorting existed (Categories: saved order, All: newest first)
+  const categoriesSort = autoPrefs.categoriesSort ?? 'oldest';
+
   if (!tabs || totalMarks === undefined) return <div className="h-screen w-full" />;
   // Only when nothing is saved at all. An empty selected category must still show the tabs so the user can switch.
   if (totalMarks === 0) return <EmptyView />;
@@ -146,18 +151,23 @@ const SidePanel = () => {
           <TabsContent value="categories" className="">
             {/* <div className="py-4">options</div> */}
 
-            <DropdownSelect
-              role="sidepanel"
-              items={categories?.map(x => x.category) ?? []}
-              value={currentCategory?.category ?? selectedCategory?.category}
-              onItemSelect={val =>
-                setSelectedCategory({ category: val, id: categories?.find(x => x.category === val)?.id ?? 0 })
-              }
-              name="categories"
-              placeholder="Select category"
-              variant="default"
-              valid={true}
-            />
+            <div className="flex items-center gap-2">
+              <div className="min-w-0 grow">
+                <DropdownSelect
+                  role="sidepanel"
+                  items={categories?.map(x => x.category) ?? []}
+                  value={currentCategory?.category ?? selectedCategory?.category}
+                  onItemSelect={val =>
+                    setSelectedCategory({ category: val, id: categories?.find(x => x.category === val)?.id ?? 0 })
+                  }
+                  name="categories"
+                  placeholder="Select category"
+                  variant="default"
+                  valid={true}
+                />
+              </div>
+              <DeleteCategoryButton categoryId={currentCategory?.id} categoryName={currentCategory?.category} />
+            </div>
             {subCategories && subCategories.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-1.5" role="tablist" aria-label="Sub categories">
                 {[{ id: null, name: 'All' }, ...subCategories].map(sub => (
@@ -177,9 +187,12 @@ const SidePanel = () => {
                 ))}
               </div>
             )}
+            <div className="mt-2">
+              <SortSelect value={categoriesSort} onChange={sort => autoPrefsStorage.saveCategoriesSort(sort)} />
+            </div>
             {activeTab === 'categories' && (
               <div className="mt-2 space-y-1 animate-fadeIn">
-                {tabs?.map(tab => {
+                {sortMarks(tabs, categoriesSort).map(tab => {
                   if (tab.itemType === 'x-post') {
                     return <TweetCard key={tab.id} item={tab} />;
                   }
@@ -224,16 +237,19 @@ const SidePanel = () => {
 };
 
 function AllSavedTabs() {
+  const autoPrefs = useStorage(autoPrefsStorage);
+  const allSort = autoPrefs.allSort ?? 'newest';
   const tabs = useLiveQuery(async () => {
-    const query = await db.marks.reverse().toArray();
+    const query = await db.marks.toArray();
     await new Promise(resolve => setTimeout(resolve, 50));
     return query;
   }, []);
 
   return (
     <div className="mt-2 space-y-1 animate-fadeIn">
+      <SortSelect value={allSort} onChange={sort => autoPrefsStorage.saveAllSort(sort)} />
       <div className="space-y-1">
-        {tabs?.map(tab => {
+        {sortMarks(tabs ?? [], allSort).map(tab => {
           if (tab.itemType === 'x-post') {
             return <TweetCard key={tab.id} item={tab} />;
           }
