@@ -188,7 +188,7 @@ const Popup = () => {
 
   return (
     <div
-      className={cn(`px-4 pt-4 duration-700`, {
+      className={cn(`px-4 pb-4 pt-4 duration-700`, {
         'after:animate-pulse after:absolute after:inset-0 after:w-full after:h-screen after:bg-blue-500/5 after:z-50 after:border-2 after:border-green-500/50':
           aiSuccess,
       })}>
@@ -273,7 +273,7 @@ const Popup = () => {
               id="save-tab"
               onClick={saveTab}
               className={cn(
-                ' ai-button',
+                'ai-button w-full',
                 message === 'Tab saved!' ? 'bg-blue-500 hover:bg-blue-600' : '',
                 message === 'Error occured' ? 'bg-red-500 hover:bg-red-600' : '',
               )}>
@@ -291,6 +291,10 @@ const Popup = () => {
               </svg>
               {message}
             </button>
+
+            <Button variant="secondary" size="sm" className="w-full" onClick={openSidePanel}>
+              Open side panel
+            </Button>
 
             {/* <Button variant="outline" className=" w-full transition-all hover:scale-[1.02]" onClick={getAiResponse}>
               Get Ai Response

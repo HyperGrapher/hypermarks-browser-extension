@@ -94,34 +94,34 @@ async function getPlaylist(tabId: number) {
       const title = document.querySelector('#page-manager h1')?.textContent || '';
       d.title = title.trim();
 
-      const channelName =
-        document.querySelector('#page-manager .page-header-view-model-wiz__page-header-headline a')?.textContent || '';
-
-      const channelHandle =
-        document.querySelector('#page-manager .page-header-view-model-wiz__page-header-headline a')?.textContent || '';
-      d.channelName = channelHandle.trim();
+      // The owner link text is "by <channel name>"
+      const channelName = document.querySelector('#page-manager yt-page-header-view-model a')?.textContent || '';
+      d.channelName = channelName.replace(/^\s*by\s+/, '').trim();
 
       const description =
-        document.querySelector(
-          ".yt-description-preview-view-model-wiz--clickable .truncated-text-wiz.truncated-text-wiz--overlay span[role='text'].yt-core-attributed-string.yt-core-attributed-string--white-space-pre-wrap",
-        )?.textContent || '';
+        document.querySelector('#page-manager yt-description-preview-view-model span[role="text"]')?.textContent || '';
 
       d.description = description.trim();
 
-      const avatar = document.querySelector<HTMLImageElement>('img.yt-core-image--loaded')?.src || '';
+      // The page renders several copies of the header; some images never get a src
+      const avatarImgs = document.querySelectorAll<HTMLImageElement>(
+        '#page-manager yt-page-header-view-model yt-avatar-shape img',
+      );
+      const avatar =
+        Array.from(avatarImgs)
+          .map(img => img.src)
+          .find(Boolean) || '';
       d.avatar = avatar;
 
-      let thumbnail = document.querySelector<HTMLImageElement>('img[alt="Play all"]')?.src || '';
-
-      if (!thumbnail) {
-        thumbnail =
-          document.querySelector<HTMLImageElement>('a.style-scope.ytd-thumbnail img.yt-core-image')?.src || '';
-      }
+      const thumbnail =
+        Array.from(document.querySelectorAll<HTMLImageElement>('img[alt="Play all"]'))
+          .map(img => img.src)
+          .find(src => src.includes('ytimg')) || '';
 
       d.thumbnail = thumbnail;
 
       const metaspanEls = document.querySelectorAll(
-        '#page-manager .yt-content-metadata-view-model-wiz__metadata-row span.yt-content-metadata-view-model-wiz__metadata-text',
+        '#page-manager .ytContentMetadataViewModelMetadataRow span.ytContentMetadataViewModelMetadataText',
       );
       const metaspans = Array.from(metaspanEls);
       const textList = metaspans.map(span => span.textContent) ?? [];

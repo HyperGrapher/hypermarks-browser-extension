@@ -121,30 +121,26 @@ export async function saveCurrentTab(
       function getYoutubeChannelDetails(): YT.Channel | null {
         if (!isYouTubeChannel()) return null;
 
-        const channelName = document.querySelector('h1.dynamic-text-view-model-wiz__h1')?.textContent || '';
+        const channelName = document.querySelector('#page-header h1')?.textContent || '';
 
-        const avatar =
-          document.querySelector<HTMLImageElement>('#page-header .yt-spec-avatar-shape img.yt-core-image')?.src || '';
-        const banner = document.querySelector<HTMLImageElement>('#page-header-banner  img.yt-core-image')?.src || '';
+        const avatar = document.querySelector<HTMLImageElement>('#page-header img')?.src || '';
+        const banner = document.querySelector<HTMLImageElement>('yt-image-banner-view-model img')?.src || '';
         const description =
-          document.querySelector(
-            '#page-header > yt-page-header-renderer > yt-page-header-view-model yt-description-preview-view-model > truncated-text > truncated-text-content > span',
-          )?.textContent || '';
+          document.querySelector('#page-header yt-description-preview-view-model span[role="text"]')?.textContent || '';
 
-        const subcriberCount =
-          document.querySelector(
-            '#page-header > yt-page-header-renderer > yt-page-header-view-model > div > div.page-header-view-model-wiz__page-header-headline > div > yt-content-metadata-view-model > div:nth-child(3) > span:nth-child(1)',
-          )?.textContent || '';
+        // e.g. "1.36M subscribers", "986 videos"
+        const metadataTexts = Array.from(
+          document.querySelectorAll(
+            '#page-header yt-content-metadata-view-model span.ytContentMetadataViewModelMetadataText',
+          ),
+        ).map(el => el.textContent || '');
 
-        const videoCount =
-          document.querySelector(
-            '#page-header > yt-page-header-renderer > yt-page-header-view-model > div > div.page-header-view-model-wiz__page-header-headline > div > yt-content-metadata-view-model > div:nth-child(3) > span:nth-child(3) > span',
-          )?.textContent || '';
+        const subcriberCount = metadataTexts.find(text => text.includes('subscribers')) || '';
+        const videoCount = metadataTexts.find(text => text.includes('videos')) || '';
 
-        const isSubscribed =
-          document.querySelector(
-            '#page-header > yt-page-header-renderer > yt-page-header-view-model > div > div.page-header-view-model-wiz__page-header-headline > div > yt-flexible-actions-view-model > div:nth-child(1) > yt-subscribe-button-view-model > yt-animated-action > div.animated-action__content-with-background > div.yt-subscribe-button-view-model-wiz__container > button > div.yt-spec-button-shape-next__button-text-content',
-          )?.textContent === 'Subscribed';
+        const isSubscribed = Array.from(
+          document.querySelectorAll('#page-header yt-flexible-actions-view-model button'),
+        ).some(button => button.textContent?.trim() === 'Subscribed');
 
         return { channelName, avatar, description, subcriberCount, videoCount, isSubscribed, banner };
       }
@@ -187,24 +183,31 @@ export async function saveCurrentTab(
 
         // TODO:  position of elements change when window is resized
 
-        const title = document.querySelector('h1.dynamic-text-view-model-wiz__h1')?.textContent || '';
+        const title = document.querySelector('#page-manager h1')?.textContent || '';
 
-        const channelName =
-          document.querySelector(
-            '#upload-info #channel-name #container #text-container.ytd-channel-name #text a.yt-formatted-string',
-          )?.textContent || '';
+        // The owner link text is "by <channel name>"
+        const channelName = (document.querySelector('#page-manager yt-page-header-view-model a')?.textContent || '')
+          .replace(/^\s*by\s+/, '')
+          .trim();
 
-        const avatar = document.querySelector<HTMLImageElement>('#page-header img.yt-core-image')?.src || '';
+        // The page renders several copies of the header; some images never get a src
+        const avatar =
+          Array.from(
+            document.querySelectorAll<HTMLImageElement>('#page-manager yt-page-header-view-model yt-avatar-shape img'),
+          )
+            .map(img => img.src)
+            .find(Boolean) || '';
         const thumbnail =
-          document.querySelector<HTMLImageElement>('#page-header img[alt="Play all"].yt-core-image')?.src || '';
+          Array.from(document.querySelectorAll<HTMLImageElement>('img[alt="Play all"]'))
+            .map(img => img.src)
+            .find(src => src.includes('ytimg')) || '';
 
         const description =
-          document.querySelector(
-            ".yt-description-preview-view-model-wiz--clickable .truncated-text-wiz.truncated-text-wiz--overlay span[role='text'].yt-core-attributed-string.yt-core-attributed-string--white-space-pre-wrap",
-          )?.textContent || '';
+          document.querySelector('#page-manager yt-description-preview-view-model span[role="text"]')?.textContent ||
+          '';
 
         const metadataElems = document.querySelectorAll(
-          '#page-header .yt-content-metadata-view-model-wiz__metadata-row--metadata-row-inline span[role="text"][dir="auto"].yt-core-attributed-string.yt-content-metadata-view-model-wiz__metadata-text',
+          '#page-manager .ytContentMetadataViewModelMetadataRow span.ytContentMetadataViewModelMetadataText',
         );
         let videos = '0 videos';
         let views = '0 views';
@@ -547,30 +550,26 @@ export async function EXgetAiResponseForTabEX(){
       function getYoutubeChannelDetails(): YT.Channel | null {
         if (!isYouTubeChannel()) return null;
 
-        const channelName = document.querySelector('h1.dynamic-text-view-model-wiz__h1')?.textContent || '';
+        const channelName = document.querySelector('#page-header h1')?.textContent || '';
 
-        const avatar =
-          document.querySelector<HTMLImageElement>('#page-header .yt-spec-avatar-shape img.yt-core-image')?.src || '';
-        const banner = document.querySelector<HTMLImageElement>('#page-header-banner  img.yt-core-image')?.src || '';
+        const avatar = document.querySelector<HTMLImageElement>('#page-header img')?.src || '';
+        const banner = document.querySelector<HTMLImageElement>('yt-image-banner-view-model img')?.src || '';
         const description =
-          document.querySelector(
-            '#page-header > yt-page-header-renderer > yt-page-header-view-model yt-description-preview-view-model > truncated-text > truncated-text-content > span',
-          )?.textContent || '';
+          document.querySelector('#page-header yt-description-preview-view-model span[role="text"]')?.textContent || '';
 
-        const subcriberCount =
-          document.querySelector(
-            '#page-header > yt-page-header-renderer > yt-page-header-view-model > div > div.page-header-view-model-wiz__page-header-headline > div > yt-content-metadata-view-model > div:nth-child(3) > span:nth-child(1)',
-          )?.textContent || '';
+        // e.g. "1.36M subscribers", "986 videos"
+        const metadataTexts = Array.from(
+          document.querySelectorAll(
+            '#page-header yt-content-metadata-view-model span.ytContentMetadataViewModelMetadataText',
+          ),
+        ).map(el => el.textContent || '');
 
-        const videoCount =
-          document.querySelector(
-            '#page-header > yt-page-header-renderer > yt-page-header-view-model > div > div.page-header-view-model-wiz__page-header-headline > div > yt-content-metadata-view-model > div:nth-child(3) > span:nth-child(3) > span',
-          )?.textContent || '';
+        const subcriberCount = metadataTexts.find(text => text.includes('subscribers')) || '';
+        const videoCount = metadataTexts.find(text => text.includes('videos')) || '';
 
-        const isSubscribed =
-          document.querySelector(
-            '#page-header > yt-page-header-renderer > yt-page-header-view-model > div > div.page-header-view-model-wiz__page-header-headline > div > yt-flexible-actions-view-model > div:nth-child(1) > yt-subscribe-button-view-model > yt-animated-action > div.animated-action__content-with-background > div.yt-subscribe-button-view-model-wiz__container > button > div.yt-spec-button-shape-next__button-text-content',
-          )?.textContent === 'Subscribed';
+        const isSubscribed = Array.from(
+          document.querySelectorAll('#page-header yt-flexible-actions-view-model button'),
+        ).some(button => button.textContent?.trim() === 'Subscribed');
 
         return { channelName, avatar, description, subcriberCount, videoCount, isSubscribed, banner };
       }
@@ -613,24 +612,31 @@ export async function EXgetAiResponseForTabEX(){
 
         // TODO:  position of elements change when window is resized
 
-        const title = document.querySelector('h1.dynamic-text-view-model-wiz__h1')?.textContent || '';
+        const title = document.querySelector('#page-manager h1')?.textContent || '';
 
-        const channelName =
-          document.querySelector(
-            '#upload-info #channel-name #container #text-container.ytd-channel-name #text a.yt-formatted-string',
-          )?.textContent || '';
+        // The owner link text is "by <channel name>"
+        const channelName = (document.querySelector('#page-manager yt-page-header-view-model a')?.textContent || '')
+          .replace(/^\s*by\s+/, '')
+          .trim();
 
-        const avatar = document.querySelector<HTMLImageElement>('#page-header img.yt-core-image')?.src || '';
+        // The page renders several copies of the header; some images never get a src
+        const avatar =
+          Array.from(
+            document.querySelectorAll<HTMLImageElement>('#page-manager yt-page-header-view-model yt-avatar-shape img'),
+          )
+            .map(img => img.src)
+            .find(Boolean) || '';
         const thumbnail =
-          document.querySelector<HTMLImageElement>('#page-header img[alt="Play all"].yt-core-image')?.src || '';
+          Array.from(document.querySelectorAll<HTMLImageElement>('img[alt="Play all"]'))
+            .map(img => img.src)
+            .find(src => src.includes('ytimg')) || '';
 
         const description =
-          document.querySelector(
-            ".yt-description-preview-view-model-wiz--clickable .truncated-text-wiz.truncated-text-wiz--overlay span[role='text'].yt-core-attributed-string.yt-core-attributed-string--white-space-pre-wrap",
-          )?.textContent || '';
+          document.querySelector('#page-manager yt-description-preview-view-model span[role="text"]')?.textContent ||
+          '';
 
         const metadataElems = document.querySelectorAll(
-          '#page-header .yt-content-metadata-view-model-wiz__metadata-row--metadata-row-inline span[role="text"][dir="auto"].yt-core-attributed-string.yt-content-metadata-view-model-wiz__metadata-text',
+          '#page-manager .ytContentMetadataViewModelMetadataRow span.ytContentMetadataViewModelMetadataText',
         );
         // TODO: make these number for better search
         let videos = '0 videos';
