@@ -16,6 +16,7 @@ import { MetaHeader } from './components/MetaHeader';
 import { db } from '@extension/storage';
 import { useLiveQuery } from 'dexie-react-hooks';
 import ScreenshotCheckbox from './components/ScreenshotCheckbox';
+import { SubCategorySelector } from './components/SubCategorySelector';
 /*
  #* fikir su:
  #* alt categori olustur . belli basli siteler, ozellikle dedicated data/ui'i olan
@@ -48,6 +49,8 @@ const Popup = () => {
   const [showCreateCategory, setShowCreateCategory] = useState(false);
   const [aiSuccess, setAiSuccess] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [selectedSubCategory, setSelectedSubCategory] = useState<string>('');
+  const [creatingSubCategory, setCreatingSubCategory] = useState(false);
   const [note, setNote] = useState<string>('');
   const [aiREsponse, setAiResponse] = useState<any>({});
   const [sitemeta, setSitemeta] = useState<SiteMeta>();
@@ -92,6 +95,8 @@ const Popup = () => {
     const data = {
       tags,
       category: selectedCategory || 'Uncategorized',
+      // Sub categories only apply to an explicitly chosen category
+      subCategory: selectedCategory ? selectedSubCategory : '',
       sitemeta,
       note,
     };
@@ -101,6 +106,7 @@ const Popup = () => {
       console.log('saveTab', success);
       setMessage('Tab saved!');
       setSelectedCategory('');
+      setSelectedSubCategory('');
       setTags([]);
       setAiSuccess(true); // todo iki adet var. biri bu, digeri getAiResponse'da
       setTimeout(() => window.close(), 750);
@@ -199,9 +205,16 @@ const Popup = () => {
           <DropdownSelect
             items={categories}
             value={selectedCategory}
-            onItemSelect={val => setSelectedCategory(val)}
+            onItemSelect={val => {
+              setSelectedCategory(val);
+              // Sub categories belong to one main category
+              setSelectedSubCategory('');
+              setCreatingSubCategory(false);
+            }}
             setShowCreateCategory={() => {
               setSelectedCategory('');
+              setSelectedSubCategory('');
+              setCreatingSubCategory(false);
               setShowCreateCategory(true);
             }}
             name="categories"
@@ -234,7 +247,17 @@ const Popup = () => {
             </section>
           )}
 
-          {!showCreateCategory && (
+          {!showCreateCategory && selectedCategory && (
+            <SubCategorySelector
+              key={selectedCategory}
+              category={selectedCategory}
+              value={selectedSubCategory}
+              onChange={setSelectedSubCategory}
+              onCreatingChange={setCreatingSubCategory}
+            />
+          )}
+
+          {!showCreateCategory && !creatingSubCategory && (
             <>
               <div className="my-2">
                 <textarea
@@ -255,7 +278,7 @@ const Popup = () => {
           )}
         </div>
 
-        {!showCreateCategory && (
+        {!showCreateCategory && !creatingSubCategory && (
           <div className="space-y-2">
             <ScreenshotCheckbox url={sitemeta?.url ?? ''} />
             <Button

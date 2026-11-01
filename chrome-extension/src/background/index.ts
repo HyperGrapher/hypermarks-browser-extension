@@ -1,4 +1,5 @@
 import 'webextension-polyfill';
+import { saveYoutubeVideo } from './save-youtube-video';
 
 // const manifest = chrome.runtime.getManifest();
 // const apiKey = manifest.key;
@@ -96,6 +97,14 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
         sendResponse({ success: false, error: 'Failed to get element bounds' });
       }
     });
+
+    return true;
+  }
+
+  if (request.action === 'saveYoutubeVideo') {
+    saveYoutubeVideo(request.videoId, request.video)
+      .then(id => sendResponse({ success: true, id }))
+      .catch((error: Error) => sendResponse({ success: false, error: error.message }));
 
     return true;
   }

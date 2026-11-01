@@ -1,10 +1,11 @@
 import Dexie, { Table } from 'dexie';
-import { DexieTab, XpostDexie, XPostScreenshot, XProfile, YouTube } from './dexie-types';
+import { DexieTab, SubCategory, XpostDexie, XPostScreenshot, XProfile, YouTube } from './dexie-types';
 
 // WARN: When adding Date object to any table use one of this names: 'createdAt', 'updatedAt', 'datetime'
 // WARN: OR update ExportImport component to include the field name in "dateFields" variable.
 export class TabsDB extends Dexie {
   categories!: Table<{ id?: number; category: string }, number>;
+  subCategories!: Table<SubCategory, number>;
   marks!: Table<DexieTab, number>;
   yt_channels!: Table<YouTube.Channel, number>;
   yt_playlists!: Table<YouTube.Playlist, number>;
@@ -25,14 +26,27 @@ export class TabsDB extends Dexie {
       x_profiles: 'mark_id,username,handle,isFollowing',
       x_screenshots: 'mark_id',
     });
+    // v2: optional sub categories (sub folders) under a main category. Additive only, no data migration needed.
+    // marks.subCategoryId is not indexed; items are filtered by categoryId first and then in memory.
+    this.version(2).stores({
+      subCategories: '++id,categoryId,name,[categoryId+name]',
+    });
   }
 
   // TODO: THis needs to be fixed
   deleteCategoryAndItems(categoryId: number) {
-    return this.transaction('rw', this.marks, this.categories, () => {
+    return this.transaction('rw', this.marks, this.categories, this.subCategories, () => {
       this.marks.where({ categoryId }).delete();
+      this.subCategories.where({ categoryId }).delete();
       this.categories.delete(categoryId);
     });
+  }
+
+  /** Deletes the sub category if no item uses it anymore. Must run inside a transaction that includes marks and subCategories. */
+  async deleteSubCategoryIfEmpty(subCategoryId: number | undefined) {
+    if (!subCategoryId) return;
+    const remaining = await this.marks.filter(m => m.subCategoryId === subCategoryId).count();
+    if (remaining === 0) await this.subCategories.delete(subCategoryId);
   }
 
   deleteItem(id: number | undefined, categoryId: number) {
@@ -43,6 +57,7 @@ export class TabsDB extends Dexie {
       [
         this.marks,
         this.categories,
+        this.subCategories,
         this.x_posts,
         this.x_profiles,
         this.x_screenshots,
@@ -51,6 +66,7 @@ export class TabsDB extends Dexie {
         this.yt_videos,
       ],
       async () => {
+        const subCategoryId = (await this.marks.get(id))?.subCategoryId;
         this.marks.where({ id }).delete();
 
         const xpostCount = await this.x_posts.where({ mark_id: id }).count();
@@ -92,6 +108,8 @@ export class TabsDB extends Dexie {
               this.categories.where({ id: categoryId }).delete();
             }
           });
+
+        await this.deleteSubCategoryIfEmpty(subCategoryId);
       },
     );
   }

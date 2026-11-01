@@ -1,4 +1,8 @@
+import { initYoutubeMenu } from './youtube-menu';
+
 console.log('>>>>>>>> 999 Content script loaded <<<<<<<<');
+
+initYoutubeMenu();
 
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   if (request.action === 'getElementBounds') {

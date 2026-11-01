@@ -49,6 +49,15 @@ const SidePanel = () => {
   const [activeTab, setActiveTab] = useState<'categories' | 'all' | 'search'>(autoPrefs.lastPanel ?? 'all');
   const [selectedCategory, setSelectedCategory] = useState<{ id: number; category: string }>(autoPrefs.lastCategory); // default comes from userPrefs
   const categories = useLiveQuery(async () => await db.categories?.toArray(), []);
+  // null = "All" (no sub category filter)
+  const [selectedSubCategoryId, setSelectedSubCategoryId] = useState<number | null>(null);
+  const effectiveCategoryId = selectedCategory?.id || categories?.[0]?.id || 1;
+  const subCategories = useLiveQuery(
+    async () => await db.subCategories.where({ categoryId: effectiveCategoryId }).toArray(),
+    [effectiveCategoryId],
+  );
+  // Derived so a stale selection (other category, or its last item was deleted) falls back to "All"
+  const activeSubCategoryId = subCategories?.find(s => s.id === selectedSubCategoryId)?.id ?? null;
 
   // Disable right clicking on sidepanel except allowed elements
   useEffect(() => {
@@ -85,10 +94,13 @@ const SidePanel = () => {
   }, [categories]);
 
   const tabs = useLiveQuery(async () => {
-    const query = await db.marks.where({ categoryId: selectedCategory?.id || categories?.[0]?.id || 1 }).toArray();
+    const inCategory = db.marks.where({ categoryId: effectiveCategoryId });
+    const query = await (activeSubCategoryId === null
+      ? inCategory.toArray()
+      : inCategory.filter(mark => mark.subCategoryId === activeSubCategoryId).toArray());
     await new Promise(resolve => setTimeout(resolve, 200));
     return query;
-  }, [selectedCategory, categories]);
+  }, [selectedCategory, categories, activeSubCategoryId]);
 
   if (!tabs) return <div className="h-screen w-full" />;
   if (tabs && tabs.length === 0) return <EmptyView />;
@@ -139,6 +151,25 @@ const SidePanel = () => {
               variant="default"
               valid={true}
             />
+            {subCategories && subCategories.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-1.5" role="tablist" aria-label="Sub categories">
+                {[{ id: null, name: 'All' }, ...subCategories].map(sub => (
+                  <button
+                    key={sub.id ?? 'all'}
+                    role="tab"
+                    aria-selected={activeSubCategoryId === sub.id}
+                    onClick={() => setSelectedSubCategoryId(sub.id ?? null)}
+                    className={cn(
+                      'rounded-full px-3 py-1 text-xs outline outline-1 outline-zinc-300/30 transition-colors',
+                      activeSubCategoryId === sub.id
+                        ? 'bg-white/80 text-slate-900'
+                        : 'bg-slate-900/50 text-zinc-300 hover:bg-slate-800',
+                    )}>
+                    {sub.name}
+                  </button>
+                ))}
+              </div>
+            )}
             {activeTab === 'categories' && (
               <div className="mt-2 space-y-1 animate-fadeIn">
                 {tabs?.map(tab => {

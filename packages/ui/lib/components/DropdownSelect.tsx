@@ -7,6 +7,8 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 interface ItemSelectProps extends Omit<SelectProps, 'onValueChange'> {
   onItemSelect?: (item: string) => void;
   setShowCreateCategory?: () => void;
+  /** Label of the "create" button shown at the top of the popup variant */
+  createLabel?: string;
   name: string;
   placeholder?: string;
   role?: string;
@@ -21,6 +23,7 @@ const DropdownSelect = React.forwardRef<HTMLButtonElement, ItemSelectProps>(
       value,
       onItemSelect,
       setShowCreateCategory,
+      createLabel = 'Create a new category',
       items,
       name,
       placeholder = 'Select item',
@@ -67,7 +70,7 @@ const DropdownSelect = React.forwardRef<HTMLButtonElement, ItemSelectProps>(
           {role === 'popup' && (
             <div className="w-full px-2 py-1 text-sm">
               <Button onClick={setShowCreateCategory} size={'sm'} className="w-full" variant={'ghost'}>
-                Create a new category
+                {createLabel}
               </Button>
             </div>
           )}

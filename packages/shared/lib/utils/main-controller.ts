@@ -93,6 +93,8 @@ function combineSiteData<T extends Partial<DexieTab>>(
 export async function saveDexieTab(popupData: {
   tags: string[];
   category: string;
+  /** Optional sub folder name inside `category`. Created if it doesn't exist yet. */
+  subCategory?: string;
   sitemeta: SiteMeta | undefined;
   note: string;
 }): Promise<{ id: number; success: boolean }> {
@@ -143,6 +145,7 @@ export async function saveDexieTab(popupData: {
     'rw',
     [
       db.categories,
+      db.subCategories,
       db.marks,
       db.x_posts,
       db.x_profiles,
@@ -167,6 +170,14 @@ export async function saveDexieTab(popupData: {
       }
       // Update the siteData with the resolved categoryId
       combinedSiteData.categoryId = categoryId;
+
+      // Optional sub category: find or create it under the resolved category
+      const subCategoryName = popupData.subCategory?.trim();
+      if (subCategoryName) {
+        const existingSub = await db.subCategories.where({ categoryId, name: subCategoryName }).first();
+        combinedSiteData.subCategoryId =
+          existingSub?.id ?? (await db.subCategories.add({ categoryId, name: subCategoryName }));
+      }
 
       // Save the tab data
       const tabSaved = await db.marks.add(combinedSiteData);

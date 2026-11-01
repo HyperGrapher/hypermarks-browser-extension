@@ -76,7 +76,19 @@ function EditForm({ data, category }: { data: DexieTab | undefined; category: De
   async function onEdit() {
     setLoading(true);
     if (!data || !data.id) return;
-    await db.marks.update(data.id, { categoryId: selectedCategory?.id ?? data.categoryId, note, tags: selectedPills });
+    const markId = data.id;
+    const categoryId = selectedCategory?.id ?? data.categoryId;
+    // A sub category belongs to one main category, so moving the item drops its sub category
+    const categoryChanged = categoryId !== data.categoryId;
+    await db.transaction('rw', db.marks, db.subCategories, async () => {
+      await db.marks.update(markId, {
+        categoryId,
+        note,
+        tags: selectedPills,
+        ...(categoryChanged && { subCategoryId: undefined }),
+      });
+      if (categoryChanged) await db.deleteSubCategoryIfEmpty(data.subCategoryId);
+    });
     const itemsInCategory = await db.marks.where({ categoryId: data.categoryId }).count();
     if (itemsInCategory === 0) {
       // No items left in category, delete category.

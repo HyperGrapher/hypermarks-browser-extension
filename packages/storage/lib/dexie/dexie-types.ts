@@ -57,9 +57,18 @@ export interface XpostDexie {
   videos?: string[];
 }
 
+export type SubCategory = {
+  id?: number;
+  /** Parent (main) category */
+  categoryId: number;
+  name: string;
+};
+
 export type DexieTab = {
   id?: number;
   categoryId: number;
+  /** Optional sub folder inside `categoryId` */
+  subCategoryId?: number;
   title: string;
   description: string;
   origin: string;
