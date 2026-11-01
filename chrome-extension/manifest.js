@@ -39,9 +39,10 @@ const manifest = deepmerge(
       default_popup: 'popup/index.html',
       default_icon: 'icon-34.png',
     },
-    chrome_url_overrides: {
-      newtab: 'new-tab/index.html',
-    },
+    // Disabled: the extension no longer replaces the browser's new tab page. Uncomment to re-enable.
+    // chrome_url_overrides: {
+    //   newtab: 'new-tab/index.html',
+    // },
     icons: {
       128: 'icon-128.png',
     },
