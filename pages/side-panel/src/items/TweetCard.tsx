@@ -8,6 +8,7 @@ import { DropdownMenuButton } from '../components/DropdownMenuButton';
 import { db, autoPrefsStorage, tabsGroupedStorage, DexieTab } from '@extension/storage';
 import { useLiveQuery } from 'dexie-react-hooks';
 import ImageWithPreview from '@src/components/ImageWithPreview';
+import { useNearViewport } from '../components/useNearViewport';
 // this js-abbreviation-number lib is only good for num to str
 // import { unabbreviateNumber } from 'js-abbreviation-number';
 
@@ -42,10 +43,16 @@ export const TweetCard = ({ item }: { item: DexieTab }) => {
   const setSearchTags = useSetAtom(searchTagsAtom);
 
   const xpost = useLiveQuery(async () => await db.x_posts.where({ mark_id: item.id }).first(), []);
-  const screenshot = useLiveQuery(async () => await db.x_screenshots.where({ mark_id: item.id }).first(), []);
+  // Screenshots are large base64 images: only read them once the card is close to the viewport
+  const [cardRef, nearViewport] = useNearViewport<HTMLDivElement>();
+  const screenshot = useLiveQuery(
+    async () => (nearViewport ? await db.x_screenshots.where({ mark_id: item.id }).first() : undefined),
+    [nearViewport],
+  );
 
   return (
     <div
+      ref={cardRef}
       className={cn(
         'px-1 pb-1 rounded shadow-lg border border-gray-300/20',
         'bg-stone-700/20  relative flex flex-col selection:bg-sky-600/80 selection:text-sky-300',

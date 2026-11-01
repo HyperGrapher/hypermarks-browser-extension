@@ -121,47 +121,23 @@ export class TabsDB extends Dexie {
       ],
       async () => {
         const subCategoryId = (await this.marks.get(id))?.subCategoryId;
-        this.marks.where({ id }).delete();
+        await this.marks.where({ id }).delete();
 
-        const xpostCount = await this.x_posts.where({ mark_id: id }).count();
-        const xProfileCount = await this.x_profiles.where({ mark_id: id }).count();
-        const xScreenshotCount = await this.x_screenshots.where({ mark_id: id }).count();
-        const ytChannelCount = await this.yt_channels.where({ mark_id: id }).count();
-        const ytVideoCount = await this.yt_videos.where({ mark_id: id }).count();
-        const ytPlaylistCount = await this.yt_playlists.where({ mark_id: id }).count();
-
-        if (xpostCount > 0) {
-          this.x_posts.where({ mark_id: id }).delete();
+        // Every deletion is awaited so a failure rolls the whole transaction back instead of leaving orphans
+        for (const table of [
+          this.x_posts,
+          this.x_profiles,
+          this.x_screenshots,
+          this.yt_channels,
+          this.yt_videos,
+          this.yt_playlists,
+        ]) {
+          await table.where({ mark_id: id }).delete();
         }
 
-        if (xProfileCount > 0) {
-          this.x_profiles.where({ mark_id: id }).delete();
+        if ((await this.marks.where({ categoryId }).count()) === 0) {
+          await this.categories.where({ id: categoryId }).delete();
         }
-
-        if (xScreenshotCount > 0) {
-          this.x_screenshots.where({ mark_id: id }).delete();
-        }
-
-        if (ytChannelCount > 0) {
-          this.yt_channels.where({ mark_id: id }).delete();
-        }
-
-        if (ytVideoCount > 0) {
-          this.yt_videos.where({ mark_id: id }).delete();
-        }
-
-        if (ytPlaylistCount > 0) {
-          this.yt_playlists.where({ mark_id: id }).delete();
-        }
-
-        this.marks
-          .where({ categoryId })
-          .count()
-          .then(c => {
-            if (c === 0) {
-              this.categories.where({ id: categoryId }).delete();
-            }
-          });
 
         await this.deleteSubCategoryIfEmpty(subCategoryId);
       },

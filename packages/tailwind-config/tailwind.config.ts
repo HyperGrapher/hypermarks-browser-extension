@@ -54,10 +54,16 @@ export default {
           '0%': { opacity: '1' },
           '100%': { opacity: '0' },
         },
+        // Tab content fade: starts immediately (fadeIn holds at opacity 0 for its first half)
+        listFadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
       },
       animation: {
         fadeIn: 'fadeIn 0.5s ease-in-out',
         fadeOut: 'fadeOut 0.5s ease-out',
+        listFadeIn: 'listFadeIn 0.25s ease-out',
       },
     },
   },

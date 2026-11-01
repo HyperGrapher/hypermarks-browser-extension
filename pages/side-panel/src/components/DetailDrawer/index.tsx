@@ -93,36 +93,39 @@ function EditForm({ data, category }: { data: DexieTab | undefined; category: De
   }, [categories, data]);
 
   async function onEdit() {
+    if (!data || !data.id || loading) return;
     setLoading(true);
-    if (!data || !data.id) return;
     const markId = data.id;
     const categoryId = selectedCategory?.id ?? data.categoryId;
     const subCategoryName = subCategory.trim();
-    await db.transaction('rw', db.marks, db.subCategories, async () => {
-      // Sub categories belong to one main category: find or create it under the (possibly new) category
-      let subCategoryId: number | undefined;
-      if (subCategoryName) {
-        subCategoryId =
-          (await db.subCategories.where({ categoryId, name: subCategoryName }).first())?.id ??
-          (await db.subCategories.add({ categoryId, name: subCategoryName }));
-      }
-      // `undefined` removes the property, i.e. the item has no sub category
-      await db.marks.update(markId, { categoryId, note, tags: selectedPills, subCategoryId });
-      // The previous sub category may be empty now
-      if (data.subCategoryId && data.subCategoryId !== subCategoryId) {
-        await db.deleteSubCategoryIfEmpty(data.subCategoryId);
-      }
-    });
-    const itemsInCategory = await db.marks.where({ categoryId: data.categoryId }).count();
-    if (itemsInCategory === 0) {
-      // No items left in category, delete category.
-      await db.categories.delete(data.categoryId);
-    }
-    setNote('');
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      // Everything, including removing the emptied category, is one transaction: all or nothing
+      await db.transaction('rw', db.marks, db.categories, db.subCategories, async () => {
+        // Sub categories belong to one main category: find or create it under the (possibly new) category
+        let subCategoryId: number | undefined;
+        if (subCategoryName) {
+          subCategoryId =
+            (await db.subCategories.where({ categoryId, name: subCategoryName }).first())?.id ??
+            (await db.subCategories.add({ categoryId, name: subCategoryName }));
+        }
+        // `undefined` removes the property, i.e. the item has no sub category
+        await db.marks.update(markId, { categoryId, note, tags: selectedPills, subCategoryId });
+        // The previous sub category may be empty now
+        if (data.subCategoryId && data.subCategoryId !== subCategoryId) {
+          await db.deleteSubCategoryIfEmpty(data.subCategoryId);
+        }
+        // No items left in the previous category: delete it
+        if ((await db.marks.where({ categoryId: data.categoryId }).count()) === 0) {
+          await db.categories.delete(data.categoryId);
+        }
+      });
+      setNote('');
       setDrawer({ item: null, open: false, edit: false });
-    }, 1000);
+    } catch (error) {
+      console.error('Failed to save item', error);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (

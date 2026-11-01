@@ -39,6 +39,7 @@ const ImageWithPreview = ({ src }: { src: string }) => {
           className="clickable size-12 w-full object-cover object-top rounded-lg border border-gray-300/20"
           src={src}
           alt=""
+          decoding="async"
         />
         {/* Image overlay - HIDDEN */}
         <div className="absolute inset-0 bg-gradient-to-t from-slate-800/80 via-transparent to-transparent rounded-lg pointer-events-none hidden"></div>

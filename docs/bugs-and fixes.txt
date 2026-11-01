@@ -1,0 +1,82 @@
+Prompt: Let's fix fix items 1 to 4 but except "2. Medium (performance): artificial delays in the live queries."
+
+It's there for fade-in, fade-out animation when user switches bewtween tabs.
+
+However we can improve it. 
+
+For example when switching from All tab to Categories tab it looks okay but there is a longer wait when switching from Categories tab to All tab and also bottom half of visible viewport of All tab appears first and then the top section fades-in. we should investigate this and solve.
+
+--
+
+Claude:
+
+I reviewed the storage layer, side panel, background, content scripts and popup, and made no
+  changes. Three review passes produced about 40 findings. I checked each against the actual code, and
+   several turned out to be wrong, so those are listed at the end.
+
+  Worth fixing
+
+  1. High (performance): every tweet card loads its full screenshot into memory.
+  - TweetCard.tsx:45 fetches the base64 PNG from x_screenshots for every card. It does this even when
+  the card shows only a small preview.
+  - The All tab loads every item and renders them all with no paging or virtualization, so memory
+  grows with the number of saved tweets.
+  - Each card also runs its own Dexie queries, one per card for most types and two for tweets.
+  - Suggested fix: load the screenshot only when the preview is shown (on hover or click), and render
+  long lists in pages or virtualized.
+
+  2. Medium (performance): artificial delays in the live queries.
+  - SidePanel.tsx:104 waits 200 ms and AllSavedTabs (line 242) waits 50 ms after every query.
+  dexie-react-hooks keeps the previous result while the new query runs.
+  - After you switch category or sub folder, the old list therefore stays on screen for 200 ms or
+  more. Removing the delays is safe and makes switching feel instant.
+
+  3. Medium (bug): the edit drawer can get stuck.
+  - In DetailDrawer/index.tsx:95-126, onEdit calls setLoading(true) and then may return early. It also
+   has no try/catch, so a failed save leaves the spinner on forever and the drawer open.
+  - The empty-category cleanup (line 116) runs after the transaction, so it isn't atomic.
+  - The 1-second setTimeout before closing the drawer is also artificial.
+
+  4. Medium (bug): deleteItem doesn't await its deletes.
+  - db.ts:124-164 doesn't await the mark delete or the six data-table deletes, and the empty-category
+  cleanup is a floating .then. Dexie still runs these inside the transaction, so I don't expect
+  orphaned rows.
+  - Any error in them would not roll the transaction back, though, and could leave the delete partly
+  done. I'd await them all, the same way I did for deleteCategoryAndItems.
+
+  5. Low to medium (bug): preference writes can be lost.
+  - base.ts:105-113 doesn't serialize set(). Two near-simultaneous updates both start from the same
+  old value, so one overwrites the other. For example, a saveLastCategory and a saveLastPanel fired
+  together could lose one.
+  - The fix is to chain writes through a promise queue.
+
+  6. Low to medium (bug): message handlers answer messages they shouldn't.
+  - background/index.ts:111-113 replies "Invalid action" to every message it doesn't recognise, which
+  could race with the intended receiver.
+  - content/src/index.ts:49 returns true for every message but only responds to getElementBounds,
+  which produces "message channel closed" warnings.
+  - The fix is to return true only on the branches that actually respond.
+
+  7. Low to medium (performance): export loads everything at once.
+  - The export reads every table into memory and runs JSON.stringify on it, screenshots included. A
+  large database could freeze the panel or run out of memory. Exporting table by table would reduce
+  that.
+
+  8. Low (noise): leftover debug code.
+  - console.log('>>>>>>>> 999 Content script loaded <<<<<<<<') runs on every web page, and the
+  background worker logs background loaded ok..888 on every start.
+  - The content script is injected on <all_urls> but only does work on YouTube. It's cheap, but
+  narrowing the match patterns or dropping the logs would reduce the footprint.
+
+  Claims I checked and dismissed
+
+  - YouTube click listener on every site: it's registered only when the hostname ends in youtube.com.
+  - YouTube MutationObserver leak: it disconnects after 2 seconds and is cleaned up on the next click.
+  - returnsPromise bug in base.ts: it's dead code, since both branches do the same thing and the async
+   return awaits correctly.
+  - SidePanel.tsx:421 promise-in-render: that is in an old DetailDrawer that is no longer mounted.
+  - Timer, blob-URL and LoadingScreen leaks: negligible, because the page is short-lived or the timers
+   are already cleaned up.
+
+  Want me to fix items 1 to 4? They're the ones with visible impact. I'd start with removing the
+  delays (2) and awaiting the deletes (4), since both are low risk.

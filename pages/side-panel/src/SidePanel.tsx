@@ -5,13 +5,14 @@ import { useEffect, useState } from 'react';
 import { Button, cn, Input, Label, Tabs, TabsContent, TabsList, TabsTrigger, DropdownSelect } from '@extension/ui';
 import { YoutubePlaylist, YoutubeVideo, YoutubeChannel } from './YoutubeTab';
 import { GenericTab, XPostItem } from './GenericTab';
-import { GenericTab as DexieGeneric } from './items/GenericTab';
 import { DetailDrawer as DexieDetailDrawer } from './components/DetailDrawer/index';
 import { DuplicateDialog } from './components/DuplicateDialog';
 import { useAtom } from 'jotai';
 import { searchTagsAtom, drawerAtom, sortMarks } from './utils';
 import { SortSelect } from './components/SortSelect';
 import { DeleteCategoryButton } from './components/DeleteCategoryButton';
+import { MarkList } from './components/MarkList';
+import type { DexieTab } from '@extension/storage';
 import {
   Drawer,
   DrawerClose,
@@ -24,11 +25,7 @@ import {
 import { db, autoPrefsStorage, tabsGroupedStorage } from '@extension/storage';
 import { useLiveQuery } from 'dexie-react-hooks';
 import LoadingScreen from './components/LoadingScreen';
-import { TweetCard } from './items/TweetCard';
-import { XProfileCard } from './items/XProfileCard';
 import ExportImport from './components/export-import/ExportImport';
-import YoutubeVideoCard from './items/YoutubeVideoCard';
-import YoutubePlaylistCard from './items/YoutubePlaylistCard';
 
 function getTabsByCategory(groupedTabs: { [category: string]: SingleTab[] }): CategorizedTab[] {
   return Object.entries(groupedTabs).flatMap(([category, items]) => items.map(item => ({ category, item })));
@@ -109,6 +106,21 @@ const SidePanel = () => {
     await new Promise(resolve => setTimeout(resolve, 200));
     return query;
   }, [effectiveCategoryId, categories, activeSubCategoryId]);
+
+  // Kept here (not inside the All tab) so switching to All doesn't re-query and re-wait; the tab content is
+  // unmounted when inactive, but this stays alive.
+  const allMarks = useLiveQuery(async () => {
+    const query = await db.marks.toArray();
+    await new Promise(resolve => setTimeout(resolve, 50));
+    return query;
+  }, []);
+
+  // Tab content is unmounted while inactive, so a scroll offset from the previous tab would otherwise carry over
+  useEffect(() => {
+    // The side panel scrolls the body, depending on the CSS it can also be the document element
+    document.body.scrollTo({ top: 0 });
+    document.scrollingElement?.scrollTo({ top: 0 });
+  }, [activeTab]);
 
   // Defaults keep the order the tabs had before sorting existed (Categories: saved order, All: newest first)
   const categoriesSort = autoPrefs.categoriesSort ?? 'oldest';
@@ -191,33 +203,22 @@ const SidePanel = () => {
               <SortSelect value={categoriesSort} onChange={sort => autoPrefsStorage.saveCategoriesSort(sort)} />
             </div>
             {activeTab === 'categories' && (
-              <div className="mt-2 space-y-1 animate-fadeIn">
-                {sortMarks(tabs, categoriesSort).map(tab => {
-                  if (tab.itemType === 'x-post') {
-                    return <TweetCard key={tab.id} item={tab} />;
-                  }
-                  if (tab.itemType === 'x-profile') {
-                    return <XProfileCard key={tab.id} item={tab} />;
-                  }
-                  if (tab.itemType === 'yt-video') {
-                    return <YoutubeVideoCard key={tab.id} item={tab} />;
-                  }
-                  if (tab.itemType === 'yt-playlist') {
-                    return <YoutubePlaylistCard key={tab.id} item={tab} />;
-                  }
-                  return <DexieGeneric key={tab.id} item={tab} />;
-                })}
+              <div className="mt-2 space-y-1 animate-listFadeIn">
+                <MarkList
+                  key={`${effectiveCategoryId}-${activeSubCategoryId}-${categoriesSort}`}
+                  marks={sortMarks(tabs, categoriesSort)}
+                />
               </div>
             )}
           </TabsContent>
           <TabsContent value="all">
             {/* <div className="py-4">options</div> */}
 
-            {activeTab === 'all' && <AllSavedTabs />}
+            {activeTab === 'all' && <AllSavedTabs marks={allMarks} />}
           </TabsContent>
           <TabsContent value="search">
             {activeTab === 'search' && (
-              <div className="mt-2 space-y-1  animate-fadeIn">
+              <div className="mt-2 space-y-1 animate-listFadeIn">
                 <div className="mt-8">
                   {/* <h1 className="text-3xl font-bold text-center">No Tabs Saved Yet!</h1> */}
                   <h1 className="text-3xl font-bold text-center py-4">Search not available</h1>
@@ -236,34 +237,15 @@ const SidePanel = () => {
   );
 };
 
-function AllSavedTabs() {
+function AllSavedTabs({ marks }: { marks: DexieTab[] | undefined }) {
   const autoPrefs = useStorage(autoPrefsStorage);
   const allSort = autoPrefs.allSort ?? 'newest';
-  const tabs = useLiveQuery(async () => {
-    const query = await db.marks.toArray();
-    await new Promise(resolve => setTimeout(resolve, 50));
-    return query;
-  }, []);
 
   return (
-    <div className="mt-2 space-y-1 animate-fadeIn">
+    <div className="mt-2 space-y-1 animate-listFadeIn">
       <SortSelect value={allSort} onChange={sort => autoPrefsStorage.saveAllSort(sort)} />
       <div className="space-y-1">
-        {sortMarks(tabs ?? [], allSort).map(tab => {
-          if (tab.itemType === 'x-post') {
-            return <TweetCard key={tab.id} item={tab} />;
-          }
-          if (tab.itemType === 'x-profile') {
-            return <XProfileCard key={tab.id} item={tab} />;
-          }
-          if (tab.itemType === 'yt-video') {
-            return <YoutubeVideoCard key={tab.id} item={tab} />;
-          }
-          if (tab.itemType === 'yt-playlist') {
-            return <YoutubePlaylistCard key={tab.id} item={tab} />;
-          }
-          return <DexieGeneric key={tab.id} item={tab} />;
-        })}
+        <MarkList key={allSort} marks={sortMarks(marks ?? [], allSort)} />
       </div>
     </div>
   );
