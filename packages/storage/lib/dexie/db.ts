@@ -2,7 +2,7 @@ import Dexie, { Table } from 'dexie';
 import { DexieTab, SubCategory, XpostDexie, XPostScreenshot, XProfile, YouTube } from './dexie-types';
 
 // WARN: When adding Date object to any table use one of this names: 'createdAt', 'updatedAt', 'datetime'
-// WARN: OR update ExportImport component to include the field name in "dateFields" variable.
+// WARN: OR update the DATE_FIELDS list in import-export.ts.
 export class TabsDB extends Dexie {
   categories!: Table<{ id?: number; category: string }, number>;
   subCategories!: Table<SubCategory, number>;

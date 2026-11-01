@@ -51,7 +51,14 @@ const SidePanel = () => {
   const categories = useLiveQuery(async () => await db.categories?.toArray(), []);
   // null = "All" (no sub category filter)
   const [selectedSubCategoryId, setSelectedSubCategoryId] = useState<number | null>(null);
-  const effectiveCategoryId = selectedCategory?.id || categories?.[0]?.id || 1;
+  const totalMarks = useLiveQuery(async () => await db.marks.count(), []);
+  // The remembered selection can be stale (category ids change when data is imported), so it is matched by name
+  // against the live categories and falls back to the first one.
+  const currentCategory =
+    categories?.find(c => c.id === selectedCategory?.id && c.category === selectedCategory?.category) ??
+    categories?.find(c => c.category === selectedCategory?.category) ??
+    categories?.[0];
+  const effectiveCategoryId = currentCategory?.id ?? 1;
   const subCategories = useLiveQuery(
     async () => await db.subCategories.where({ categoryId: effectiveCategoryId }).toArray(),
     [effectiveCategoryId],
@@ -81,17 +88,15 @@ const SidePanel = () => {
   }, [selectedCategory]);
 
   useEffect(() => {
-    if (categories) {
-      const noItemLeftInCategory = categories?.filter(x => x.category === selectedCategory.category).length === 0;
-
-      if (categories?.length === 1 || noItemLeftInCategory) {
-        // After deletion of an item, if there is only one category or no item left in the selected category
-        // assign the first category in the DB
-        if (categories.length > 0)
-          setSelectedCategory({ id: categories?.[0].id ?? 0, category: categories?.[0].category ?? '' });
-      }
+    // Keep the remembered selection in sync with the resolved one: covers a deleted category
+    // (falls back to the first) and stale ids after an import.
+    if (
+      currentCategory?.id &&
+      (currentCategory.id !== selectedCategory?.id || currentCategory.category !== selectedCategory?.category)
+    ) {
+      setSelectedCategory({ id: currentCategory.id, category: currentCategory.category });
     }
-  }, [categories]);
+  }, [currentCategory?.id, currentCategory?.category]);
 
   const tabs = useLiveQuery(async () => {
     const inCategory = db.marks.where({ categoryId: effectiveCategoryId });
@@ -100,10 +105,11 @@ const SidePanel = () => {
       : inCategory.filter(mark => mark.subCategoryId === activeSubCategoryId).toArray());
     await new Promise(resolve => setTimeout(resolve, 200));
     return query;
-  }, [selectedCategory, categories, activeSubCategoryId]);
+  }, [effectiveCategoryId, categories, activeSubCategoryId]);
 
-  if (!tabs) return <div className="h-screen w-full" />;
-  if (tabs && tabs.length === 0) return <EmptyView />;
+  if (!tabs || totalMarks === undefined) return <div className="h-screen w-full" />;
+  // Only when nothing is saved at all. An empty selected category must still show the tabs so the user can switch.
+  if (totalMarks === 0) return <EmptyView />;
 
   return (
     <div className={``}>
@@ -142,7 +148,7 @@ const SidePanel = () => {
             <DropdownSelect
               role="sidepanel"
               items={categories?.map(x => x.category) ?? []}
-              value={selectedCategory?.category}
+              value={currentCategory?.category ?? selectedCategory?.category}
               onItemSelect={val =>
                 setSelectedCategory({ category: val, id: categories?.find(x => x.category === val)?.id ?? 0 })
               }

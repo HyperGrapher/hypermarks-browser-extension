@@ -1,0 +1,100 @@
+import { useState } from 'react';
+import { DropdownSelect } from './DropdownSelect';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+
+type SubCategoryPickerProps = {
+  /** Names of the sub categories that already exist for the selected main category. */
+  existing: string[];
+  /** Selected sub category name, '' when none is selected. */
+  value: string;
+  onChange: (subCategory: string) => void;
+  /** Lets the parent hide the rest of the form while the "new sub category" input is open. */
+  onCreatingChange?: (creating: boolean) => void;
+};
+
+/**
+ * Optional sub folder picker for a main category.
+ * It only holds the chosen name, sub categories are written to the DB when the item is saved.
+ */
+export const SubCategoryPicker = ({ existing, value, onChange, onCreatingChange }: SubCategoryPickerProps) => {
+  const [creating, setCreating] = useState(false);
+  const [draft, setDraft] = useState('');
+  const [error, setError] = useState<string | null>(null);
+
+  // A freshly typed sub category isn't in the DB yet, keep it selectable
+  const items = value && !existing.includes(value) ? [...existing, value] : existing;
+
+  function setCreatingState(next: boolean) {
+    setCreating(next);
+    onCreatingChange?.(next);
+  }
+
+  function onCreate() {
+    const name = draft.trim();
+    if (name === '') return setError('Please enter a sub category name');
+    if (name.length >= 30) return setError('Sub category name is too long');
+    if (items.some(item => item.toLowerCase() === name.toLowerCase())) {
+      return setError('Sub category name already exists');
+    }
+
+    onChange(name);
+    setDraft('');
+    setError(null);
+    setCreatingState(false);
+  }
+
+  function onCancel() {
+    setDraft('');
+    setError(null);
+    setCreatingState(false);
+  }
+
+  if (creating) {
+    return (
+      <section>
+        <Input
+          type="text"
+          className="w-full bg-slate-900/50 text-sm outline outline-1 outline-zinc-300/30 placeholder:text-sm placeholder:text-zinc-500"
+          value={draft}
+          placeholder="Type sub category name"
+          onChange={e => setDraft(e.target.value)}
+        />
+        <div className="mt-2 flex gap-2">
+          <Button onClick={onCancel} size="sm" className="shrink" variant={'destructive'}>
+            Cancel
+          </Button>
+          <Button onClick={onCreate} size="sm" className="w-full grow" variant={'default'}>
+            Create Sub Category
+          </Button>
+        </div>
+        {error && <p className="pt-1 text-xs text-red-500">{error}</p>}
+      </section>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      <div className="min-w-0 flex-1">
+        {/* role="popup" is what shows the "create" button inside the dropdown */}
+        <DropdownSelect
+          role="popup"
+          items={items}
+          value={value}
+          onItemSelect={onChange}
+          setShowCreateCategory={() => setCreatingState(true)}
+          createLabel="Create a new sub category"
+          name="sub-categories"
+          placeholder="Sub category (optional)"
+          variant="default"
+          valid={true}
+        />
+      </div>
+      {value && (
+        <Button onClick={() => onChange('')} size="sm" variant={'ghost'} title="Clear sub category">
+          ✕
+        </Button>
+      )}
+    </div>
+  );
+};

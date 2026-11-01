@@ -1,4 +1,5 @@
-import { db } from '@extension/storage';
+import { db, importDatabase } from '@extension/storage';
+import type { ImportMode, ImportResult } from '@extension/storage';
 import { Button, cn } from '@extension/ui';
 import React, { useState } from 'react';
 import { CheckCircle2Icon } from 'lucide-react';
@@ -7,6 +8,11 @@ import { useLiveQuery } from 'dexie-react-hooks';
 const ExportImport: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(true);
   const [type, setType] = useState<string | undefined>(undefined);
+  const [result, setResult] = useState<ImportResult | undefined>(undefined);
+  // The file the user picked, waiting for a merge/replace decision
+  const [pendingFile, setPendingFile] = useState<File | undefined>(undefined);
+  const [mode, setMode] = useState<ImportMode>('merge');
+  const [importing, setImporting] = useState(false);
   const count = useLiveQuery(async () => await db.marks?.count(), []);
 
   // Export data to JSON file
@@ -37,6 +43,7 @@ const ExportImport: React.FC = () => {
 
       setIsLoaded(true);
       setType('export');
+      setResult(undefined);
 
       // alert('Data exported successfully!');
     } catch (error) {
@@ -47,56 +54,39 @@ const ExportImport: React.FC = () => {
     }
   };
 
-  // Import data from JSON file
-  const handleImport = async (file: File) => {
+  // Import data from the picked JSON file, either merged into or replacing the current data
+  const handleImport = async () => {
+    if (!pendingFile) return;
+    setImporting(true);
     try {
-      const fileContent = await file.text();
-      const importData = JSON.parse(fileContent);
+      const importData = JSON.parse(await pendingFile.text());
+      const importResult = await importDatabase(importData, mode);
 
-      // WARN: Whenever add a new table/field with Date object, add it to the array.
-      const dateFields = ['createdAt', 'updatedAt', 'datetime', 'joinedDate'];
-
-      // Clear existing data
-      for (const tableName of db.tables.map(table => table.name)) {
-        await db.table(tableName).clear();
-      }
-
-      // Populate the database with imported data
-      for (const [tableName, records] of Object.entries(importData)) {
-        if (db.tables.some(table => table.name === tableName)) {
-          const processedRecords = (records as any[]).map(record => {
-            // Convert string dates back to Date objects
-            dateFields.forEach(field => {
-              if (record[field]) {
-                const date = new Date(record[field]);
-                record[field] = isNaN(date.getTime()) ? new Date(0) : date;
-              }
-            });
-            return record;
-          });
-
-          await db.table(tableName).bulkAdd(processedRecords);
-        }
-      }
-
-      // setIsLoaded(true)
-      // setType('import');
-
-      alert('Data imported successfully!');
+      setResult(importResult);
+      setIsLoaded(true);
+      setType('import');
     } catch (error) {
       console.error('Error importing data:', error);
+      setResult(undefined);
       setIsLoaded(false);
       setType('import');
       alert('Failed to import data. Please check the file format.');
+    } finally {
+      setPendingFile(undefined);
+      setImporting(false);
     }
   };
 
-  // Handle file input change for importing
+  // Picking a file only stages it, the user then chooses merge or replace
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      handleImport(file);
+      setPendingFile(file);
+      setMode('merge');
+      setType(undefined);
     }
+    // Allows picking the same file again later
+    event.target.value = '';
   };
 
   return (
@@ -129,19 +119,100 @@ const ExportImport: React.FC = () => {
         accept="application/json"
         onChange={handleFileChange}
       />
-      <div className="">{type && <Success type={type} success={isLoaded} />}</div>
+      {pendingFile && (
+        <div className="mt-4 rounded-lg border border-zinc-300/20 bg-slate-900/50 p-3 text-sm">
+          <p className="truncate font-medium" title={pendingFile.name}>
+            {pendingFile.name}
+          </p>
+          <p className="mb-3 text-xs text-zinc-400">How should this file be imported?</p>
+
+          <ImportOption
+            checked={mode === 'merge'}
+            onSelect={() => setMode('merge')}
+            title="Merge with current data"
+            description="Keeps what you have and adds the file's items. Items with a url you already saved are skipped."
+          />
+          <ImportOption
+            checked={mode === 'replace'}
+            onSelect={() => setMode('replace')}
+            title="Replace current data"
+            description={`Deletes all ${count ?? 0} current items first, then loads the file.`}
+          />
+          {mode === 'replace' && (
+            <p className="mt-2 text-xs text-red-400">This can't be undone. Export your data first if unsure.</p>
+          )}
+
+          <div className="mt-3 flex gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={importing}
+              className="shrink"
+              onClick={() => setPendingFile(undefined)}>
+              Cancel
+            </Button>
+            <Button
+              size="sm"
+              disabled={importing}
+              className="w-full grow"
+              variant={mode === 'replace' ? 'destructive' : 'default'}
+              onClick={handleImport}>
+              {mode === 'replace' ? 'Replace and import' : 'Merge and import'}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      <div className="">{type && <Success type={type} success={isLoaded} result={result} />}</div>
     </div>
   );
 };
 
 export default ExportImport;
 
-const Success = ({ success, type = 'export' }: { success: boolean; type: string | undefined }) => {
+const ImportOption = ({
+  checked,
+  onSelect,
+  title,
+  description,
+}: {
+  checked: boolean;
+  onSelect: () => void;
+  title: string;
+  description: string;
+}) => (
+  <label
+    className={cn(
+      'mb-2 flex cursor-pointer items-start gap-2 rounded-md border p-2',
+      checked ? 'border-blue-500/60 bg-blue-500/10' : 'border-zinc-300/20',
+    )}>
+    <input type="radio" name="import-mode" className="mt-1" checked={checked} onChange={onSelect} />
+    <span>
+      <span className="block font-medium">{title}</span>
+      <span className="block text-xs text-zinc-400">{description}</span>
+    </span>
+  </label>
+);
+
+const Success = ({
+  success,
+  type = 'export',
+  result,
+}: {
+  success: boolean;
+  type: string | undefined;
+  result?: ImportResult;
+}) => {
   return success ? (
     <div className="mt-6 px-2 w-full">
       <div className="px-2 py-4 rounded-lg w-full text-center bg-green-800/20 border border-green-500/30 ">
         <h3 className="font-bold text-base text-green-200/80">Database {type} is successfull</h3>
-        {type === 'import' && <p className="px-2">Data will load in a few seconds</p>}
+        {type === 'import' && result && (
+          <p className="px-2">
+            {result.items} item{result.items === 1 ? '' : 's'} imported
+            {result.skippedDuplicates > 0 && `, ${result.skippedDuplicates} already saved (skipped)`}
+          </p>
+        )}
         <CheckCircle2Icon size={36} className="text-center mx-auto mt-2 text-green-400" />
       </div>
     </div>

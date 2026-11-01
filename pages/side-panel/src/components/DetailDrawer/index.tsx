@@ -1,4 +1,4 @@
-import { Button, cn, Input, Label, DropdownSelect, NoteInput, ScrollArea } from '@extension/ui';
+import { Button, cn, Input, Label, DropdownSelect, NoteInput, ScrollArea, SubCategoryPicker } from '@extension/ui';
 import { useAtom, useSetAtom } from 'jotai';
 import { dexieDrawerAtom } from '../../utils';
 import {
@@ -58,6 +58,25 @@ function EditForm({ data, category }: { data: DexieTab | undefined; category: De
   const [loading, setLoading] = useState(false);
   const setDrawer = useSetAtom(dexieDrawerAtom);
   const [selectedPills, setSelectedPills] = useAtom(tagsAtom);
+  const [subCategory, setSubCategory] = useState('');
+  const [creatingSubCategory, setCreatingSubCategory] = useState(false);
+
+  // The sub category the item currently has (if any), used to prefill the selector
+  const currentSubCategory = useLiveQuery(
+    async () => (data?.subCategoryId ? (await db.subCategories.get(data.subCategoryId))?.name : undefined),
+    [data?.subCategoryId],
+  );
+  // Sub categories of the category that is selected in this form
+  const subCategoryNames =
+    useLiveQuery(async () => {
+      if (!selectedCategory?.id) return [];
+      const subs = await db.subCategories.where('categoryId').equals(selectedCategory.id).toArray();
+      return subs.map(s => s.name);
+    }, [selectedCategory?.id]) ?? [];
+
+  useEffect(() => {
+    setSubCategory(currentSubCategory ?? '');
+  }, [currentSubCategory, data?.id]);
 
   useEffect(() => {
     if (data?.note) setNote(data.note);
@@ -78,16 +97,21 @@ function EditForm({ data, category }: { data: DexieTab | undefined; category: De
     if (!data || !data.id) return;
     const markId = data.id;
     const categoryId = selectedCategory?.id ?? data.categoryId;
-    // A sub category belongs to one main category, so moving the item drops its sub category
-    const categoryChanged = categoryId !== data.categoryId;
+    const subCategoryName = subCategory.trim();
     await db.transaction('rw', db.marks, db.subCategories, async () => {
-      await db.marks.update(markId, {
-        categoryId,
-        note,
-        tags: selectedPills,
-        ...(categoryChanged && { subCategoryId: undefined }),
-      });
-      if (categoryChanged) await db.deleteSubCategoryIfEmpty(data.subCategoryId);
+      // Sub categories belong to one main category: find or create it under the (possibly new) category
+      let subCategoryId: number | undefined;
+      if (subCategoryName) {
+        subCategoryId =
+          (await db.subCategories.where({ categoryId, name: subCategoryName }).first())?.id ??
+          (await db.subCategories.add({ categoryId, name: subCategoryName }));
+      }
+      // `undefined` removes the property, i.e. the item has no sub category
+      await db.marks.update(markId, { categoryId, note, tags: selectedPills, subCategoryId });
+      // The previous sub category may be empty now
+      if (data.subCategoryId && data.subCategoryId !== subCategoryId) {
+        await db.deleteSubCategoryIfEmpty(data.subCategoryId);
+      }
     });
     const itemsInCategory = await db.marks.where({ categoryId: data.categoryId }).count();
     if (itemsInCategory === 0) {
@@ -108,26 +132,44 @@ function EditForm({ data, category }: { data: DexieTab | undefined; category: De
           role="sidepanel"
           items={categories?.map(x => x.category) ?? []}
           value={selectedCategory?.category}
-          onItemSelect={val =>
-            setSelectedCategory({ category: val, id: categories?.find(x => x.category === val)?.id ?? 0 })
-          }
+          onItemSelect={val => {
+            const id = categories?.find(x => x.category === val)?.id ?? 0;
+            setSelectedCategory({ category: val, id });
+            // Sub categories belong to one category: going back to the original one restores its sub category, others reset it
+            setSubCategory(id === data?.categoryId ? (currentSubCategory ?? '') : '');
+            setCreatingSubCategory(false);
+          }}
           name="categories"
           placeholder="Select category"
           variant="default"
           valid={true}
         />
       </div>
-      <div className="grid gap-2">
-        <Label htmlFor="email">Note</Label>
-        <NoteInput id="note" value={note} onChange={event => setNote(event.target.value)} />
-      </div>
+      {selectedCategory?.id ? (
+        <SubCategoryPicker
+          // remount on category change so a half-typed new sub category doesn't leak across categories
+          key={selectedCategory.id}
+          existing={subCategoryNames}
+          value={subCategory}
+          onChange={setSubCategory}
+          onCreatingChange={setCreatingSubCategory}
+        />
+      ) : null}
+      {!creatingSubCategory && (
+        <>
+          <div className="grid gap-2">
+            <Label htmlFor="email">Note</Label>
+            <NoteInput id="note" value={note} onChange={event => setNote(event.target.value)} />
+          </div>
 
-      <TagsForm />
+          <TagsForm />
 
-      <Button disabled={loading} onClick={onEdit}>
-        {loading && <Loader2 className="animate-spin" />}
-        Save changes
-      </Button>
+          <Button disabled={loading} onClick={onEdit}>
+            {loading && <Loader2 className="animate-spin" />}
+            Save changes
+          </Button>
+        </>
+      )}
     </section>
   );
 }
