@@ -19,6 +19,9 @@ export const dexieDrawerAtom = atom<{ item: DexieTab | null; open: boolean; edit
   edit: false,
 });
 
+/** The item whose "Duplicate item to" dialog is open, null when closed */
+export const duplicateItemAtom = atom<DexieTab | null>(null);
+
 export const cn = (...inputs: ClassValue[]) => {
   return twMerge(clsx(inputs));
 };

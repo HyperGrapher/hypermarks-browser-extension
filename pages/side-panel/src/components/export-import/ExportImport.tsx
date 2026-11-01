@@ -1,16 +1,24 @@
-import { db, importDatabase } from '@extension/storage';
-import type { ImportMode, ImportResult } from '@extension/storage';
+import { db, importDatabase, previewImport } from '@extension/storage';
+import type { ImportMode, ImportPreviewCategory, ImportResult } from '@extension/storage';
 import { Button, cn } from '@extension/ui';
 import React, { useState } from 'react';
 import { CheckCircle2Icon } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 
+/** A picked and parsed file, waiting for the user to choose categories and merge/replace */
+type PendingImport = {
+  name: string;
+  data: unknown;
+  categories: ImportPreviewCategory[];
+};
+
 const ExportImport: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(true);
   const [type, setType] = useState<string | undefined>(undefined);
   const [result, setResult] = useState<ImportResult | undefined>(undefined);
-  // The file the user picked, waiting for a merge/replace decision
-  const [pendingFile, setPendingFile] = useState<File | undefined>(undefined);
+  const [pending, setPending] = useState<PendingImport | undefined>(undefined);
+  // Names of the main categories that will be imported
+  const [selected, setSelected] = useState<Set<string>>(new Set());
   const [mode, setMode] = useState<ImportMode>('merge');
   const [importing, setImporting] = useState(false);
   const count = useLiveQuery(async () => await db.marks?.count(), []);
@@ -56,11 +64,10 @@ const ExportImport: React.FC = () => {
 
   // Import data from the picked JSON file, either merged into or replacing the current data
   const handleImport = async () => {
-    if (!pendingFile) return;
+    if (!pending || selected.size === 0) return;
     setImporting(true);
     try {
-      const importData = JSON.parse(await pendingFile.text());
-      const importResult = await importDatabase(importData, mode);
+      const importResult = await importDatabase(pending.data, mode, { categories: [...selected] });
 
       setResult(importResult);
       setIsLoaded(true);
@@ -72,22 +79,50 @@ const ExportImport: React.FC = () => {
       setType('import');
       alert('Failed to import data. Please check the file format.');
     } finally {
-      setPendingFile(undefined);
+      setPending(undefined);
       setImporting(false);
     }
   };
 
-  // Picking a file only stages it, the user then chooses merge or replace
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setPendingFile(file);
+  // Picking a file only stages it, the user then chooses categories and merge or replace
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const input = event.target;
+    const file = input.files?.[0];
+    if (!file) return;
+    setPending(undefined);
+    setResult(undefined);
+    setType(undefined);
+    try {
+      const data = JSON.parse(await file.text());
+      const categories = await previewImport(data);
+      setPending({ name: file.name, data, categories });
+      // Everything is selected by default
+      setSelected(new Set(categories.map(c => c.name)));
       setMode('merge');
-      setType(undefined);
+    } catch (error) {
+      console.error('Error reading import file:', error);
+      setIsLoaded(false);
+      setType('import');
+      alert('Failed to read the file. Please check the file format.');
+    } finally {
+      // Allows picking the same file again later
+      input.value = '';
     }
-    // Allows picking the same file again later
-    event.target.value = '';
   };
+
+  const toggleCategory = (name: string) =>
+    setSelected(prev => {
+      const next = new Set(prev);
+      if (!next.delete(name)) next.add(name);
+      return next;
+    });
+
+  const allSelected = !!pending && pending.categories.every(c => selected.has(c.name));
+  const selectedItems = pending?.categories.filter(c => selected.has(c.name)).reduce((sum, c) => sum + c.items, 0) ?? 0;
+  // Replacing only empties the chosen categories, unless the whole file is chosen: then everything is wiped
+  const replaceDescription = allSelected
+    ? `Deletes all ${count ?? 0} current items first, then loads the file.`
+    : 'Empties only the selected categories first, then loads them from the file. Other categories are left alone.';
 
   return (
     <div style={{ margin: '20px' }}>
@@ -119,12 +154,55 @@ const ExportImport: React.FC = () => {
         accept="application/json"
         onChange={handleFileChange}
       />
-      {pendingFile && (
+      {pending && (
         <div className="mt-4 rounded-lg border border-zinc-300/20 bg-slate-900/50 p-3 text-sm">
-          <p className="truncate font-medium" title={pendingFile.name}>
-            {pendingFile.name}
+          <p className="truncate font-medium" title={pending.name}>
+            {pending.name}
           </p>
-          <p className="mb-3 text-xs text-zinc-400">How should this file be imported?</p>
+
+          <div className="mb-1 mt-2 flex items-center justify-between">
+            <p className="text-xs text-zinc-400">Categories to import</p>
+            <div className="flex gap-3 text-xs text-blue-500">
+              <button
+                type="button"
+                className="hover:underline"
+                onClick={() => setSelected(new Set(pending.categories.map(c => c.name)))}>
+                All
+              </button>
+              <button type="button" className="hover:underline" onClick={() => setSelected(new Set())}>
+                None
+              </button>
+            </div>
+          </div>
+          <div className="mb-3 max-h-48 overflow-y-auto rounded-md border border-zinc-300/20">
+            {pending.categories.length === 0 && (
+              <p className="p-2 text-xs text-zinc-400">This file has no categories.</p>
+            )}
+            {pending.categories.map(category => (
+              <label
+                key={category.name}
+                className="flex cursor-pointer items-center gap-2 border-b border-zinc-300/10 p-2 last:border-b-0 hover:bg-zinc-100/5">
+                <input
+                  type="checkbox"
+                  checked={selected.has(category.name)}
+                  onChange={() => toggleCategory(category.name)}
+                />
+                <span className="min-w-0 grow">
+                  <span className="block truncate font-medium" title={category.name}>
+                    {category.name}
+                  </span>
+                  <span className="block text-xs text-zinc-400">
+                    {category.items} item{category.items === 1 ? '' : 's'}
+                    {category.subCategories > 0 &&
+                      `, ${category.subCategories} sub categor${category.subCategories === 1 ? 'y' : 'ies'}`}
+                    {category.existsInDb && ' · already exists'}
+                  </span>
+                </span>
+              </label>
+            ))}
+          </div>
+
+          <p className="mb-3 text-xs text-zinc-400">How should the selected categories be imported?</p>
 
           <ImportOption
             checked={mode === 'merge'}
@@ -136,7 +214,7 @@ const ExportImport: React.FC = () => {
             checked={mode === 'replace'}
             onSelect={() => setMode('replace')}
             title="Replace current data"
-            description={`Deletes all ${count ?? 0} current items first, then loads the file.`}
+            description={replaceDescription}
           />
           {mode === 'replace' && (
             <p className="mt-2 text-xs text-red-400">This can't be undone. Export your data first if unsure.</p>
@@ -148,16 +226,17 @@ const ExportImport: React.FC = () => {
               variant="outline"
               disabled={importing}
               className="shrink"
-              onClick={() => setPendingFile(undefined)}>
+              onClick={() => setPending(undefined)}>
               Cancel
             </Button>
             <Button
               size="sm"
-              disabled={importing}
+              disabled={importing || selected.size === 0}
               className="w-full grow"
               variant={mode === 'replace' ? 'destructive' : 'default'}
               onClick={handleImport}>
-              {mode === 'replace' ? 'Replace and import' : 'Merge and import'}
+              {mode === 'replace' ? 'Replace' : 'Merge'} {selected.size} categor{selected.size === 1 ? 'y' : 'ies'} (
+              {selectedItems} item{selectedItems === 1 ? '' : 's'})
             </Button>
           </div>
         </div>

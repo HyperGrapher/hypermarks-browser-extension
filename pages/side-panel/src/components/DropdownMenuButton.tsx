@@ -1,4 +1,4 @@
-import { Delete, Edit, Eye } from 'lucide-react';
+import { Copy, Delete, Edit, Eye } from 'lucide-react';
 import { OpenAction, openTabByAction } from '@extension/shared';
 import {
   DropdownMenu,
@@ -9,12 +9,13 @@ import {
   DropdownMenuTrigger,
 } from '@extension/ui';
 import { useAtom, useSetAtom } from 'jotai';
-import { dexieDrawerAtom } from '../utils';
+import { dexieDrawerAtom, duplicateItemAtom } from '../utils';
 import { DexieTab } from '@extension/storage';
 import { db } from '@extension/storage';
 
 export function DropdownMenuButton({ children, item }: { children: React.ReactNode; item: DexieTab }) {
   const setDrawer = useSetAtom(dexieDrawerAtom);
+  const setDuplicateItem = useSetAtom(duplicateItemAtom);
 
   function onOpenTab(action: OpenAction) {
     openTabByAction(item.url, action);
@@ -60,6 +61,18 @@ export function DropdownMenuButton({ children, item }: { children: React.ReactNo
             }}>
             <Edit />
             <span>Edit item</span>
+          </DropdownMenuItem>
+
+          <DropdownMenuItem
+            className="text-sm"
+            onClick={() => {
+              // Let the menu finish closing first, otherwise it steals focus from the dialog
+              setTimeout(() => {
+                setDuplicateItem(item);
+              }, 0);
+            }}>
+            <Copy />
+            <span>Duplicate item to</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />

@@ -49,6 +49,45 @@ export class TabsDB extends Dexie {
     if (remaining === 0) await this.subCategories.delete(subCategoryId);
   }
 
+  /**
+   * Copies an item, including its YouTube/X data, into another category (and optionally a sub category).
+   * The copy is an independent item: editing or deleting one never touches the other.
+   * Returns the id of the new item. Nothing is written if anything fails.
+   */
+  duplicateItem(id: number, target: { categoryId: number; subCategoryId?: number }) {
+    const dataTables: Table<{ mark_id?: number }, number>[] = [
+      this.yt_channels,
+      this.yt_playlists,
+      this.yt_videos,
+      this.x_posts,
+      this.x_profiles,
+      this.x_screenshots,
+    ];
+
+    return this.transaction('rw', [this.marks, this.categories, this.subCategories, ...dataTables], async () => {
+      const mark = await this.marks.get(id);
+      if (!mark) throw new Error('Item not found');
+      if (!(await this.categories.get(target.categoryId))) throw new Error('Category not found');
+      if (target.subCategoryId !== undefined) {
+        const sub = await this.subCategories.get(target.subCategoryId);
+        if (!sub || sub.categoryId !== target.categoryId) throw new Error('Sub category not found');
+      }
+
+      const now = new Date();
+      const copy: DexieTab = { ...mark, categoryId: target.categoryId, createdAt: now, updatedAt: now };
+      delete copy.id;
+      delete copy.subCategoryId;
+      if (target.subCategoryId !== undefined) copy.subCategoryId = target.subCategoryId;
+      const newId = await this.marks.add(copy);
+
+      for (const table of dataTables) {
+        const row = await table.get(id);
+        if (row) await table.put({ ...row, mark_id: newId });
+      }
+      return newId;
+    });
+  }
+
   deleteItem(id: number | undefined, categoryId: number) {
     if (!id) return;
 

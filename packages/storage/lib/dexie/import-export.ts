@@ -2,16 +2,31 @@ import { db } from './db';
 import type { DexieTab } from './dexie-types';
 
 /**
- * `replace`: wipe the current data and load the file.
+ * `replace`: the selected categories are emptied first, then loaded from the file.
+ * If every category of the file is selected, the whole database is wiped instead.
  * `merge`: keep the current data and add what the file has (see `importDatabase`).
  */
 export type ImportMode = 'merge' | 'replace';
 
+export type ImportOptions = {
+  /** Names of the main categories to import. Everything in the file when omitted. */
+  categories?: string[];
+};
+
 export type ImportResult = {
   /** Items added to the database */
   items: number;
-  /** Items left out because the same url is already saved (merge only) */
+  /** Items left out because the same url is already saved */
   skippedDuplicates: number;
+};
+
+/** A main category found in an import file */
+export type ImportPreviewCategory = {
+  name: string;
+  items: number;
+  subCategories: number;
+  /** A category with this name already exists in the database */
+  existsInDb: boolean;
 };
 
 // WARN: Whenever a table/field holds a Date object, add the field name here.
@@ -50,6 +65,50 @@ function revive(record: AnyRecord): AnyRecord {
   return copy;
 }
 
+/** Reads the three tables that describe the folder structure and checks that this looks like an export. */
+function parseFile(file: unknown) {
+  if (file === null || typeof file !== 'object' || Array.isArray(file)) {
+    throw new Error('Not a HyperMarks export file');
+  }
+  const data = file as AnyRecord;
+  if (!db.tables.some(table => Array.isArray(data[table.name]))) {
+    throw new Error('Not a HyperMarks export file');
+  }
+
+  const categories = readTable(data, 'categories').filter(
+    c => typeof c.category === 'string' && c.category.trim() !== '',
+  );
+  const subCategories = readTable(data, 'subCategories');
+  const marks = readTable(data, 'marks');
+
+  const categoryNames = new Map<number, string>(categories.map(c => [c.id, c.category]));
+  // Items pointing to a category that isn't in the file are filed under "Uncategorized"
+  const categoryNameOf = (mark: AnyRecord) => categoryNames.get(mark.categoryId) ?? FALLBACK_CATEGORY;
+
+  return { data, categories, subCategories, marks, categoryNameOf };
+}
+
+/** Lists the main categories of an import file so the user can choose which ones to import. */
+export async function previewImport(file: unknown): Promise<ImportPreviewCategory[]> {
+  const { categories, subCategories, marks, categoryNameOf } = parseFile(file);
+
+  const counts = new Map<string, { items: number; subCategories: number }>();
+  const entry = (name: string) => {
+    if (!counts.has(name)) counts.set(name, { items: 0, subCategories: 0 });
+    return counts.get(name)!;
+  };
+
+  for (const category of categories) entry(category.category);
+  for (const mark of marks) entry(categoryNameOf(mark)).items++;
+  for (const sub of subCategories) {
+    const parent = categories.find(c => c.id === sub.categoryId);
+    if (parent) entry(parent.category).subCategories++;
+  }
+
+  const existing = new Set((await db.categories.toArray()).map(c => c.category));
+  return [...counts.entries()].map(([name, count]) => ({ name, ...count, existsInDb: existing.has(name) }));
+}
+
 /**
  * Imports the JSON produced by the export button.
  *
@@ -59,27 +118,39 @@ function revive(record: AnyRecord): AnyRecord {
  * Ids inside the file are never trusted, every record gets a fresh id and the links
  * (item -> category, item -> sub category, item data -> item) are re-mapped. This is what makes merging safe.
  * - categories are matched by name, sub categories by (category, name), so merging doesn't duplicate folders.
- * - items whose url is already saved are skipped when merging.
+ * - items whose url is already saved are skipped.
+ * - `options.categories` limits the import to those main categories, the rest of the file is ignored and
+ *   the rest of the database is left alone.
  *
  * Everything runs in one transaction, if anything fails the database is left untouched.
  */
-export async function importDatabase(file: unknown, mode: ImportMode): Promise<ImportResult> {
-  if (file === null || typeof file !== 'object' || Array.isArray(file)) {
-    throw new Error('Not a HyperMarks export file');
-  }
-  const data = file as AnyRecord;
-  const tableNames = db.tables.map(t => t.name);
-  if (!tableNames.some(name => Array.isArray(data[name]))) {
-    throw new Error('Not a HyperMarks export file');
-  }
+export async function importDatabase(
+  file: unknown,
+  mode: ImportMode,
+  options: ImportOptions = {},
+): Promise<ImportResult> {
+  const { data, categories, subCategories, marks, categoryNameOf } = parseFile(file);
 
-  const categories = readTable(data, 'categories');
-  const subCategories = readTable(data, 'subCategories');
-  const marks = readTable(data, 'marks');
+  const fileCategoryNames = new Set([...categories.map(c => c.category), ...marks.map(categoryNameOf)]);
+  const selected = options.categories ? new Set(options.categories) : fileCategoryNames;
+  const isSelected = (name: string) => selected.has(name) && fileCategoryNames.has(name);
+  const everythingSelected = [...fileCategoryNames].every(name => selected.has(name));
 
   return db.transaction('rw', db.tables, async () => {
     if (mode === 'replace') {
-      await Promise.all(db.tables.map(table => table.clear()));
+      if (everythingSelected) {
+        await Promise.all(db.tables.map(table => table.clear()));
+      } else {
+        // Only empty the chosen categories (the category itself is kept and filled below)
+        for (const name of selected) {
+          const existing = await db.categories.where('category').equals(name).first();
+          if (!existing?.id) continue;
+          const markIds = await db.marks.where({ categoryId: existing.id }).primaryKeys();
+          for (const tableName of MARK_DATA_TABLES) await db.table(tableName).bulkDelete(markIds);
+          await db.marks.bulkDelete(markIds);
+          await db.subCategories.where({ categoryId: existing.id }).delete();
+        }
+      }
     }
 
     // Urls that were saved before this import, used to skip duplicates
@@ -88,10 +159,10 @@ export async function importDatabase(file: unknown, mode: ImportMode): Promise<I
     const findOrCreateCategory = async (name: string) =>
       (await db.categories.where('category').equals(name).first())?.id ?? (await db.categories.add({ category: name }));
 
-    // file category id -> database category id
+    // file category id -> database category id (selected categories only)
     const categoryIds = new Map<number, number>();
     for (const category of categories) {
-      if (typeof category.category !== 'string' || !category.category.trim()) continue;
+      if (!isSelected(category.category)) continue;
       categoryIds.set(category.id, await findOrCreateCategory(category.category));
     }
 
@@ -109,13 +180,15 @@ export async function importDatabase(file: unknown, mode: ImportMode): Promise<I
     let items = 0;
     let skippedDuplicates = 0;
     for (const mark of marks) {
+      const categoryName = categoryNameOf(mark);
+      if (!isSelected(categoryName)) continue;
+
       if (existingUrls.has(mark.url)) {
         skippedDuplicates++;
         continue;
       }
 
-      // Items pointing to a category that isn't in the file still get a home
-      const categoryId = categoryIds.get(mark.categoryId) ?? (await findOrCreateCategory(FALLBACK_CATEGORY));
+      const categoryId = categoryIds.get(mark.categoryId) ?? (await findOrCreateCategory(categoryName));
       // Older files have no sub categories at all, so this is simply undefined for them
       const subCategoryId = mark.subCategoryId === undefined ? undefined : subCategoryIds.get(mark.subCategoryId);
 
@@ -137,7 +210,7 @@ export async function importDatabase(file: unknown, mode: ImportMode): Promise<I
     for (const tableName of MARK_DATA_TABLES) {
       for (const record of readTable(data, tableName)) {
         const markId = markIds.get(record.mark_id);
-        // Data of items that were skipped (duplicates) or are missing from the file is dropped
+        // Data of items that were skipped, not selected or missing from the file is dropped
         if (markId === undefined) continue;
         await db.table(tableName).put({ ...record, mark_id: markId });
       }

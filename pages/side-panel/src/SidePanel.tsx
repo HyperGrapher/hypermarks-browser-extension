@@ -7,6 +7,7 @@ import { YoutubePlaylist, YoutubeVideo, YoutubeChannel } from './YoutubeTab';
 import { GenericTab, XPostItem } from './GenericTab';
 import { GenericTab as DexieGeneric } from './items/GenericTab';
 import { DetailDrawer as DexieDetailDrawer } from './components/DetailDrawer/index';
+import { DuplicateDialog } from './components/DuplicateDialog';
 import { useAtom } from 'jotai';
 import { searchTagsAtom, drawerAtom } from './utils';
 import {
@@ -217,6 +218,7 @@ const SidePanel = () => {
       )}
       {!isLoaded && <LoadingScreen onLoaded={() => setIsLoaded(true)} />}
       <DexieDetailDrawer />
+      <DuplicateDialog />
     </div>
   );
 };

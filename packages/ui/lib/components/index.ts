@@ -40,3 +40,13 @@ export {
   DrawerTitle,
   DrawerTrigger,
 } from './ui/drawer';
+
+export {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from './ui/dialog';
