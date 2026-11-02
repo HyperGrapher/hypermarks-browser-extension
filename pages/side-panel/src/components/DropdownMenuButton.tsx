@@ -1,4 +1,4 @@
-import { Copy, Delete, Edit, Eye } from 'lucide-react';
+import { Copy, Delete, Edit, Eye, Star } from 'lucide-react';
 import { OpenAction, openTabByAction } from '@extension/shared';
 import {
   DropdownMenu,
@@ -7,10 +7,12 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  FAVORITE_COLORS,
+  cn,
 } from '@extension/ui';
 import { useAtom, useSetAtom } from 'jotai';
 import { dexieDrawerAtom, duplicateItemAtom } from '../utils';
-import { DexieTab } from '@extension/storage';
+import { DexieTab, FavoriteColor } from '@extension/storage';
 import { db } from '@extension/storage';
 
 export function DropdownMenuButton({ children, item }: { children: React.ReactNode; item: DexieTab }) {
@@ -19,6 +21,11 @@ export function DropdownMenuButton({ children, item }: { children: React.ReactNo
 
   function onOpenTab(action: OpenAction) {
     openTabByAction(item.url, action);
+  }
+
+  function onFavorite(favorite: FavoriteColor | undefined) {
+    // `undefined` removes the property, i.e. the item is no longer a favorite
+    if (item.id) db.marks.update(item.id, { favorite });
   }
 
   return (
@@ -74,6 +81,38 @@ export function DropdownMenuButton({ children, item }: { children: React.ReactNo
             <Copy />
             <span>Duplicate item to</span>
           </DropdownMenuItem>
+
+          <div className="flex items-center gap-1 px-2 py-1.5 text-sm" role="group" aria-label="Favorite">
+            <Star size={16} className={cn('mr-1 shrink-0', item.favorite && 'fill-current')} />
+            <span className="mr-auto">Favorite</span>
+            {FAVORITE_COLORS.map(color => (
+              <DropdownMenuItem
+                key={color.value}
+                title={color.label}
+                aria-label={color.label}
+                aria-checked={item.favorite === color.value}
+                // Picking the current color again clears it
+                onClick={() => onFavorite(item.favorite === color.value ? undefined : color.value)}
+                className="size-6 justify-center rounded-full p-0">
+                <span
+                  className={cn(
+                    'size-4 rounded-full',
+                    color.swatch,
+                    item.favorite === color.value && 'ring-2 ring-zinc-200/80 ring-offset-1 ring-offset-slate-900',
+                  )}
+                />
+              </DropdownMenuItem>
+            ))}
+            {item.favorite && (
+              <DropdownMenuItem
+                title="Remove from favorites"
+                aria-label="Remove from favorites"
+                onClick={() => onFavorite(undefined)}
+                className="size-6 justify-center rounded-full p-0 text-xs text-zinc-400">
+                ✕
+              </DropdownMenuItem>
+            )}
+          </div>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem

@@ -1,4 +1,4 @@
-import { DexieTab, screenshotPrefStorage, XpostDexie, XProfile, YouTube } from '@extension/storage';
+import { DexieTab, FavoriteColor, screenshotPrefStorage, XpostDexie, XProfile, YouTube } from '@extension/storage';
 import { getActiveTabIcon } from './chrome-utils';
 import type { SiteMeta } from './shared-types';
 import { getGenericTab } from './scrapers/get-generic';
@@ -66,6 +66,7 @@ function combineSiteData<T extends Partial<DexieTab>>(
     category: string;
     sitemeta: SiteMeta | undefined;
     note: string;
+    favorite?: FavoriteColor;
   },
   partialSiteData: T,
 ): Omit<DexieTab, keyof T> & T {
@@ -81,6 +82,8 @@ function combineSiteData<T extends Partial<DexieTab>>(
     title: popupData.sitemeta?.title ?? 'Untitled', // Fallback for required title
     createdAt: partialSiteData?.createdAt ?? new Date(),
     updatedAt: partialSiteData?.updatedAt ?? new Date(),
+    // Only present for favorites, so regular items stay exactly as before
+    ...(popupData.favorite ? { favorite: popupData.favorite } : {}),
     ...partialSiteData,
   };
 
@@ -97,6 +100,7 @@ export async function saveDexieTab(popupData: {
   subCategory?: string;
   sitemeta: SiteMeta | undefined;
   note: string;
+  favorite?: FavoriteColor;
 }): Promise<{ id: number; success: boolean }> {
   let scrapedSiteData: Partial<DexieTab>;
   let xpost: XpostDexie;

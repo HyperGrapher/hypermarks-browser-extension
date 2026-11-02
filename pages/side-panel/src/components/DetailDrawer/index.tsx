@@ -1,4 +1,14 @@
-import { Button, cn, Input, Label, DropdownSelect, NoteInput, ScrollArea, SubCategoryPicker } from '@extension/ui';
+import {
+  Button,
+  cn,
+  Input,
+  Label,
+  DropdownSelect,
+  NoteInput,
+  ScrollArea,
+  SubCategoryPicker,
+  FavoritePicker,
+} from '@extension/ui';
 import { useAtom, useSetAtom } from 'jotai';
 import { dexieDrawerAtom } from '../../utils';
 import {
@@ -10,7 +20,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from '@extension/ui';
-import { db, DexieTab } from '@extension/storage';
+import { db, DexieTab, FavoriteColor } from '@extension/storage';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { DexieItemAndCategory, tagsAtom } from '@extension/shared';
 import { useEffect, useState } from 'react';
@@ -60,6 +70,7 @@ function EditForm({ data, category }: { data: DexieTab | undefined; category: De
   const [selectedPills, setSelectedPills] = useAtom(tagsAtom);
   const [subCategory, setSubCategory] = useState('');
   const [creatingSubCategory, setCreatingSubCategory] = useState(false);
+  const [favorite, setFavorite] = useState<FavoriteColor | undefined>(data?.favorite);
 
   // The sub category the item currently has (if any), used to prefill the selector
   const currentSubCategory = useLiveQuery(
@@ -73,6 +84,10 @@ function EditForm({ data, category }: { data: DexieTab | undefined; category: De
       const subs = await db.subCategories.where('categoryId').equals(selectedCategory.id).toArray();
       return subs.map(s => s.name);
     }, [selectedCategory?.id]) ?? [];
+
+  useEffect(() => {
+    setFavorite(data?.favorite);
+  }, [data?.id, data?.favorite]);
 
   useEffect(() => {
     setSubCategory(currentSubCategory ?? '');
@@ -109,7 +124,7 @@ function EditForm({ data, category }: { data: DexieTab | undefined; category: De
             (await db.subCategories.add({ categoryId, name: subCategoryName }));
         }
         // `undefined` removes the property, i.e. the item has no sub category
-        await db.marks.update(markId, { categoryId, note, tags: selectedPills, subCategoryId });
+        await db.marks.update(markId, { categoryId, note, tags: selectedPills, subCategoryId, favorite });
         // The previous sub category may be empty now
         if (data.subCategoryId && data.subCategoryId !== subCategoryId) {
           await db.deleteSubCategoryIfEmpty(data.subCategoryId);
@@ -166,6 +181,8 @@ function EditForm({ data, category }: { data: DexieTab | undefined; category: De
           </div>
 
           <TagsForm />
+
+          <FavoritePicker value={favorite} onChange={setFavorite} />
 
           <Button disabled={loading} onClick={onEdit}>
             {loading && <Loader2 className="animate-spin" />}

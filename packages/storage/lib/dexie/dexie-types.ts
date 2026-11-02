@@ -64,11 +64,15 @@ export type SubCategory = {
   name: string;
 };
 
+/** Highlight color of a favorite item. Not set = not a favorite. */
+export type FavoriteColor = 'blue' | 'red' | 'yellow';
+
 export type DexieTab = {
   id?: number;
   categoryId: number;
   /** Optional sub folder inside `categoryId` */
   subCategoryId?: number;
+  favorite?: FavoriteColor;
   title: string;
   description: string;
   origin: string;

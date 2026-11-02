@@ -7,7 +7,8 @@ import {
   SiteMeta,
   saveDexieTab,
 } from '@extension/shared';
-import { Button, cn, DropdownSelect, Input } from '@extension/ui';
+import { Button, cn, DropdownSelect, FavoritePicker, Input } from '@extension/ui';
+import type { FavoriteColor } from '@extension/storage';
 import '@src/Popup.css';
 import { useEffect, useState } from 'react';
 import { TagsForm } from './components/TagsForm';
@@ -52,6 +53,7 @@ const Popup = () => {
   const [selectedSubCategory, setSelectedSubCategory] = useState<string>('');
   const [creatingSubCategory, setCreatingSubCategory] = useState(false);
   const [note, setNote] = useState<string>('');
+  const [favorite, setFavorite] = useState<FavoriteColor | undefined>();
   const [aiREsponse, setAiResponse] = useState<any>({});
   const [sitemeta, setSitemeta] = useState<SiteMeta>();
   const [categories, setCategories] = useState<string[]>([]);
@@ -99,6 +101,7 @@ const Popup = () => {
       subCategory: selectedCategory ? selectedSubCategory : '',
       sitemeta,
       note,
+      favorite,
     };
 
     try {
@@ -274,6 +277,7 @@ const Popup = () => {
               </div>
 
               <TagsForm />
+              <FavoritePicker value={favorite} onChange={setFavorite} />
             </>
           )}
         </div>

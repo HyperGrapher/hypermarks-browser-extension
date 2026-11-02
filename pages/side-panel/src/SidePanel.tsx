@@ -133,75 +133,88 @@ const SidePanel = () => {
     <div className={``}>
       <header className={`h-8 w-full px-2 py-1 hidden`}>Settings</header>
       {isLoaded && (
-        <Tabs defaultValue={activeTab ?? 'all'} className="w-full px-2 pl-2 mt-3">
-          <TabsList className="grid grid-cols-3 bg-slate-800 z-50">
-            <TabsTrigger
-              onClick={() => {
-                setActiveTab('categories');
-                autoPrefsStorage.saveLastPanel('categories');
-              }}
-              value="categories">
-              Categories
-            </TabsTrigger>
-            <TabsTrigger
-              onClick={() => {
-                setActiveTab('all');
-                autoPrefsStorage.saveLastPanel('all');
-              }}
-              value="all">
-              All
-            </TabsTrigger>
-            <TabsTrigger
-              onClick={() => {
-                setActiveTab('search');
-                autoPrefsStorage.saveLastPanel('search');
-              }}
-              value="search">
-              Search
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="categories" className="">
-            {/* <div className="py-4">options</div> */}
-
-            <div className="flex items-center gap-2">
-              <div className="min-w-0 grow">
-                <DropdownSelect
-                  role="sidepanel"
-                  items={categories?.map(x => x.category) ?? []}
-                  value={currentCategory?.category ?? selectedCategory?.category}
-                  onItemSelect={val =>
-                    setSelectedCategory({ category: val, id: categories?.find(x => x.category === val)?.id ?? 0 })
-                  }
-                  name="categories"
-                  placeholder="Select category"
-                  variant="default"
-                  valid={true}
-                />
-              </div>
-              <DeleteCategoryButton categoryId={currentCategory?.id} categoryName={currentCategory?.category} />
-            </div>
-            {subCategories && subCategories.length > 0 && (
-              <div className="mt-2 flex flex-wrap gap-1.5" role="tablist" aria-label="Sub categories">
-                {[{ id: null, name: 'All' }, ...subCategories].map(sub => (
-                  <button
-                    key={sub.id ?? 'all'}
-                    role="tab"
-                    aria-selected={activeSubCategoryId === sub.id}
-                    onClick={() => setSelectedSubCategoryId(sub.id ?? null)}
-                    className={cn(
-                      'rounded-full px-3 py-1 text-xs outline outline-1 outline-zinc-300/30 transition-colors',
-                      activeSubCategoryId === sub.id
-                        ? 'bg-white/80 text-slate-900'
-                        : 'bg-slate-900/50 text-zinc-300 hover:bg-slate-800',
-                    )}>
-                    {sub.name}
-                  </button>
-                ))}
+        <Tabs defaultValue={activeTab ?? 'all'} className="w-full px-2 pl-2">
+          {/* Stays in view while the list scrolls: the tabs and the options of the active tab */}
+          <div className="sticky top-0 z-40 -mx-2 bg-slate-950/80 px-2 pb-2 pt-3 backdrop-blur-md">
+            <TabsList className="grid grid-cols-3 bg-slate-800 z-50">
+              <TabsTrigger
+                onClick={() => {
+                  setActiveTab('categories');
+                  autoPrefsStorage.saveLastPanel('categories');
+                }}
+                value="categories">
+                Categories
+              </TabsTrigger>
+              <TabsTrigger
+                onClick={() => {
+                  setActiveTab('all');
+                  autoPrefsStorage.saveLastPanel('all');
+                }}
+                value="all">
+                All
+              </TabsTrigger>
+              <TabsTrigger
+                onClick={() => {
+                  setActiveTab('search');
+                  autoPrefsStorage.saveLastPanel('search');
+                }}
+                value="search">
+                Search
+              </TabsTrigger>
+            </TabsList>
+            {activeTab === 'categories' && (
+              <div className="mt-2">
+                <div className="flex items-center gap-2">
+                  <div className="min-w-0 grow">
+                    <DropdownSelect
+                      role="sidepanel"
+                      items={categories?.map(x => x.category) ?? []}
+                      value={currentCategory?.category ?? selectedCategory?.category}
+                      onItemSelect={val =>
+                        setSelectedCategory({ category: val, id: categories?.find(x => x.category === val)?.id ?? 0 })
+                      }
+                      name="categories"
+                      placeholder="Select category"
+                      variant="default"
+                      valid={true}
+                    />
+                  </div>
+                  <DeleteCategoryButton categoryId={currentCategory?.id} categoryName={currentCategory?.category} />
+                </div>
+                {subCategories && subCategories.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-1.5" role="tablist" aria-label="Sub categories">
+                    {[{ id: null, name: 'All' }, ...subCategories].map(sub => (
+                      <button
+                        key={sub.id ?? 'all'}
+                        role="tab"
+                        aria-selected={activeSubCategoryId === sub.id}
+                        onClick={() => setSelectedSubCategoryId(sub.id ?? null)}
+                        className={cn(
+                          'rounded-full px-3 py-1 text-xs outline outline-1 outline-zinc-300/30 transition-colors',
+                          activeSubCategoryId === sub.id
+                            ? 'bg-white/80 text-slate-900'
+                            : 'bg-slate-900/50 text-zinc-300 hover:bg-slate-800',
+                        )}>
+                        {sub.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                <div className="mt-2">
+                  <SortSelect value={categoriesSort} onChange={sort => autoPrefsStorage.saveCategoriesSort(sort)} />
+                </div>
               </div>
             )}
-            <div className="mt-2">
-              <SortSelect value={categoriesSort} onChange={sort => autoPrefsStorage.saveCategoriesSort(sort)} />
-            </div>
+            {activeTab === 'all' && (
+              <div className="mt-2">
+                <SortSelect
+                  value={autoPrefs.allSort ?? 'newest'}
+                  onChange={sort => autoPrefsStorage.saveAllSort(sort)}
+                />
+              </div>
+            )}
+          </div>
+          <TabsContent value="categories" className="">
             {activeTab === 'categories' && (
               <div className="mt-2 space-y-1 animate-listFadeIn">
                 <MarkList
@@ -211,11 +224,7 @@ const SidePanel = () => {
               </div>
             )}
           </TabsContent>
-          <TabsContent value="all">
-            {/* <div className="py-4">options</div> */}
-
-            {activeTab === 'all' && <AllSavedTabs marks={allMarks} />}
-          </TabsContent>
+          <TabsContent value="all">{activeTab === 'all' && <AllSavedTabs marks={allMarks} />}</TabsContent>
           <TabsContent value="search">
             {activeTab === 'search' && (
               <div className="mt-2 space-y-1 animate-listFadeIn">
@@ -243,7 +252,6 @@ function AllSavedTabs({ marks }: { marks: DexieTab[] | undefined }) {
 
   return (
     <div className="mt-2 space-y-1 animate-listFadeIn">
-      <SortSelect value={allSort} onChange={sort => autoPrefsStorage.saveAllSort(sort)} />
       <div className="space-y-1">
         <MarkList key={allSort} marks={sortMarks(marks ?? [], allSort)} />
       </div>

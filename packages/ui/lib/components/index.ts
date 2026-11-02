@@ -2,6 +2,7 @@ export * from './PillsForm';
 export * from './DropdownSelect';
 export * from './NoteInput';
 export * from './SubCategoryPicker';
+export * from './FavoritePicker';
 
 export { Badge } from './ui/badge';
 export { Input } from './ui/input';

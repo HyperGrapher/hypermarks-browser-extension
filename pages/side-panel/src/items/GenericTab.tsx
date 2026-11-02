@@ -1,6 +1,6 @@
 import { cn, searchTagsAtom } from '../utils';
 import { openTab } from '@extension/shared';
-import { Badge } from '@extension/ui';
+import { Badge, favoriteCardClass } from '@extension/ui';
 // import TimeAgo from 'timeago-react';
 import { MoreVertical } from 'lucide-react';
 import { useSetAtom } from 'jotai';
@@ -21,6 +21,7 @@ export const GenericTab = ({ item }: { item: DexieTab }) => {
       className={cn(
         'px-1 pb-1 rounded shadow-lg border border-gray-300/20',
         'bg-slate-700/20 w-full relative max-h-36 flex flex-col card selection:bg-sky-600/80 selection:text-sky-300',
+        favoriteCardClass(item.favorite),
       )}>
       <DropdownMenuButton item={item}>
         <button

@@ -1,5 +1,6 @@
 import Dexie, { Table } from 'dexie';
 import { DexieTab, SubCategory, XpostDexie, XPostScreenshot, XProfile, YouTube } from './dexie-types';
+import { announceMarksChangedOnComplete } from './marks-changed';
 
 // WARN: When adding Date object to any table use one of this names: 'createdAt', 'updatedAt', 'datetime'
 // WARN: OR update the DATE_FIELDS list in import-export.ts.
@@ -30,6 +31,17 @@ export class TabsDB extends Dexie {
     // marks.subCategoryId is not indexed; items are filtered by categoryId first and then in memory.
     this.version(2).stores({
       subCategories: '++id,categoryId,name,[categoryId+name]',
+    });
+
+    // Lets the background refresh the "page is saved" indicator on the extension icon, whoever changed the items
+    this.marks.hook('creating', (_primKey, _obj, transaction) => {
+      announceMarksChangedOnComplete(transaction);
+    });
+    this.marks.hook('updating', (_mods, _primKey, _obj, transaction) => {
+      announceMarksChangedOnComplete(transaction);
+    });
+    this.marks.hook('deleting', (_primKey, _obj, transaction) => {
+      announceMarksChangedOnComplete(transaction);
     });
   }
 

@@ -1,6 +1,6 @@
 import { openTab, useWindowSize } from '@extension/shared';
 import { db, DexieTab } from '@extension/storage';
-import { Badge } from '@extension/ui';
+import { Badge, favoriteCardClass } from '@extension/ui';
 import { MoreVertical } from 'lucide-react';
 import React from 'react';
 import { cn, searchTagsAtom } from '../utils';
@@ -32,6 +32,7 @@ const YoutubeVideoCard = ({ item }: { item: DexieTab }) => {
       className={cn(
         'px-1 pb-1 rounded shadow-lg border border-gray-300/20',
         'bg-slate-700/20 w-full relative max-h-36 flex flex-col card selection:bg-sky-600/80 selection:text-sky-300',
+        favoriteCardClass(item.favorite),
       )}>
       <DropdownMenuButton item={item}>
         <button

@@ -1,6 +1,6 @@
 import { cn, searchTagsAtom } from '../utils';
 import { openTab, removeQueryParams } from '@extension/shared';
-import { Badge } from '@extension/ui';
+import { Badge, favoriteCardClass } from '@extension/ui';
 // import TimeAgo from 'timeago-react';
 import { MoreVertical } from 'lucide-react';
 import { useSetAtom } from 'jotai';
@@ -56,6 +56,7 @@ export const TweetCard = ({ item }: { item: DexieTab }) => {
       className={cn(
         'px-1 pb-1 rounded shadow-lg border border-gray-300/20',
         'bg-stone-700/20  relative flex flex-col selection:bg-sky-600/80 selection:text-sky-300',
+        favoriteCardClass(item.favorite),
       )}>
       <DropdownMenuButton item={item}>
         <button

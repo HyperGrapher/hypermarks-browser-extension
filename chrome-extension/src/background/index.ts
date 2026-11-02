@@ -1,8 +1,12 @@
 import 'webextension-polyfill';
+import { MARKS_CHANGED_ACTION } from '@extension/storage';
 import { saveYoutubeVideo } from './save-youtube-video';
+import { initSavedPageIndicator, refreshSavedPageIndicators } from './saved-page-indicator';
 
 // const manifest = chrome.runtime.getManifest();
 // const apiKey = manifest.key;
+
+initSavedPageIndicator();
 
 console.log('background loaded ok..888');
 console.log("Edit 'chrome-extension/src/background/index.ts' and save to reload.");
@@ -107,6 +111,12 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
       .catch((error: Error) => sendResponse({ success: false, error: error.message }));
 
     return true;
+  }
+
+  if (request.action === MARKS_CHANGED_ACTION) {
+    // Items were saved/edited/deleted from the popup or side panel: update the "page is saved" icon badges
+    refreshSavedPageIndicators();
+    return false;
   }
   sendResponse({ success: false, error: 'Invalid action' });
 
