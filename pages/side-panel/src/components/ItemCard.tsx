@@ -1,15 +1,13 @@
 import React, { ReactNode } from 'react';
-import { cn, searchTagsAtom } from '../utils';
+import { TagList } from './TagFilter';
+import { cn } from '../utils';
 import { DropdownMenuButton } from '../components/DropdownMenuButton';
 import { MoreVertical } from 'lucide-react';
 import { DexieTab } from '@extension/storage';
-import { Badge, favoriteCardClass } from '@extension/ui';
-import { useSetAtom } from 'jotai';
+import { favoriteCardClass } from '@extension/ui';
 import { openTab } from '@extension/shared';
 
 const ItemCard = ({ item, children }: { item: DexieTab; children: ReactNode }) => {
-  const setSearchTags = useSetAtom(searchTagsAtom);
-
   return (
     <article
       className={cn(
@@ -48,17 +46,7 @@ const ItemCard = ({ item, children }: { item: DexieTab; children: ReactNode }) =
 
       {children}
 
-      <section className="flex w-full flex-wrap gap-0.5 pt-1">
-        {item.tags.map(pill => (
-          <Badge
-            onClick={() => setSearchTags(prev => [...new Set([...prev, pill])])}
-            key={pill}
-            variant="outline"
-            className="bg-blue-700/20 py-0 text-[10px] font-light hover:cursor-pointer hover:bg-blue-700/40">
-            {pill}
-          </Badge>
-        ))}
-      </section>
+      <TagList tags={item.tags} />
     </article>
   );
 };

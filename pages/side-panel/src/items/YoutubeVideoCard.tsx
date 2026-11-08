@@ -1,10 +1,10 @@
 import { openTab, useWindowSize } from '@extension/shared';
+import { TagList } from '../components/TagFilter';
 import { db, DexieTab } from '@extension/storage';
-import { Badge, favoriteCardClass } from '@extension/ui';
+import { favoriteCardClass } from '@extension/ui';
 import { MoreVertical } from 'lucide-react';
 import React from 'react';
-import { cn, searchTagsAtom } from '../utils';
-import { useSetAtom } from 'jotai';
+import { cn } from '../utils';
 import { DropdownMenuButton } from '../components/DropdownMenuButton';
 import { useLiveQuery } from 'dexie-react-hooks';
 
@@ -18,7 +18,6 @@ function remove_linebreaks(str: string | undefined) {
 
 const YoutubeVideoCard = ({ item }: { item: DexieTab }) => {
   const [showDetail, setShowDetail] = React.useState(false);
-  const setSearchTags = useSetAtom(searchTagsAtom);
   const { width = 360, height } = useWindowSize();
   const video = useLiveQuery(async () => await db.yt_videos.where({ mark_id: item.id }).first(), []);
 
@@ -77,17 +76,7 @@ const YoutubeVideoCard = ({ item }: { item: DexieTab }) => {
           <p className="wrap-text-anywhere line-clamp-5 text-xs/3 leading-3 text-slate-500">{item.description}</p>
         </div>
       </div>
-      <section className="flex w-full overflow-x-clip gap-0.5 pt-1">
-        {item.tags.map(pill => (
-          <Badge
-            onClick={() => setSearchTags(prev => [...new Set([...prev, pill])])}
-            key={pill}
-            variant="outline"
-            className=" bg-blue-700/20 py-0 text-[10px] font-light hover:cursor-pointer hover:bg-blue-700/40">
-            {pill}
-          </Badge>
-        ))}
-      </section>
+      <TagList tags={item.tags} />
 
       <section
         className={cn('bg-zinc-900 w-full hidden rounded-b-md', {

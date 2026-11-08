@@ -1,9 +1,9 @@
-import { cn, searchTagsAtom } from '../utils';
+import { cn } from '../utils';
+import { TagList } from '../components/TagFilter';
 import { openTab } from '@extension/shared';
-import { Badge, favoriteCardClass } from '@extension/ui';
+import { favoriteCardClass } from '@extension/ui';
 // import TimeAgo from 'timeago-react';
 import { MoreVertical } from 'lucide-react';
-import { useSetAtom } from 'jotai';
 import { DropdownMenuButton } from '../components/DropdownMenuButton';
 import { DexieTab } from '@extension/storage';
 
@@ -14,8 +14,6 @@ import { DexieTab } from '@extension/storage';
 // https://www.youtube.com/playlist?list=PLRnI_2_ZWhtCxHQ_3zDfW0-RgiWo8ftyj
 
 export const GenericTab = ({ item }: { item: DexieTab }) => {
-  const setSearchTags = useSetAtom(searchTagsAtom);
-
   return (
     <div
       className={cn(
@@ -58,17 +56,7 @@ export const GenericTab = ({ item }: { item: DexieTab }) => {
         </div>
       </div>
 
-      <section className="flex w-full flex-wrap gap-0.5 pt-1">
-        {item.tags.map(pill => (
-          <Badge
-            onClick={() => setSearchTags(prev => [...new Set([...prev, pill])])}
-            key={pill}
-            variant="outline"
-            className="bg-blue-700/20 py-0 text-[10px] font-light hover:cursor-pointer hover:bg-blue-700/40">
-            {pill}
-          </Badge>
-        ))}
-      </section>
+      <TagList tags={item.tags} />
     </div>
   );
 };

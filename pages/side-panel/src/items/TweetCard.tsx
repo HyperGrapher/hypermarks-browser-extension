@@ -1,9 +1,9 @@
-import { cn, searchTagsAtom } from '../utils';
+import { cn } from '../utils';
+import { TagList } from '../components/TagFilter';
 import { openTab, removeQueryParams } from '@extension/shared';
-import { Badge, favoriteCardClass } from '@extension/ui';
+import { favoriteCardClass } from '@extension/ui';
 // import TimeAgo from 'timeago-react';
 import { MoreVertical } from 'lucide-react';
-import { useSetAtom } from 'jotai';
 import { DropdownMenuButton } from '../components/DropdownMenuButton';
 import { db, autoPrefsStorage, tabsGroupedStorage, DexieTab } from '@extension/storage';
 import { useLiveQuery } from 'dexie-react-hooks';
@@ -40,8 +40,6 @@ import { useNearViewport } from '../components/useNearViewport';
 // https://x.com/SireneOznur/status/1873482351868555641
 
 export const TweetCard = ({ item }: { item: DexieTab }) => {
-  const setSearchTags = useSetAtom(searchTagsAtom);
-
   const xpost = useLiveQuery(async () => await db.x_posts.where({ mark_id: item.id }).first(), []);
   // Screenshots are large base64 images: only read them once the card is close to the viewport
   const [cardRef, nearViewport] = useNearViewport<HTMLDivElement>();
@@ -117,17 +115,7 @@ export const TweetCard = ({ item }: { item: DexieTab }) => {
           {screenshot?.mark_id && <ImageWithPreview src={screenshot?.data ?? ''} />}
         </div>
       </div>
-      <section className="flex w-full flex-wrap gap-0.5 pt-1">
-        {item?.tags.map(pill => (
-          <Badge
-            onClick={() => setSearchTags(prev => [...new Set([...prev, pill])])}
-            key={pill}
-            variant="outline"
-            className="bg-blue-700/20 py-0 text-[10px] font-light hover:cursor-pointer hover:bg-blue-700/40">
-            {pill}
-          </Badge>
-        ))}
-      </section>
+      <TagList tags={item.tags} />
     </div>
   );
 };

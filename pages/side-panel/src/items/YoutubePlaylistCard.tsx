@@ -1,16 +1,14 @@
 import { openTab, useWindowSize } from '@extension/shared';
+import { TagList } from '../components/TagFilter';
 import { db, DexieTab } from '@extension/storage';
-import { Badge } from '@extension/ui';
 import { MoreVertical } from 'lucide-react';
 import React from 'react';
-import { cn, searchTagsAtom } from '../utils';
-import { useSetAtom } from 'jotai';
+import { cn } from '../utils';
+import { favoriteCardClass } from '@extension/ui';
 import { DropdownMenuButton } from '../components/DropdownMenuButton';
 import { useLiveQuery } from 'dexie-react-hooks';
 
 const YoutubePlaylistCard = ({ item }: { item: DexieTab }) => {
-  const setSearchTags = useSetAtom(searchTagsAtom);
-
   const playlist = useLiveQuery(async () => await db.yt_playlists.where({ mark_id: item.id }).first(), []);
 
   // border-green-300/20 bg-green-600/10
@@ -19,6 +17,7 @@ const YoutubePlaylistCard = ({ item }: { item: DexieTab }) => {
       className={cn(
         'px-1 pb-1 rounded shadow-lg border border-gray-300/20',
         'bg-red-700/20 w-full relative max-h-36 flex flex-col card selection:bg-sky-600/80 selection:text-sky-300',
+        favoriteCardClass(item.favorite),
       )}>
       <DropdownMenuButton item={item}>
         <button
@@ -64,17 +63,7 @@ const YoutubePlaylistCard = ({ item }: { item: DexieTab }) => {
         </div>
       </div>
 
-      <section className="flex w-full flex-wrap gap-0.5 pt-1">
-        {item.tags.map(pill => (
-          <Badge
-            onClick={() => setSearchTags(prev => [...new Set([...prev, pill])])}
-            key={pill}
-            variant="outline"
-            className=" bg-blue-700/20 py-0 text-[10px] font-light hover:cursor-pointer hover:bg-blue-700/40">
-            {pill}
-          </Badge>
-        ))}
-      </section>
+      <TagList tags={item.tags} />
     </div>
   );
 };

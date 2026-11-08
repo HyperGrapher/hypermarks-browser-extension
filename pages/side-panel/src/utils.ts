@@ -5,7 +5,13 @@ import { atom } from 'jotai';
 import type { CategorizedTab, SingleTab } from '@extension/shared';
 import type { DexieTab, SortOption } from '@extension/storage';
 
+/** Tags the lists are filtered by (an item must have all of them) */
 export const searchTagsAtom = atom<string[]>([]);
+
+export function filterByTags<T extends { tags?: string[] }>(marks: T[], tags: string[]): T[] {
+  if (tags.length === 0) return marks;
+  return marks.filter(mark => tags.every(tag => mark.tags?.includes(tag)));
+}
 
 export const drawerAtom = atom<{ item: SingleTab | null; open: boolean; edit: boolean }>({
   item: null,
