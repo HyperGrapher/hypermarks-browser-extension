@@ -53,7 +53,7 @@ export async function captureScreenshot(): Promise<string> {
 
 const notificationOptions = {
   type: 'basic',
-  iconUrl: chrome.runtime.getURL('icon-34.png'),
+  iconUrl: chrome.runtime.getURL('icon-128.png'),
   title: 'Unexpected Error',
   message: 'Something went wrong. Please try again later.',
 } as const;
