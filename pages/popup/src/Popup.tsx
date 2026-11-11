@@ -8,7 +8,8 @@ import {
   saveDexieTab,
 } from '@extension/shared';
 import { Button, cn, DropdownSelect, FavoritePicker, Input } from '@extension/ui';
-import type { FavoriteColor } from '@extension/storage';
+import type { DexieTab, FavoriteColor } from '@extension/storage';
+import { autoPrefsStorage, findSavedMark } from '@extension/storage';
 import '@src/Popup.css';
 import { useEffect, useState } from 'react';
 import { TagsForm } from './components/TagsForm';
@@ -57,13 +58,39 @@ const Popup = () => {
   const [aiREsponse, setAiResponse] = useState<any>({});
   const [sitemeta, setSitemeta] = useState<SiteMeta>();
   const [categories, setCategories] = useState<string[]>([]);
+  /** The saved item of the open page. Saving then edits it instead of adding a duplicate. */
+  const [existingMark, setExistingMark] = useState<DexieTab>();
   // Get DB categories and set categories as string array.
   useLiveQuery(async () => setCategories((await db.categories.toArray()).map(c => c.category)), []);
 
   useEffect(() => {
-    getActiveTabMeta().then(meta => {
+    async function init() {
+      const meta = await getActiveTabMeta();
       setSitemeta(meta);
-    });
+
+      const saved = meta?.url ? await findSavedMark(meta.url) : undefined;
+      if (saved?.id !== undefined) {
+        // Already saved: show what was saved so it can be reviewed or changed
+        const category = await db.categories.get(saved.categoryId);
+        const subCategory = saved.subCategoryId ? await db.subCategories.get(saved.subCategoryId) : undefined;
+        setExistingMark(saved);
+        setSelectedCategory(category?.category ?? '');
+        setSelectedSubCategory(subCategory?.name ?? '');
+        setTags(saved.tags);
+        setNote(saved.note ?? '');
+        setFavorite(saved.favorite);
+        setMessage('Update bookmark');
+        return;
+      }
+
+      // New page: start with the category used for the last save, if it still exists
+      const { lastSavedCategory } = await autoPrefsStorage.get();
+      if (lastSavedCategory && (await db.categories.where('category').equals(lastSavedCategory).first())) {
+        setSelectedCategory(current => current || lastSavedCategory);
+      }
+    }
+
+    init().catch(error => console.error('Popup init failed', error));
   }, []);
 
   function handleAiSuccess() {
@@ -105,8 +132,19 @@ const Popup = () => {
     };
 
     try {
-      const { success } = await saveDexieTab(data);
-      console.log('saveTab', success);
+      if (existingMark?.id !== undefined) {
+        await db.updateItem(existingMark.id, {
+          category: data.category,
+          subCategory: data.subCategory,
+          tags: data.tags,
+          note: data.note,
+          favorite: data.favorite,
+        });
+      } else {
+        const { success } = await saveDexieTab(data);
+        console.log('saveTab', success);
+      }
+      await autoPrefsStorage.saveLastSavedCategory(data.category);
       setMessage('Tab saved!');
       setSelectedCategory('');
       setSelectedSubCategory('');
@@ -204,6 +242,10 @@ const Popup = () => {
       <header className={`relative z-10`}>
         <MetaHeader meta={sitemeta} />
 
+        {existingMark && (
+          <p className="mb-2 text-xs text-emerald-400">Already saved. Saving again updates this bookmark.</p>
+        )}
+
         <div className="space-y-2">
           <DropdownSelect
             items={categories}
@@ -284,7 +326,7 @@ const Popup = () => {
 
         {!showCreateCategory && !creatingSubCategory && (
           <div className="space-y-2">
-            <ScreenshotCheckbox url={sitemeta?.url ?? ''} />
+            {!existingMark && <ScreenshotCheckbox url={sitemeta?.url ?? ''} />}
             <Button
               onClick={async () => await saveTab()}
               variant="default"

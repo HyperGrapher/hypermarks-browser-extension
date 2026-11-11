@@ -11,6 +11,8 @@ export type SortOption = 'newest' | 'oldest' | 'updated' | 'title-asc' | 'title-
 type AutoPrefs = {
   lastCategory: LastCategoryType;
   lastPanel: LastPanelType;
+  /** Name of the category the last item was saved to from the popup. Missing until something is saved. */
+  lastSavedCategory?: string;
   /** Sort order of the "Categories" tab. Missing in preferences saved by older versions. */
   categoriesSort?: SortOption;
   /** Sort order of the "All" tab. Missing in preferences saved by older versions. */
@@ -21,6 +23,7 @@ type AutoPrefs = {
 type AutoPrefsStorage = BaseStorage<AutoPrefs> & {
   saveLastCategory: (lastCategory: LastCategoryType) => Promise<void>;
   saveLastPanel: (lastPanel: LastPanelType) => Promise<void>;
+  saveLastSavedCategory: (lastSavedCategory: string) => Promise<void>;
   saveCategoriesSort: (sort: SortOption) => Promise<void>;
   saveAllSort: (sort: SortOption) => Promise<void>;
 };
@@ -48,6 +51,11 @@ export const autoPrefsStorage: AutoPrefsStorage = {
   saveLastPanel: async (lastPanel: LastPanelType) => {
     await storage.set(prev => {
       return { ...prev, lastPanel };
+    });
+  },
+  saveLastSavedCategory: async (lastSavedCategory: string) => {
+    await storage.set(prev => {
+      return { ...prev, lastSavedCategory };
     });
   },
   saveCategoriesSort: async (categoriesSort: SortOption) => {

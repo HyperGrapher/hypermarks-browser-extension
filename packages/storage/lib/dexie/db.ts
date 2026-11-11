@@ -1,6 +1,16 @@
 import Dexie, { Table } from 'dexie';
-import { DexieTab, SubCategory, XpostDexie, XPostScreenshot, XProfile, YouTube } from './dexie-types';
+import { DexieTab, FavoriteColor, SubCategory, XpostDexie, XPostScreenshot, XProfile, YouTube } from './dexie-types';
 import { announceMarksChangedOnComplete } from './marks-changed';
+
+export type UpdateItemInput = {
+  /** Category name, created if it doesn't exist yet. */
+  category: string;
+  /** Sub category name inside `category`, created if it doesn't exist yet. Empty for none. */
+  subCategory?: string;
+  tags: string[];
+  note: string;
+  favorite?: FavoriteColor;
+};
 
 // WARN: When adding Date object to any table use one of this names: 'createdAt', 'updatedAt', 'datetime'
 // WARN: OR update the DATE_FIELDS list in import-export.ts.
@@ -112,6 +122,45 @@ export class TabsDB extends Dexie {
         if (row) await table.put({ ...row, mark_id: newId });
       }
       return newId;
+    });
+  }
+
+  /**
+   * Changes the category, sub category, tags, note and favorite of a saved item (the page data is left as it is).
+   * A category / sub category left empty by moving the item is removed, like when an item is deleted.
+   */
+  updateItem(id: number, changes: UpdateItemInput) {
+    return this.transaction('rw', [this.marks, this.categories, this.subCategories], async () => {
+      const mark = await this.marks.get(id);
+      if (!mark) throw new Error('Item not found');
+
+      const categoryId =
+        (await this.categories.where('category').equals(changes.category).first())?.id ??
+        (await this.categories.add({ category: changes.category }));
+
+      const subCategoryName = changes.subCategory?.trim();
+      const subCategoryId = subCategoryName
+        ? ((await this.subCategories.where({ categoryId, name: subCategoryName }).first())?.id ??
+          (await this.subCategories.add({ categoryId, name: subCategoryName })))
+        : undefined;
+
+      const updated: DexieTab = {
+        ...mark,
+        categoryId,
+        tags: changes.tags,
+        note: changes.note,
+        updatedAt: new Date(),
+      };
+      if (subCategoryId !== undefined) updated.subCategoryId = subCategoryId;
+      else delete updated.subCategoryId;
+      if (changes.favorite) updated.favorite = changes.favorite;
+      else delete updated.favorite;
+      await this.marks.put(updated);
+
+      if (mark.categoryId !== categoryId && (await this.marks.where({ categoryId: mark.categoryId }).count()) === 0) {
+        await this.categories.delete(mark.categoryId);
+      }
+      if (mark.subCategoryId !== subCategoryId) await this.deleteSubCategoryIfEmpty(mark.subCategoryId);
     });
   }
 
