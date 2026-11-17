@@ -100,7 +100,7 @@ function createMenuItem(): HTMLElement {
     color: 'var(--yt-spec-text-primary, #0f0f0f)',
   });
 
-  const hoverBg = 'var(--yt-spec-10-percent-layer, rgba(0, 0, 0, 0.1))';
+  const hoverBg = 'var(--yt-spec-10-percent-layer, rgba(85, 83, 83, 0.34))';
   item.addEventListener('mouseenter', () => (item.style.background = hoverBg));
   item.addEventListener('mouseleave', () => (item.style.background = ''));
 
@@ -108,13 +108,14 @@ function createMenuItem(): HTMLElement {
   svg.setAttribute('viewBox', '0 0 24 24');
   svg.setAttribute('width', '24');
   svg.setAttribute('height', '24');
-  svg.setAttribute('fill', 'currentColor');
+  svg.setAttribute('fill', '#008080');
   svg.style.flexShrink = '0';
   const path = document.createElementNS(SVG_NS, 'path');
   path.setAttribute('d', 'M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2zm0 15l-5-2.18L7 18V5h10v13z');
   svg.appendChild(path);
 
   const label = document.createElement('span');
+  label.style.color = '#07c7c7'
   label.textContent = 'Save to HyperMarx';
 
   item.append(svg, label);
